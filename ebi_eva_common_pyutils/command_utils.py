@@ -23,21 +23,22 @@ def run_command_with_output(command_description, command, return_process_output=
     logger.info("Starting process: " + command_description)
     logger.info("Running command: " + command)
 
-    with subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1, universal_newlines=True,
+    stdout = subprocess.PIPE
+    # Some lame utilities like mongodump and mongorestore output non-error messages to error stream
+    # This is a workaround for that
+    stderr = subprocess.STDOUT if log_error_stream_to_output else subprocess.PIPE
+
+    with subprocess.Popen(command, stdout=stdout, stderr=stderr, bufsize=1, universal_newlines=True,
                           shell=True) as process:
         for line in iter(process.stdout.readline, ''):
             line = str(line).rstrip()
             logger.info(line)
             if return_process_output:
                 process_output += line + "\n"
-        for line in iter(process.stderr.readline, ''):
-            line = str(line).rstrip()
-            if not log_error_stream_to_output:
+        if not log_error_stream_to_output:
+            for line in iter(process.stderr.readline, ''):
+                line = str(line).rstrip()
                 logger.error(line)
-            # Some lame utilities like mongodump and mongorestore output non-error messages to error stream
-            # This is a workaround for that
-            else:
-                logger.info(line)
     if process.returncode != 0:
         logger.error(command_description + " failed! Refer to the error messages for details.")
         raise subprocess.CalledProcessError(process.returncode, process.args)
