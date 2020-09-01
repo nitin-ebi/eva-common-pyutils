@@ -13,7 +13,38 @@
 # limitations under the License.
 
 import psycopg2
-from ebi_eva_common_pyutils.config_utils import EVAPrivateSettingsXMLConfig
+from ebi_eva_common_pyutils.pg_utils import get_result_cursor, get_all_results_for_query
 
 
+def get_db_conn_for_species(species_db_info):
+    db_name = "dbsnp_{0}".format(species_db_info["dbsnp_build"])
+    pg_conn = psycopg2.connect("dbname='{0}' user='{1}' host='{2}'  port={3}".
+                               format(db_name, "dbsnp", species_db_info["pg_host"], species_db_info["pg_port"]))
+    return pg_conn
 
+
+def get_species_info(metadata_connection_handle, dbsnp_species_name="all"):
+    get_species_info_query = "select distinct database_name, scientific_name, dbsnp_build, pg_host, pg_port from " \
+                             "dbsnp_ensembl_species.import_progress a " \
+                             "join dbsnp_ensembl_species.dbsnp_build_instance b " \
+                                "on b.dbsnp_build = a.ebi_pg_dbsnp_build "
+    if dbsnp_species_name != "all":
+        get_species_info_query += "where database_name = '{0}' ".format(dbsnp_species_name)
+    get_species_info_query += "order by database_name"
+
+    pg_cursor = get_result_cursor(metadata_connection_handle, get_species_info_query)
+    species_set = [{"database_name": result[0], "scientific_name": result[1], "dbsnp_build":result[2],
+                    "pg_host":result[3], "pg_port":result[4]}
+                   for result in pg_cursor.fetchall()]
+    pg_cursor.close()
+    return species_set
+
+
+# Get connection information for each Postgres instance of the dbSNP mirror
+def get_dbsnp_mirror_db_info(pg_metadata_dbname, pg_metadata_user, pg_metadata_host):
+    with psycopg2.connect("dbname='{0}' user='{1}' host='{2}'".format(pg_metadata_dbname, pg_metadata_user,
+                                                                      pg_metadata_host)) as pg_conn:
+        dbsnp_mirror_db_info_query = "select * from dbsnp_ensembl_species.dbsnp_build_instance"
+        dbsnp_mirror_db_info = [{"dbsnp_build": result[0], "pg_host": result[1], "pg_port": result[2]}
+                                for result in get_all_results_for_query(pg_conn, dbsnp_mirror_db_info_query)]
+    return dbsnp_mirror_db_info
