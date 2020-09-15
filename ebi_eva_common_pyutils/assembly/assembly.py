@@ -83,6 +83,7 @@ class NCBIAssembly(AppLogger):
         Internal property that retrieve and store the NCBI ftp url and content of the genome folder.
         """
         ftp = FTP('ftp.ncbi.nlm.nih.gov', timeout=600)
+        ftp.login('anonymous', 'anonymous')
         genome_folder = 'genomes/all/' + '/'.join([self.assembly_accession[0:3], self.assembly_accession[4:7],
                                                    self.assembly_accession[7:10],
                                                    self.assembly_accession[10:13]]) + '/'
