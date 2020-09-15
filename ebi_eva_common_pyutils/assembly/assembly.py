@@ -61,7 +61,7 @@ class NCBIAssembly(AppLogger):
 
     @property
     def assembly_report_path(self):
-        return os.path.join( self.assembly_directory, self.assembly_accession + '_assembly_report.txt')
+        return os.path.join(self.assembly_directory, self.assembly_accession + '_assembly_report.txt')
 
     @property
     def assembly_fasta_path(self):
@@ -122,7 +122,7 @@ class NCBIAssembly(AppLogger):
         url, genome_files = self._ncbi_genome_folder_url_and_content
         assembly_fasta = [genome_file for genome_file in genome_files if genome_file.endswith('_genomic.fna.gz')]
         # Remove the entries that are from genomics dna but the whole genome
-        assembly_fasta = [fasta for fasta in assembly_fasta if '_from_' not in fasta ]
+        assembly_fasta = [fasta for fasta in assembly_fasta if '_from_' not in fasta]
         if len(assembly_fasta) > 1:
             raise Exception('{} file found ending with "_genomic.fna.gz" in its name: {}'.format(len(assembly_fasta),
                                                                                                  assembly_fasta))
@@ -155,7 +155,7 @@ class NCBIAssembly(AppLogger):
                 'gunzip -f {}'.format(self.assembly_compressed_fasta_path)
             )
 
-    def construct_fasta_from_report(self):
+    def construct_fasta_from_report(self, genebank_only=False):
         """
         Download the assembly report if it does not exist then create the assembly fasta from the contig.
         If the assembly already exist then it only add any missing contig.
@@ -167,11 +167,13 @@ class NCBIAssembly(AppLogger):
             refseq_accession = row['RefSeq-Accn']
             relationship = row['Relationship']
             accession = genbank_accession
-            if relationship != '=' and genbank_accession == 'na':
+            if relationship != '=' and genbank_accession == 'na' and not genebank_only:
                 accession = refseq_accession
-            if genbank_accession in written_contigs or refseq_accession in written_contigs:
+            if accession in written_contigs:
                 self.info('Accession ' + accession + ' already in the FASTA file, don\'t need to be downloaded')
                 continue
+            if not accession or accession == 'na':
+                raise ValueError('Accession {} found in report is not valid'.format(accession))
             contig_to_append.append(self.download_contig_sequence_from_ncbi(accession))
 
         # Now append all the new contigs to the existing fasta
@@ -203,8 +205,8 @@ class NCBIAssembly(AppLogger):
     @retry(tries=4, delay=2, backoff=1.2, jitter=(1, 3))
     def download_contig_from_ncbi(self, contig_accession, output_file):
         parameters = {
-            'db':'nuccore',
-            'id':contig_accession,
+            'db': 'nuccore',
+            'id': contig_accession,
             'rettype': 'fasta',
             'retmode': 'text',
             'tool': 'eva',
@@ -217,13 +219,13 @@ class NCBIAssembly(AppLogger):
         self.info('Downloading ' + contig_accession)
         urllib.request.urlretrieve(url, output_file)
 
-    def download_or_construct(self, overwrite=False):
+    def download_or_construct(self, genebank_only=False, overwrite=False):
         """First download the assembly report and fasta from the FTP, then append any missing contig from
         the assembly report to the assembly fasta."""
+        self.download_assembly_report(overwrite)
         try:
             self.download_assembly_fasta(overwrite)
-            self.download_assembly_report(overwrite)
         except:
             pass
         # This will either confirm the presence of all the contig or download any one missing
-        self.construct_fasta_from_report()
+        self.construct_fasta_from_report(genebank_only)

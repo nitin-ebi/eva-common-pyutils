@@ -17,6 +17,10 @@ class TestNCBIAssembly(TestCommon):
         'scaffold_3134', 'unplaced-scaffold', 'na', 'na', 'LODP01002389.1', '=', 'NW_017892567.1', 'Primary Assembly',
         '3525', 'na'
     )
+    assembly_report_line1_no_genbank = (
+        'scaffold_3134', 'unplaced-scaffold', 'na', 'na', 'na', '<>', 'NW_017892567.1', 'Primary Assembly',
+        '3525', 'na'
+    )
 
     def setUp(self) -> None:
         self.genome_folder = os.path.join(self.resources_folder, 'genomes')
@@ -27,9 +31,6 @@ class TestNCBIAssembly(TestCommon):
         self.assembly_from_report = NCBIAssembly('GCA_000000000.0', 'Thingy thung', self.genome_folder)
         assembly_dir = os.path.join(self.genome_folder, 'thingy_thung', 'GCA_000000000.0')
         os.makedirs(assembly_dir, exist_ok=True)
-        with open(os.path.join(assembly_dir, 'GCA_000000000.0_assembly_report.txt'), 'w') as open_file:
-            lines = ['\t'.join(l) for l in [self.assembly_report_header, self.assembly_report_line1]]
-            open_file.write('\n'.join(lines))
 
     def tearDown(self) -> None:
         shutil.rmtree(os.path.join(self.genome_folder))
@@ -63,12 +64,36 @@ class TestNCBIAssembly(TestCommon):
         self.assertTrue(os.path.isfile(self.assembly.assembly_fasta_path))
 
     def test_construct_fasta_from_report(self):
-        self.assertTrue(os.path.isfile(self.assembly_from_report.assembly_report_path))
+        with open(self.assembly_from_report.assembly_report_path, 'w') as open_file:
+            lines = ['\t'.join(l) for l in [self.assembly_report_header, self.assembly_report_line1]]
+            open_file.write('\n'.join(lines))
         self.assembly_from_report.construct_fasta_from_report()
         self.assertTrue(os.path.isfile(self.assembly_from_report.assembly_fasta_path))
         self.assertEqual(
             NCBIAssembly.get_written_contigs(self.assembly_from_report.assembly_fasta_path),
             ['LODP01002389.1']
+        )
+
+    def test_construct_fasta_from_report_refseq(self):
+        with open(self.assembly_from_report.assembly_report_path, 'w') as open_file:
+            lines = ['\t'.join(l) for l in [self.assembly_report_header, self.assembly_report_line1_no_genbank]]
+            open_file.write('\n'.join(lines))
+
+        self.assembly_from_report.construct_fasta_from_report()
+        self.assertTrue(os.path.isfile(self.assembly_from_report.assembly_fasta_path))
+        self.assertEqual(
+            NCBIAssembly.get_written_contigs(self.assembly_from_report.assembly_fasta_path),
+            ['NW_017892567.1']
+        )
+
+    def test_construct_fasta_from_report_genbank_only(self):
+        with open(self.assembly_from_report.assembly_report_path, 'w') as open_file:
+            lines = ['\t'.join(l) for l in [self.assembly_report_header, self.assembly_report_line1_no_genbank]]
+            open_file.write('\n'.join(lines))
+        self.assertRaises(
+            ValueError,
+            self.assembly_from_report.construct_fasta_from_report,
+            genebank_only=True
         )
 
     def test_download_or_construct(self):
