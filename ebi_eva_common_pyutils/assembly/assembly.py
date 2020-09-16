@@ -155,7 +155,7 @@ class NCBIAssembly(AppLogger):
                 'gunzip -f {}'.format(self.assembly_compressed_fasta_path)
             )
 
-    def construct_fasta_from_report(self, genebank_only=False):
+    def construct_fasta_from_report(self, genbank_only=False):
         """
         Download the assembly report if it does not exist then create the assembly fasta from the contig.
         If the assembly already exist then it only add any missing contig.
@@ -219,7 +219,7 @@ class NCBIAssembly(AppLogger):
         self.info('Downloading ' + contig_accession)
         urllib.request.urlretrieve(url, output_file)
 
-    def download_or_construct(self, genebank_only=False, overwrite=False):
+    def download_or_construct(self, genbank_only=False, overwrite=False):
         """First download the assembly report and fasta from the FTP, then append any missing contig from
         the assembly report to the assembly fasta."""
         self.download_assembly_report(overwrite)
