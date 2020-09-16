@@ -93,7 +93,7 @@ class TestNCBIAssembly(TestCommon):
         self.assertRaises(
             ValueError,
             self.assembly_from_report.construct_fasta_from_report,
-            genebank_only=True
+            genbank_only=True
         )
 
     def test_download_or_construct(self):

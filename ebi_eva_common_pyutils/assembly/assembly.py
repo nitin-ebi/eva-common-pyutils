@@ -167,7 +167,7 @@ class NCBIAssembly(AppLogger):
             refseq_accession = row['RefSeq-Accn']
             relationship = row['Relationship']
             accession = genbank_accession
-            if relationship != '=' and genbank_accession == 'na' and not genebank_only:
+            if relationship != '=' and genbank_accession == 'na' and not genbank_only:
                 accession = refseq_accession
             if accession in written_contigs:
                 self.info('Accession ' + accession + ' already in the FASTA file, don\'t need to be downloaded')
@@ -228,4 +228,4 @@ class NCBIAssembly(AppLogger):
         except:
             pass
         # This will either confirm the presence of all the contig or download any one missing
-        self.construct_fasta_from_report(genebank_only)
+        self.construct_fasta_from_report(genbank_only)
