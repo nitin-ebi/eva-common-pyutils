@@ -5,12 +5,12 @@ from setuptools import find_packages
 setup(
     name='ebi_eva_common_pyutils',
     packages=find_packages(),
-    version='0.3.4',
+    version='0.3.5',
     license='Apache',
     description='EBI EVA - Common Python Utilities',
     url='https://github.com/EBIVariation/eva-common-pyutils',
     keywords=['EBI', 'EVA', 'PYTHON', 'UTILITIES'],
-    install_requires=['psycopg2-binary', 'requests', 'pymongo', 'lxml', 'retry'],
+    install_requires=['psycopg2-binary', 'requests', 'pymongo', 'lxml', 'pyyaml', 'cached-property', 'retry'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
