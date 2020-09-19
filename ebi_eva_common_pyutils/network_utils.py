@@ -36,7 +36,7 @@ def get_available_local_port(try_starting_with_port):
 
 
 def forward_remote_port_to_local_port(remote_host: str, remote_port: int, local_port: int) -> int:
-    port_forward_command = 'ssh -N -L{0}:localhost:{1} {2}'.format(remote_port, local_port, remote_host)
+    port_forward_command = 'ssh -N -L{0}:localhost:{1} {2}'.format(local_port, remote_port, remote_host)
     logger.info("Forwarding port to local port using command: " + port_forward_command)
     proc = subprocess.Popen(port_forward_command.split(" "))
     return proc.pid
