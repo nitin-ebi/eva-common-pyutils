@@ -91,8 +91,18 @@ class NCBIAssembly(AppLogger):
         all_genome_subfolders = []
         ftp.retrlines('NLST', lambda line: all_genome_subfolders.append(line))
 
-        genome_subfolders = [folder for folder in all_genome_subfolders if self.assembly_accession in folder]
+        genome_subfolders = [folder for folder in all_genome_subfolders if folder == self.assembly_accession]
         if len(genome_subfolders) != 1:
+            self.debug('Cannot find good match for accession folder with "%s": %s match found', self.assembly_accession, len(genome_subfolders))
+            genome_subfolders = [folder for folder in all_genome_subfolders if folder.startswith(self.assembly_accession + '_')]
+        if len(genome_subfolders) != 1:
+            self.debug('Cannot find good match for accession folder with "starting with %s_": %s match found', self.assembly_accession, len(genome_subfolders))
+            genome_subfolders = [folder for folder in all_genome_subfolders if folder.startswith(self.assembly_accession)]
+        if len(genome_subfolders) != 1:
+            self.debug('Cannot find good match for accession folder with "starting with %s": %s match found', self.assembly_accession, len(genome_subfolders))
+            genome_subfolders = [folder for folder in all_genome_subfolders if self.assembly_accession in folder]
+        if len(genome_subfolders) != 1:
+            self.debug('Cannot find good match for accession folder with "%s in name": %s match found', self.assembly_accession, len(genome_subfolders))
             raise Exception('more than one folder matches the assembly accession: ' + str(genome_subfolders))
         ftp.cwd(genome_subfolders[0])
         genome_files = []

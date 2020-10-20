@@ -125,3 +125,12 @@ class TestNCBIAssembly(TestCommon):
             ['BA000007.2', 'AB011549.2', 'AB011548.2', 'LODP01002389.1']
         )
 
+    def test_get_ncbi_genome_folder_url_and_content_multi(self):
+        # GCA_000001405.1 matches many folder in the ftp directory because of the presence of
+        # GCA_000001405.10, GCA_000001405.11 ...
+        assembly = NCBIAssembly('GCA_000001405.1', 'Homo sapiens', self.genome_folder)
+        url = 'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.1_GRCh37'
+        content = ['GCA_000001405.1_GRCh37_assembly_report.txt', 'GCA_000001405.1_GRCh37_assembly_stats.txt',
+          'GCA_000001405.1_GRCh37_assembly_regions.txt', 'GO_TO_CURRENT_VERSION', 'assembly_status.txt']
+
+        self.assertEqual(assembly._ncbi_genome_folder_url_and_content, (url, content))
