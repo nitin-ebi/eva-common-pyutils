@@ -1,0 +1,8 @@
+
+
+ftp_dir: '/path/to/ftp/dir'
+eload_dir: '/path/to/eload/dir'
+
+submission:
+  metadata_spreadsheet: /path/to/metadata.xlsx
+
