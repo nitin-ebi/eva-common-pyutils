@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+import requests
 import subprocess
 
-logger = logging.getLogger(__name__)
+from retry import retry
+from ebi_eva_common_pyutils.logger import logging_config
+
+logger = logging_config.getLogger(__name__)
 
 
 def is_port_in_use(port):
@@ -40,3 +43,14 @@ def forward_remote_port_to_local_port(remote_host: str, remote_port: int, local_
     logger.info("Forwarding port to local port using command: " + port_forward_command)
     proc = subprocess.Popen(port_forward_command.split(" "))
     return proc.pid
+
+
+@retry(exceptions=(ConnectionError, requests.RequestException), logger=logger,
+       tries=4, delay=2, backoff=1.2, jitter=(1, 3))
+def json_request(url: str, payload: dict = None, method=requests.get) -> dict:
+    """Makes a request of a specified type (by default GET) with the specified URL and payload, attempts to parse the
+    result as a JSON string and return it as a dictionary, on failure raises an exception."""
+    result = method(url, data=payload)
+    result.raise_for_status()
+    return result.json()
+
