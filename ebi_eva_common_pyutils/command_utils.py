@@ -16,7 +16,7 @@ import subprocess
 
 from ebi_eva_common_pyutils.logger import logging_config as log_cfg
 
-logger = log_cfg.getLogger(__name__)
+logger = log_cfg.get_logger(__name__)
 
 
 def run_command_with_output(command_description, command, return_process_output=False,
