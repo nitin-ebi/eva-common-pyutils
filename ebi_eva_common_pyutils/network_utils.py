@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import subprocess
+from ebi_eva_common_pyutils.logger import logging_config as log_cfg
 
-logger = logging.getLogger(__name__)
+logger = log_cfg.getLogger(__name__)
 
 
 def is_port_in_use(port):
