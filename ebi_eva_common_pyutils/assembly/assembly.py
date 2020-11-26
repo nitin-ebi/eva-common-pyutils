@@ -180,7 +180,7 @@ class NCBIAssembly(AppLogger):
             if relationship != '=' and genbank_accession == 'na' and not genbank_only:
                 accession = refseq_accession
             if accession in written_contigs:
-                self.info('Accession ' + accession + ' already in the FASTA file, don\'t need to be downloaded')
+                self.debug('Accession ' + accession + ' already in the FASTA file, don\'t need to be downloaded')
                 continue
             if not accession or accession == 'na':
                 raise ValueError('Accession {} found in report is not valid'.format(accession))
