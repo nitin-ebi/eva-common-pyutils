@@ -17,25 +17,40 @@ import http
 import re
 import requests
 
+from ebi_eva_common_pyutils.assembly import NCBIAssembly
+from ebi_eva_common_pyutils.logger import logging_config as log_cfg
+
+EUTILS_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
+ESEARCH_URL = EUTILS_URL + 'esearch.fcgi'
+ESUMMARY_URL = EUTILS_URL + 'esummary.fcgi'
+EFETCH_URL = EUTILS_URL + 'efetch.fcgi'
+
+
+logger = log_cfg.get_logger(__name__)
+
+
+def retrieve_genbank_assembly_accessions_from_ncbi(assembly_txt):
+    """
+    Attempt to find any assembly genebank accession base on a free text search.
+    """
+    assembly_accessions = set()
+    payload = {'db': 'Assembly', 'term': '"{}"'.format(assembly_txt), 'retmode': 'JSON'}
+    data = requests.get(ESEARCH_URL, params=payload).json()
+    if data:
+        assembly_id_list = data.get('esearchresult').get('idlist')
+        payload = {'db': 'Assembly', 'id': ','.join(assembly_id_list), 'retmode': 'JSON'}
+        summary_list = requests.get(ESUMMARY_URL, params=payload).json()
+        for assembly_id in summary_list.get('result', {}).get('uids', []):
+            assembly_info = summary_list.get('result').get(assembly_id)
+            if 'genbank' in assembly_info['synonym']:
+                assembly_accessions.add(assembly_info['synonym']['genbank'])
+    if len(assembly_accessions) != 1:
+        logger.warning('%s Genbank synonyms found for assembly %s ', len(assembly_accessions), assembly_txt)
+    return list(assembly_accessions)
+
 
 def retrieve_genbank_equivalent_for_GCF_accession(assembly_accession):
-    eutils_url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
-    esearch_url = eutils_url + 'esearch.fcgi'
-    esummary_url = eutils_url + 'esummary.fcgi'
-
-    payload = {'db': 'Assembly', 'term': '"{}"'.format(assembly_accession), 'retmode': 'JSON'}
-    data = requests.get(esearch_url, params=payload).json()
-
-    assembly_id_list = data.get('esearchresult').get('idlist')
-    payload = {'db': 'Assembly', 'id': ','.join(assembly_id_list), 'retmode': 'JSON'}
-
-    summary_list = requests.get(esummary_url, params=payload).json()
-    genbank_synonyms = set()
-    if summary_list.get('result') is None:
-        raise ValueError('No Genbank synonyms found for assembly %s ' % assembly_accession)
-    for assembly_id in summary_list.get('result').get('uids'):
-        assembly_info = summary_list.get('result').get(assembly_id)
-        genbank_synonyms.add(assembly_info.get('synonym').get('genbank'))
+    genbank_synonyms = retrieve_genbank_assembly_accessions_from_ncbi(assembly_accession)
     if len(genbank_synonyms) != 1:
         raise ValueError('%s Genbank synonyms found for assembly %s ' % (len(genbank_synonyms), assembly_accession))
     return genbank_synonyms.pop()
@@ -58,32 +73,4 @@ def resolve_assembly_name_to_GCA_accession(assembly_name):
 
 
 def get_assembly_report_url(assembly_accession):
-    if re.match(r"^GC[F|A]_\d+\.\d+$", assembly_accession) is None:
-        raise Exception('Invalid assembly accession: it has to be in the form of '
-                        'GCF_XXXXXXXXX.X or GCA_XXXXXXXXX.X where X is a number')
-
-    ftp = FTP('ftp.ncbi.nlm.nih.gov', timeout=600)
-    ftp.login()
-
-    genome_folder = 'genomes/all/' + '/'.join([assembly_accession[0:3], assembly_accession[4:7],
-                                               assembly_accession[7:10], assembly_accession[10:13]]) + '/'
-    ftp.cwd(genome_folder)
-
-    all_genome_subfolders = []
-    ftp.retrlines('NLST', lambda line: all_genome_subfolders.append(line))
-
-    genome_subfolders = [folder for folder in all_genome_subfolders if assembly_accession in folder]
-
-    if len(genome_subfolders) != 1:
-        raise Exception('more than one folder matches the assembly accession: ' + str(genome_subfolders))
-
-    ftp.cwd(genome_subfolders[0])
-    genome_files = []
-    ftp.retrlines('NLST', lambda line: genome_files.append(line))
-    ftp.quit()
-
-    assembly_reports = [genome_file for genome_file in genome_files if 'assembly_report' in genome_file]
-    if len(assembly_reports) != 1:
-        raise Exception('more than one file has "assembly_report" in its name: ' + str(assembly_reports))
-
-    return 'ftp://' + 'ftp.ncbi.nlm.nih.gov' + '/' + genome_folder + genome_subfolders[0] + '/' + assembly_reports[0]
+    return NCBIAssembly(assembly_accession).assembly_report_url

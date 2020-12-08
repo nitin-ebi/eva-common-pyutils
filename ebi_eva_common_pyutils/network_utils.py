@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import requests
 import subprocess
-
 from retry import retry
-from ebi_eva_common_pyutils.logger import logging_config
 
-logger = logging_config.getLogger(__name__)
+from ebi_eva_common_pyutils.logger import logging_config as log_cfg
+
+logger = log_cfg.get_logger(__name__)
 
 
 def is_port_in_use(port):
