@@ -48,3 +48,18 @@ def get_dbsnp_mirror_db_info(pg_metadata_dbname, pg_metadata_user, pg_metadata_h
         dbsnp_mirror_db_info = [{"dbsnp_build": result[0], "pg_host": result[1], "pg_port": result[2]}
                                 for result in get_all_results_for_query(pg_conn, dbsnp_mirror_db_info_query)]
     return dbsnp_mirror_db_info
+
+
+def get_variant_warehouse_db_name_from_assembly(metadata_connection_handle, assembly):
+    query = "select t.taxonomy_code, a.assembly_code " \
+            "from assembly a " \
+            "left join taxonomy t on (t.taxonomy_id = a.taxonomy_id)" \
+            "where assembly_accession = '{0}'".format(assembly)
+    rows = get_all_results_for_query(metadata_connection_handle, query)
+    if len(rows) == 0:
+        raise ValueError(f'No database for {assembly} found')
+    elif len(rows) > 1:
+        options = ', '.join((f'{r[0]}_{r[1]}' for r in rows))
+        raise ValueError(f'More than one possible database for {assembly} found: {options}')
+    database_name = f'eva_{rows[0][0]}_{rows[0][1]}'
+    return database_name
