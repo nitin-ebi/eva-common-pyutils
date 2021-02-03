@@ -58,7 +58,7 @@ def get_variant_warehouse_db_name_from_assembly_and_taxonomy(metadata_connection
             f"and a.taxonomy_id = {taxonomy}"
     rows = get_all_results_for_query(metadata_connection_handle, query)
     if len(rows) == 0:
-        raise ValueError(f'No database for assembly {assembly} and taxonomy {taxonomy} found')
+        return None
     elif len(rows) > 1:
         options = ', '.join((f'{r[0]}_{r[1]}' for r in rows))
         raise ValueError(f'More than one possible database for assembly {assembly} and taxonomy {taxonomy} found: '
