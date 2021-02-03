@@ -50,16 +50,18 @@ def get_dbsnp_mirror_db_info(pg_metadata_dbname, pg_metadata_user, pg_metadata_h
     return dbsnp_mirror_db_info
 
 
-def get_variant_warehouse_db_name_from_assembly(metadata_connection_handle, assembly):
-    query = "select t.taxonomy_code, a.assembly_code " \
-            "from assembly a " \
-            "left join taxonomy t on (t.taxonomy_id = a.taxonomy_id)" \
-            "where assembly_accession = '{0}'".format(assembly)
+def get_variant_warehouse_db_name_from_assembly_and_taxonomy(metadata_connection_handle, assembly, taxonomy):
+    query = f"select t.taxonomy_code, a.assembly_code " \
+            f"from assembly a " \
+            f"left join taxonomy t on (t.taxonomy_id = a.taxonomy_id) " \
+            f"where a.assembly_accession = '{assembly}'" \
+            f"and a.taxonomy_id = {taxonomy}"
     rows = get_all_results_for_query(metadata_connection_handle, query)
     if len(rows) == 0:
-        raise ValueError(f'No database for {assembly} found')
+        raise ValueError(f'No database for assembly {assembly} and taxonomy {taxonomy} found')
     elif len(rows) > 1:
         options = ', '.join((f'{r[0]}_{r[1]}' for r in rows))
-        raise ValueError(f'More than one possible database for {assembly} found: {options}')
+        raise ValueError(f'More than one possible database for assembly {assembly} and taxonomy {taxonomy} found: '
+                         f'{options}')
     database_name = f'eva_{rows[0][0]}_{rows[0][1]}'
     return database_name
