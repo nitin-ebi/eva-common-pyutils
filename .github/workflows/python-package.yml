@@ -21,7 +21,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up MongoDB sharded environment ${{ matrix.mongodb-version }}
-      run: bash scripts/create_mongo_single_node_sharded_env.sh
+      run: bash scripts/create_mongo_single_node_sharded_env.sh ${{ matrix.mongodb-version }}
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:

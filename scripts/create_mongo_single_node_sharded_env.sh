@@ -1,3 +1,8 @@
+export mongodb_version=$1
+wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-${mongodb_version}.tgz
+tar xfz mongodb-linux-x86_64-${mongodb_version}.tgz
+export PATH=`pwd`/mongodb-linux-x86_64-${mongodb_version}/bin:$PATH
+
 # Adapted from https://stackoverflow.com/a/56264776
 function wait_for_mongo() {
   # Wait until Mongo is ready to accept connections, exit if this does not happen within 30 seconds
@@ -14,10 +19,6 @@ function wait_for_mongo() {
   done
 }
 
-export mongodb_version=$1
-wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-${mongodb_version}.tgz
-tar xfz mongodb-linux-x86_64-${mongodb_version}.tgz
-export PATH=`pwd`/mongodb-linux-x86_64-${mongodb_version}/bin:$PATH
 mongod --version
 rm -rf /data/mongodb
 mkdir -p /data/mongodb/shard01 /data/mongodb/shard02 /data/mongodb/config
