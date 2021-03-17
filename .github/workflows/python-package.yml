@@ -15,10 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        mongodb-version: [4.0.18]
         python-version: [3.6, 3.8]
 
     steps:
     - uses: actions/checkout@v2
+    - name: Set up MongoDB sharded environment ${{ matrix.mongodb-version }}
+      run: bash scripts/create_mongo_single_node_sharded_env.sh
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
