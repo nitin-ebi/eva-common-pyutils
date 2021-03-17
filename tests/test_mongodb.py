@@ -33,8 +33,7 @@ class TestMongoDatabase(TestCommon):
                                         password_required=False)
         test_restore_db.drop()
         test_restore_db.restore_data(dump_dir=tempdir.name,
-                                     mongorestore_args={"noIndexRestore": "",
-                                                        "nsFrom": f'"{self.test_mongo_db.db_name}.*"',
+                                     mongorestore_args={"nsFrom": f'"{self.test_mongo_db.db_name}.*"',
                                                         "nsTo": f'"{test_restore_db.db_name}.*"'})
         return test_restore_db
 

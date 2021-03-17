@@ -42,7 +42,9 @@ class MongoDatabase(AppLogger):
         # See https://docs.mongodb.com/v4.0/reference/connection-string/#records-database and https://docs.mongodb.com/v4.0/reference/connection-string/#urioption.authSource
         uri_with_db_name = f"mongodb://{username_component}" + \
                            ",".join([node + ':' + str(port) for node, port in uri_components['nodelist']]) + \
-                           f"/{self.db_name}?authSource={uri_components['options'].get('authSource', 'admin')}"
+                           f"/{self.db_name}"
+        uri_with_db_name += f"?authSource=" \
+                            f"{uri_components['options'].get('authSource', 'admin')}" if self.password_required else ""
         return uri_with_db_name
 
     @cached_property
