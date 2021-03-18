@@ -1,0 +1,1 @@
+from ebi_eva_common_pyutils.nextflow.linear_pipeline import LinearNextFlowPipeline
