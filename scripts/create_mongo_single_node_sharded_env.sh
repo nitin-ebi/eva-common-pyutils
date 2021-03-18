@@ -5,7 +5,7 @@ export PATH=`pwd`/mongodb-linux-x86_64-${mongodb_version}/bin:$PATH
 
 # Adapted from https://stackoverflow.com/a/56264776
 function wait_for_mongo() {
-  # Wait until Mongo is ready to accept connections, exit if this does not happen within 30 seconds
+  # Wait until Mongo is ready to accept connections, exit if this does not happen within 2 minutes
   COUNTER=0
   until mongo --host $1 --eval "printjson(db.serverStatus())"
   do
