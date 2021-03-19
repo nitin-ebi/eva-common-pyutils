@@ -21,7 +21,7 @@ function wait_for_mongo() {
 
 mongod --version
 rm -rf /data/mongodb
-mkdir -p /data/mongodb/shard01 /data/mongodb/shard02 /data/mongodb/config
+mkdir -p /data/mongodb/shard01 /data/mongodb/config
 mongod --shardsvr --port 27018 --replSet rs0 --dbpath /data/mongodb/shard01 &
 wait_for_mongo "localhost:27018"
 mongo --port 27018 --eval 'rs.initiate({_id:"rs0", members: [{_id: 1, host: "localhost:27018"}]})'
