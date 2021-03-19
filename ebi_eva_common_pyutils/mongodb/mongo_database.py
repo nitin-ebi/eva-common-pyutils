@@ -35,7 +35,7 @@ class MongoDatabase(AppLogger):
         then the URI with the database name will be mongodb://user@localhost:27017/eva_fcatus_90?authSource=admin
         """
         if self.db_name == "admin":
-            return self.db_name
+            return self.uri
         uri_components = uri_parser.parse_uri(self.uri)
         username_component = f"{uri_components['username']}@" if uri_components['username'] else ""
         # Hack needed to log in to a different DB but retain authentication source
