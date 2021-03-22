@@ -111,8 +111,10 @@ class MongoDatabase(AppLogger):
                                     f"with key {shard_key_repr}...", sharding_command,
                                     log_error_stream_to_output=True,)
 
-    def dump_data(self, dump_dir):
-        mongodump_command = f"mongodump --uri {self.uri_with_db_name}  --out {dump_dir}" + \
+    def dump_data(self, dump_dir, mongodump_args=None):
+        mongodump_args = " ".join([f"--{arg} {val}"
+                                   for arg, val in mongodump_args.items()]) if mongodump_args else ""
+        mongodump_command = f"mongodump --uri {self.uri_with_db_name}  --out {dump_dir} {mongodump_args}" + \
                             self._get_optional_secrets_file_stdin()
         try:
             run_command_with_output("mongodump", mongodump_command, log_error_stream_to_output=True)
