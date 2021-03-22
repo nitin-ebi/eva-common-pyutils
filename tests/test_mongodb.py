@@ -15,8 +15,7 @@ class TestMongoDatabase(TestCommon):
 
     # Tests expect a local sharded Mongo instance
     def setUp(self) -> None:
-        self.test_mongo_db = MongoDatabase(uri=self.uri, db_name=self.dump_db_name,
-                                           password_required=False)
+        self.test_mongo_db = MongoDatabase(uri=self.uri, db_name=self.dump_db_name)
         self.dump_dir = os.path.join(self.resources_folder, self.dump_db_name)
         run_command_with_output("Drop target test database if it already exists...", f"mongo {self.dump_db_name} "
                                                                                      f"--eval 'db.dropDatabase()'")
@@ -29,8 +28,7 @@ class TestMongoDatabase(TestCommon):
         tempdir = tempfile.TemporaryDirectory()
         self.test_mongo_db.dump_data(tempdir.name)
 
-        test_restore_db = MongoDatabase(uri=self.uri, db_name=self.test_mongo_db.db_name + "_restore",
-                                        password_required=False)
+        test_restore_db = MongoDatabase(uri=self.uri, db_name=self.test_mongo_db.db_name + "_restore")
         test_restore_db.drop()
         test_restore_db.restore_data(dump_dir=tempdir.name,
                                      mongorestore_args={"nsFrom": f'"{self.test_mongo_db.db_name}.*"',

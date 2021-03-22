@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import copy
+import subprocess
 from cached_property import cached_property
 from ebi_eva_common_pyutils.logger import AppLogger
 from ebi_eva_common_pyutils.command_utils import run_command_with_output
@@ -20,11 +21,10 @@ from pymongo import MongoClient, uri_parser
 
 
 class MongoDatabase(AppLogger):
-    def __init__(self, uri: str, secrets_file: str = None, db_name: str = "admin", password_required: bool = True):
+    def __init__(self, uri: str, secrets_file: str = None, db_name: str = "admin"):
         self.uri = uri
         self.secrets_file = secrets_file
         self.db_name = db_name
-        self.password_required = password_required
 
     @cached_property
     def uri_with_db_name(self):
@@ -44,7 +44,7 @@ class MongoDatabase(AppLogger):
                            ",".join([node + ':' + str(port) for node, port in uri_components['nodelist']]) + \
                            f"/{self.db_name}"
         uri_with_db_name += f"?authSource=" \
-                            f"{uri_components['options'].get('authSource', 'admin')}" if self.password_required else ""
+                            f"{uri_components['options'].get('authSource', 'admin')}" if self.secrets_file else ""
         return uri_with_db_name
 
     @cached_property
@@ -60,7 +60,10 @@ class MongoDatabase(AppLogger):
         self.mongo_handle.close()
 
     def _get_optional_secrets_file_stdin(self):
-        if self.password_required and self.secrets_file:
+        # Mongodump and restore tools are notorious in displaying clear text passwords
+        # in commands - See https://jira.mongodb.org/browse/TOOLS-1020
+        # A secrets file can be provided to work around it
+        if self.secrets_file:
             return f" < {self.secrets_file}"
         return ""
 
@@ -109,20 +112,21 @@ class MongoDatabase(AppLogger):
                                     log_error_stream_to_output=True,)
 
     def dump_data(self, dump_dir):
-        if self.password_required and not self.secrets_file:
-            raise Exception("Cannot run mongodump without secrets file! See https://jira.mongodb.org/browse/TOOLS-1020")
         mongodump_command = f"mongodump --uri {self.uri_with_db_name}  --out {dump_dir}" + \
                             self._get_optional_secrets_file_stdin()
-        run_command_with_output("mongodump", mongodump_command, log_error_stream_to_output=True)
+        try:
+            run_command_with_output("mongodump", mongodump_command, log_error_stream_to_output=True)
+        except subprocess.CalledProcessError as ex:
+            raise Exception("mongodump failed! HINT: Did you forget to provide a secrets file for authentication?")
 
     def restore_data(self, dump_dir, mongorestore_args=None):
-        if self.password_required and not self.secrets_file:
-            raise Exception("Cannot run mongorestore without secrets file! "
-                            "See https://jira.mongodb.org/browse/TOOLS-1020")
         mongorestore_args = " ".join([f"--{arg} {val}"
                                       for arg, val in mongorestore_args.items()]) if mongorestore_args else ""
         mongorestore_command = f"mongorestore --uri {self.uri_with_db_name} " \
                                f"{mongorestore_args} " \
                                f"--dir {dump_dir} "
         mongorestore_command += self._get_optional_secrets_file_stdin()
-        run_command_with_output("mongorestore", mongorestore_command, log_error_stream_to_output=True)
+        try:
+            run_command_with_output("mongorestore", mongorestore_command, log_error_stream_to_output=True)
+        except subprocess.CalledProcessError as ex:
+            raise Exception("mongorestore failed! HINT: Did you forget to provide a secrets file for authentication?")
