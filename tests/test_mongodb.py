@@ -26,12 +26,12 @@ class TestMongoDatabase(TestCommon):
 
     def _restore_data_to_another_db(self):
         with tempfile.TemporaryDirectory() as tempdir:
-            self.test_mongo_db.dump_data(tempdir.name)
-            os.listdir(tempdir.name)
+            self.test_mongo_db.dump_data(tempdir)
+            os.listdir(tempdir)
             test_restore_db = MongoDatabase(uri=self.uri, db_name=self.test_mongo_db.db_name + "_restore")
             test_restore_db.drop()
-            os.listdir(tempdir.name)
-            test_restore_db.restore_data(dump_dir=tempdir.name,
+            os.listdir(tempdir)
+            test_restore_db.restore_data(dump_dir=tempdir,
                                          mongorestore_args={"nsFrom": f'"{self.test_mongo_db.db_name}.*"',
                                                             "nsTo": f'"{test_restore_db.db_name}.*"'})
             return test_restore_db
@@ -124,9 +124,9 @@ class TestMongoDatabase(TestCommon):
                                         "key": {"sid": 1, "fid": 1, "fname": 1}}))) > 0)
 
     def test_dump_data(self):
-        tempdir = tempfile.TemporaryDirectory()
-        self.test_mongo_db.dump_data(tempdir.name)
-        self.assertTrue(os.path.isdir(os.path.join(tempdir.name, self.dump_db_name)))
+        with tempfile.TemporaryDirectory() as tempdir:
+            self.test_mongo_db.dump_data(tempdir)
+            self.assertTrue(os.path.isdir(os.path.join(tempdir, self.dump_db_name)))
 
     def test_restore_data(self):
         test_restore_db = self._restore_data_to_another_db()
