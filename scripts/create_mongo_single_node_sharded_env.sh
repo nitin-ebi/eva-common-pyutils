@@ -1,7 +1,11 @@
 set -euxo pipefail
 # Remove any built-in MongoDB installation since it might have a different version
+# and come with its own set of problems
 systemctl stop mongod || true
 apt-get remove mongodb-org -y || true
+apt-get autoremove --purge || true
+
+# Proceed with specific MongoDB version installation
 export mongodb_version=$1
 wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-${mongodb_version}.tgz
 tar xfz mongodb-linux-x86_64-${mongodb_version}.tgz
