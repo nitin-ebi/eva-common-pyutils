@@ -84,13 +84,19 @@ class MongoDatabase(AppLogger):
         for collection_name, index_info_map in collection_index_map_copy.items():
             # Copy indexes from one collection to another See https://stackoverflow.com/a/51445278
             for name, index_info in index_info_map.items():
-                keys = index_info['key']
+                index_keys = index_info['key']
                 del (index_info['ns'])
                 del (index_info['v'])
                 del (index_info['key'])
                 if 'background' in index_info:
                     del (index_info['background'])
-                self.mongo_handle[self.db_name][collection_name].create_index(keys, name=name, **index_info)
+                # Due to https://jira.mongodb.org/browse/SERVER-11064
+                # pre-v3.2 index sort indicators could allow for floats like 1.0
+                # ex: (_id, 1.0) for ascending index on _id or (_id, -1.0) for descending index on _id
+                # Since validation is stricter in database versions newer than v3.3.1, cast sort indicators to int
+                for i, _ in enumerate(index_keys):
+                    index_keys[i] = (index_keys[i][0], int(index_keys[i][1]))
+                self.mongo_handle[self.db_name][collection_name].create_index(index_keys, name=name, **index_info)
 
     def enable_sharding(self):
         self.mongo_handle.admin.command({"enableSharding": self.db_name})

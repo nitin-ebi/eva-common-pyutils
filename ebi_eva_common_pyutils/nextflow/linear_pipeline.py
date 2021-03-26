@@ -54,12 +54,10 @@ class LinearNextFlowPipeline(AppLogger):
         self._write_to_pipeline_file(process_string)
         self.num_processes += 1
 
-    def run_pipeline(self, resume=False):
+    def run_pipeline(self, resume=False, other_args=None):
         workflow_command = f"cd {self.working_dir} && {self.nextflow_binary_path} run {self.workflow_file_path}"
         workflow_command += f" -c {self.nextflow_config_path}" if self.nextflow_config_path else ""
         workflow_command += f" -with-report {self.workflow_file_path}.report.html"
         workflow_command += " -resume" if resume else ""
-        try:
-            os.system(workflow_command)
-        except:
-            pass
+        workflow_command += " ".join([f" -{arg} {val}" for arg, val in other_args.items()]) if other_args else ""
+        os.system(workflow_command)

@@ -38,7 +38,10 @@ class TestLinearNextFlowPipeline(TestCommon):
         # This process will fail during the first run
         pipeline.add_process(process_name="third_process",
                              command_to_run=f"cat {non_existent_file} >> {pipeline_output_file}")
-        pipeline.run_pipeline()
+        try:
+            pipeline.run_pipeline()
+        except:
+            pass
         self.assertEqual("first_process\nsecond_process", open(pipeline_output_file).read().strip())
 
         # Create the non-existent file
