@@ -1,3 +1,5 @@
+# Remove existing MongoDB
+sudo apt remove mongodb-org mongodb-database-tools -y || true
 export mongodb_version=$1
 wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-${mongodb_version}.tgz
 tar xfz mongodb-linux-x86_64-${mongodb_version}.tgz
