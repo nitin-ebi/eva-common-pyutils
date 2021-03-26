@@ -9,8 +9,11 @@ apt-get autoremove --purge || true
 export mongodb_version=$1
 wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-${mongodb_version}.tgz
 tar xfz mongodb-linux-x86_64-${mongodb_version}.tgz
-ln -s mongodb-linux-x86_64-${mongodb_version}/bin/* /usr/bin/
-chmod a+x /usr/bin/mongo*
+cd $PWD/mongodb-linux-x86_64-${mongodb_version}/bin/
+for f in *;
+  do ln -s $PWD/$f /usr/bin/; chmod a+x /usr/bin/$f;
+done
+
 
 # Adapted from https://stackoverflow.com/a/56264776
 function wait_for_mongo() {
