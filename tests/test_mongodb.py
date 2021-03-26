@@ -31,9 +31,11 @@ class TestMongoDatabase(TestCommon):
             test_restore_db = MongoDatabase(uri=self.uri, db_name=self.test_mongo_db.db_name + "_restore")
             test_restore_db.drop()
             print(os.listdir(tempdir))
-            test_restore_db.restore_data(dump_dir=os.path.join(tempdir, self.test_mongo_db.db_name),
-                                         mongorestore_args={"nsFrom": f'"{self.test_mongo_db.db_name}.*"',
-                                                            "nsTo": f'"{test_restore_db.db_name}.*"'})
+            test_restore_db.restore_data(dump_dir=os.path.join(tempdir),
+                                         mongorestore_args={
+                                             "nsInclude": f'"{self.test_mongo_db.db_name}.*"',
+                                             "nsFrom": f'"{self.test_mongo_db.db_name}.*"',
+                                             "nsTo": f'"{test_restore_db.db_name}.*"'})
             return test_restore_db
 
     def test_drop_database(self):
