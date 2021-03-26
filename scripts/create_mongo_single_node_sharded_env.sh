@@ -1,9 +1,12 @@
+set -euxo pipefail
 # Remove any built-in MongoDB installation since it might have a different version
-apt remove mongodb-org mongodb-database-tools -y || true
+systemctl stop mongod || true
+apt-get remove mongodb-org -y || true
 export mongodb_version=$1
 wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-${mongodb_version}.tgz
 tar xfz mongodb-linux-x86_64-${mongodb_version}.tgz
 ln -s "$PWD/mongodb-linux-x86_64-${mongodb_version}/bin/*" /usr/bin
+chmod a+x /usr/bin/mongo*
 
 # Adapted from https://stackoverflow.com/a/56264776
 function wait_for_mongo() {
