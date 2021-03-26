@@ -1,9 +1,9 @@
-# Remove existing MongoDB
-sudo apt remove mongodb-org mongodb-database-tools -y || true
+# Remove any built-in MongoDB installation since it might have a different version
+apt remove mongodb-org mongodb-database-tools -y || true
 export mongodb_version=$1
 wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-${mongodb_version}.tgz
 tar xfz mongodb-linux-x86_64-${mongodb_version}.tgz
-export PATH=`pwd`/mongodb-linux-x86_64-${mongodb_version}/bin:$PATH
+ln -s "$PWD/mongodb-linux-x86_64-${mongodb_version}/bin/*" /usr/bin
 
 # Adapted from https://stackoverflow.com/a/56264776
 function wait_for_mongo() {
