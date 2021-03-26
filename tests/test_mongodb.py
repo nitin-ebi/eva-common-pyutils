@@ -27,13 +27,13 @@ class TestMongoDatabase(TestCommon):
     def _restore_data_to_another_db(self):
         with tempfile.TemporaryDirectory() as tempdir:
             self.test_mongo_db.dump_data(tempdir)
+            os.system("mongorestore --version")
             os.system(f"ls -lR {tempdir}")
             test_restore_db = MongoDatabase(uri=self.uri, db_name=self.test_mongo_db.db_name + "_restore")
             test_restore_db.drop()
             os.system(f"ls -lR {tempdir}")
             test_restore_db.restore_data(dump_dir=os.path.join(tempdir),
                                          mongorestore_args={
-                                             "nsInclude": f'"{self.test_mongo_db.db_name}.*"',
                                              "nsFrom": f'"{self.test_mongo_db.db_name}.*"',
                                              "nsTo": f'"{test_restore_db.db_name}.*"'})
             return test_restore_db
