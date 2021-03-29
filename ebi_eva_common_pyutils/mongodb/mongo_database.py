@@ -103,7 +103,7 @@ class MongoDatabase(AppLogger):
 
     def shard_collections(self, collections_shard_key_map, collections_to_shard):
         for collection_name in collections_to_shard:
-            shard_key, shard_key_uniqueness_flag = collections_shard_key_map.get(collection_name, (["_id"], False))
+            shard_key, shard_key_uniqueness_flag = collections_shard_key_map.get(collection_name, (["_id"], True))
             # Shard key representation in the format {"key1": 1, "key2": 1}
             shard_key_repr = "{{{0}}}".format(",".join([f'"{attribute}": 1' for attribute in shard_key]))
             shard_collection_command = f'sh.shardCollection(' \
