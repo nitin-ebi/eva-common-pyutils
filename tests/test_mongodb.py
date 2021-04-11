@@ -127,6 +127,11 @@ class TestMongoDatabase(TestCommon):
             self.test_mongo_db.dump_data(tempdir)
             self.assertTrue(os.path.isdir(os.path.join(tempdir, self.dump_db_name)))
 
+    def test_archive_data(self):
+        with tempfile.TemporaryDirectory() as tempdir:
+            self.test_mongo_db.archive_data(tempdir, self.dump_db_name)
+            self.assertTrue(os.path.isfile(os.path.join(tempdir, self.dump_db_name)))
+
     def test_restore_data(self):
         test_restore_db = self._restore_data_to_another_db()
         self.assertTrue(test_restore_db.db_name in self.local_mongo_handle.list_database_names())

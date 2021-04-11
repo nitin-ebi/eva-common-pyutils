@@ -127,6 +127,16 @@ class MongoDatabase(AppLogger):
         except subprocess.CalledProcessError as ex:
             raise Exception("mongodump failed! HINT: Did you forget to provide a secrets file for authentication?")
 
+    def archive_data(self, archive_dir, archive_name="archive", mongodump_args=None):
+        mongodump_args = " ".join([f"--{arg} {val}"
+                                   for arg, val in mongodump_args.items()]) if mongodump_args else ""
+        mongodump_command = f"mongodump --uri {self.uri_with_db_name}  --archive={archive_dir}/{archive_name} {mongodump_args}" + \
+                            self._get_optional_secrets_file_stdin()
+        try:
+            run_command_with_output("mongodump", mongodump_command, log_error_stream_to_output=True)
+        except subprocess.CalledProcessError as ex:
+            raise Exception("mongodump failed! HINT: Did you forget to provide a secrets file for authentication?")
+
     def restore_data(self, dump_dir, mongorestore_args=None):
         mongorestore_args = " ".join([f"--{arg} {val}"
                                       for arg, val in mongorestore_args.items()]) if mongorestore_args else ""
