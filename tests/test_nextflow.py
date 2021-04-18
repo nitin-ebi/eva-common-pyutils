@@ -53,7 +53,7 @@ class TestNextFlowPipeline(TestCommon):
         self.assertEqual("first_process\nsecond_process\nthird_process", open(pipeline_output_file).read().strip())
 
     def test_non_linear_pipeline_uninterrupted(self):
-        pipeline_output_file = os.path.join(self.nextflow_test_dir, "linear_pipeline_output.txt")
+        pipeline_output_file = os.path.join(self.nextflow_test_dir, "non_linear_pipeline_output.txt")
         p1 = NextFlowProcess(process_name="first_process",
                              command_to_run=f"echo first_process > {pipeline_output_file}")
         p2 = NextFlowProcess(process_name="second_process",
@@ -79,7 +79,7 @@ class TestNextFlowPipeline(TestCommon):
         self.assertTrue("fourth_process", lines[3])
 
     def test_non_linear_pipeline_resumption(self):
-        pipeline_output_file = os.path.join(self.nextflow_test_dir, "linear_pipeline_output.txt")
+        pipeline_output_file = os.path.join(self.nextflow_test_dir, "non_linear_pipeline_output.txt")
         p1 = NextFlowProcess(process_name="first_process",
                              command_to_run=f"echo first_process > {pipeline_output_file}")
         p2 = NextFlowProcess(process_name="second_process",
