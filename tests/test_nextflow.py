@@ -109,7 +109,7 @@ class TestNextFlowPipeline(TestCommon):
 
         # Create the non-existent file
         with open(non_existent_file, "w") as non_existent_file_handle:
-            non_existent_file_handle.write("third_process")
+            non_existent_file_handle.write("third_process\n")
             non_existent_file_handle.flush()
         pipeline.run_pipeline(workflow_file_path=self.workflow_file_path, working_dir=self.nextflow_test_dir,
                               resume=True)
