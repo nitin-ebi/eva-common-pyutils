@@ -9,7 +9,8 @@ class TestNextFlowPipeline(TestCommon):
     def setUp(self) -> None:
         self.nextflow_test_dir = os.path.join(self.resources_folder, "nextflow_tests")
         shutil.rmtree(self.nextflow_test_dir, ignore_errors=True)
-        self.workflow_file_path = os.path.join(self.nextflow_test_dir, "linear_pipeline.nf")
+        self.linear_workflow_file_path = os.path.join(self.nextflow_test_dir, "linear_pipeline.nf")
+        self.non_linear_workflow_file_path = os.path.join(self.nextflow_test_dir, "non_linear_pipeline.nf")
         os.makedirs(self.nextflow_test_dir, exist_ok=True)
 
     def tearDown(self) -> None:
@@ -22,7 +23,7 @@ class TestNextFlowPipeline(TestCommon):
                              command_to_run=f"echo first_process > {pipeline_output_file}")
         pipeline.add_process(process_name="second_process",
                              command_to_run=f"echo second_process >> {pipeline_output_file}")
-        pipeline.run_pipeline(workflow_file_path=self.workflow_file_path, working_dir=self.nextflow_test_dir)
+        pipeline.run_pipeline(workflow_file_path=self.linear_workflow_file_path, working_dir=self.nextflow_test_dir)
         self.assertEqual("first_process\nsecond_process", open(pipeline_output_file).read().strip())
 
     def test_linear_pipeline_resumption(self):
@@ -37,8 +38,8 @@ class TestNextFlowPipeline(TestCommon):
         pipeline.add_process(process_name="third_process",
                              command_to_run=f"cat {non_existent_file} >> {pipeline_output_file}")
         try:
-            pipeline.run_pipeline(workflow_file_path=self.workflow_file_path,
-                                          working_dir=self.nextflow_test_dir)
+            pipeline.run_pipeline(workflow_file_path=self.linear_workflow_file_path,
+                                  working_dir=self.nextflow_test_dir)
         except:
             pass
         self.assertEqual("first_process\nsecond_process", open(pipeline_output_file).read().strip())
@@ -47,7 +48,7 @@ class TestNextFlowPipeline(TestCommon):
         with open(non_existent_file, "w") as non_existent_file_handle:
             non_existent_file_handle.write("third_process")
             non_existent_file_handle.flush()
-        pipeline.run_pipeline(workflow_file_path=self.workflow_file_path, working_dir=self.nextflow_test_dir,
+        pipeline.run_pipeline(workflow_file_path=self.linear_workflow_file_path, working_dir=self.nextflow_test_dir,
                               resume=True)
         # If the pipeline resumes properly it should resume from the third process
         self.assertEqual("first_process\nsecond_process\nthird_process", open(pipeline_output_file).read().strip())
@@ -71,7 +72,7 @@ class TestNextFlowPipeline(TestCommon):
         #  \   /
         #   p4
         pipeline = NextFlowPipeline(process_dependency_map={p4: [p2, p3], p2: [p1], p3: [p1]})
-        pipeline.run_pipeline(workflow_file_path=self.workflow_file_path, working_dir=self.nextflow_test_dir)
+        pipeline.run_pipeline(workflow_file_path=self.non_linear_workflow_file_path, working_dir=self.nextflow_test_dir)
         lines = [line.strip() for line in open(pipeline_output_file).readlines()]
         self.assertEqual("first_process", lines[0])
         # Due to parallelism, order in which p2 and p3 are executed cannot be guaranteed
@@ -99,7 +100,8 @@ class TestNextFlowPipeline(TestCommon):
         #   p4
         pipeline = NextFlowPipeline(process_dependency_map={p4: [p2, p3], p2: [p1], p3: [p1]})
         try:
-            pipeline.run_pipeline(workflow_file_path=self.workflow_file_path, working_dir=self.nextflow_test_dir)
+            pipeline.run_pipeline(workflow_file_path=self.non_linear_workflow_file_path,
+                                  working_dir=self.nextflow_test_dir)
         except:
             pass
         lines = [line.strip() for line in open(pipeline_output_file).readlines()]
@@ -109,12 +111,13 @@ class TestNextFlowPipeline(TestCommon):
 
         # Create the non-existent file
         with open(non_existent_file, "w") as non_existent_file_handle:
-            non_existent_file_handle.write("third_process\n")
+            non_existent_file_handle.write("third_process")
             non_existent_file_handle.flush()
-        pipeline.run_pipeline(workflow_file_path=self.workflow_file_path, working_dir=self.nextflow_test_dir,
+        pipeline.run_pipeline(workflow_file_path=self.non_linear_workflow_file_path, working_dir=self.nextflow_test_dir,
                               resume=True)
         # If the pipeline resumes properly it should resume from the fourth process
         lines = [line.strip() for line in open(pipeline_output_file).readlines()]
+        print(lines)
         self.assertEqual(4, len(lines))
         self.assertEqual("first_process", lines[0])
         # Due to resumption, p2 which was already executed won't be executed this time around
@@ -149,7 +152,7 @@ class TestNextFlowPipeline(TestCommon):
         pipe1 = NextFlowPipeline(process_dependency_map={p2: [p1], p3: [p1]})
         pipe2 = NextFlowPipeline(process_dependency_map={p6: [p4, p5]})
         pipe3 = NextFlowPipeline.join_pipelines(pipe1, pipe2)
-        pipe3.run_pipeline(workflow_file_path=self.workflow_file_path, working_dir=self.nextflow_test_dir)
+        pipe3.run_pipeline(workflow_file_path=self.non_linear_workflow_file_path, working_dir=self.nextflow_test_dir)
 
         lines = [line.strip() for line in open(pipeline_output_file).readlines()]
         self.assertEqual(6, len(lines))
