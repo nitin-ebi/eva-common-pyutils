@@ -27,7 +27,9 @@ jobs:
       with:
         java-version: ${{ matrix.java-version }}
     - name: Set up Nextflow
-      run: sudo bash -c "export JAVA_CMD="$(which java)" && cd /usr/bin && (curl -s https://get.nextflow.io | bash) && chmod 755 nextflow && /usr/bin/nextflow -version"
+      run: |
+        sudo bash -c "export JAVA_CMD="$(which java)" && cd /usr/bin && (curl -s https://get.nextflow.io | bash) && chmod 755 nextflow"
+        /usr/bin/nextflow -version
     - name: Set up MongoDB sharded environment ${{ matrix.mongodb-version }}
       run: sudo bash scripts/create_mongo_single_node_sharded_env.sh ${{ matrix.mongodb-version }}
     - name: Set up Python ${{ matrix.python-version }}
