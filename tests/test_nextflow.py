@@ -8,7 +8,7 @@ class TestNextFlowPipeline(TestCommon):
     # Tests expect a local Nextflow installation
     def setUp(self) -> None:
         self.nextflow_test_dir = os.path.join(self.resources_folder, "nextflow_tests")
-        self.nextflow_config_file = os.path.join(self.resources_folder, "nextflow_config.yml")
+        self.nextflow_config_file = os.path.join(self.resources_folder, "nextflow.config")
         shutil.rmtree(self.nextflow_test_dir, ignore_errors=True)
         self.linear_workflow_file_path = os.path.join(self.nextflow_test_dir, "linear_pipeline.nf")
         self.non_linear_workflow_file_path = os.path.join(self.nextflow_test_dir, "non_linear_pipeline.nf")
