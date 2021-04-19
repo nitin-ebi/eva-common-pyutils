@@ -120,7 +120,6 @@ class TestNextFlowPipeline(TestCommon):
                               resume=True, nextflow_config_path=self.nextflow_config_file)
         # If the pipeline resumes properly it should resume from the fourth process
         lines = [line.strip() for line in open(pipeline_output_file).readlines()]
-        print(lines)
         self.assertEqual(4, len(lines))
         self.assertEqual("first_process", lines[0])
         # Due to resumption, p2 which was already executed won't be executed this time around
