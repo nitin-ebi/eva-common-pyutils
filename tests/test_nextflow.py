@@ -30,7 +30,7 @@ class TestNextFlowPipeline(TestCommon):
         non_existent_file = os.path.join(self.nextflow_test_dir, "non_existent_file.txt")
         pipeline = LinearNextFlowPipeline()
         pipeline.add_process(process_name="first_process",
-                             command_to_run=f"echo first_process >> {pipeline_output_file}")
+                             command_to_run=f"echo first_process > {pipeline_output_file}")
         pipeline.add_process(process_name="second_process",
                              command_to_run=f"echo second_process >> {pipeline_output_file}")
         # This process will fail during the first run
@@ -124,7 +124,7 @@ class TestNextFlowPipeline(TestCommon):
         self.assertTrue("fourth_process", lines[3])
 
     def test_non_linear_pipeline_join(self):
-        pipeline_output_file = os.path.join(self.nextflow_test_dir, "linear_pipeline_output.txt")
+        pipeline_output_file = os.path.join(self.nextflow_test_dir, "non_linear_pipeline_output.txt")
         p1 = NextFlowProcess(process_name="first_process",
                              command_to_run=f"echo first_process > {pipeline_output_file}")
         p2 = NextFlowProcess(process_name="second_process",
