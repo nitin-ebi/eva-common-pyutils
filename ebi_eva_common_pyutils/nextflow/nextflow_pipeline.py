@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Rationale for a Nextflow pipeline abstraction
+# ---------------------------------------------
+# Dynamic pipeline generation
+# Abstraction to represent process dependencies
+# Unit testability of individual steps without scattering logic between Python and Nextflow
+# Ability to combine pipelines
+
 import networkx as nx
 import os
 from typing import List, Dict, Union
