@@ -101,11 +101,18 @@ class NextFlowPipeline(AppLogger):
 
     @staticmethod
     def join_pipelines(main_pipeline: 'NextFlowPipeline', dependent_pipeline: 'NextFlowPipeline') -> 'NextFlowPipeline':
+        """
+        Join two pipelines.
+
+        Returns a new pipeline where:
+            1) root processes are those of the main pipeline.
+            2) final processes are those of the dependent pipeline and
+            3) every root process of the dependent pipeline depends on the final processes of the main pipeline.
+        """
         joined_pipeline = NextFlowPipeline()
         # Aggregate dependency maps of both pipelines
         joined_pipeline.process_dependency_map = nx.compose(main_pipeline.process_dependency_map,
                                                             dependent_pipeline.process_dependency_map)
-        # Every root process in the dependent pipeline depends on the final processes in the main pipeline
         for final_process_in_main_pipeline in main_pipeline._get_final_processes():
             for root_process_in_dependent_pipeline in dependent_pipeline._get_root_processes():
                 joined_pipeline.add_process_dependency(root_process_in_dependent_pipeline,
