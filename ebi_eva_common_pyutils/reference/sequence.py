@@ -51,12 +51,13 @@ class NCBISequence(AppLogger):
         self.reference_directory = reference_directory
         self.eutils_api_key = eutils_api_key
 
-    def _check_genbank_accession_format(self):
+    @classmethod
+    def check_genbank_accession_format(cls, accession):
         if not any(
-                re.match(insdc_accession_format, self.sequence_accession)
-                for insdc_accession_format in self.insdc_accession_formats
+                re.match(insdc_accession_format, accession)
+                for insdc_accession_format in cls.insdc_accession_formats
         ):
-            raise ValueError('Invalid INSDC accession: %s' % self.sequence_accession)
+            raise ValueError('Invalid INSDC accession: %s' % accession)
 
     @property
     def sequence_directory(self):
@@ -72,7 +73,7 @@ class NCBISequence(AppLogger):
 
     def download_contig_sequence_from_ncbi(self, genbank_only=True):
         if genbank_only:
-            self._check_genbank_accession_format()
+            self.check_genbank_accession_format(self.sequence_accession)
         self._download_contig_from_ncbi(self.sequence_accession, self.sequence_fasta_path)
         self.info(self.sequence_fasta_path + " downloaded and added to FASTA sequence")
 
