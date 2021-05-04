@@ -46,9 +46,14 @@ class NCBIAssembly(AppLogger):
         self.eutils_api_key = eutils_api_key
 
     @staticmethod
-    def check_assembly_accession_format(assembly_accession):
+    def is_assembly_accession_format(assembly_accession):
         if re.match(r"^GC[F|A]_\d+\.\d+$", assembly_accession) is None:
-            raise Exception('Invalid assembly accession: it has to be in the form of '
+            return False
+
+    @staticmethod
+    def check_assembly_accession_format(assembly_accession):
+        if NCBIAssembly.is_assembly_accession_format(assembly_accession):
+            raise ValueError('Invalid assembly accession: it has to be in the form of '
                             'GCF_XXXXXXXXX.X or GCA_XXXXXXXXX.X where X is a number')
 
     @property
