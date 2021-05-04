@@ -36,7 +36,7 @@ def retrieve_genbank_assembly_accessions_from_ncbi(assembly_txt):
     assembly_accessions = set()
     payload = {'db': 'Assembly', 'term': '"{}"'.format(assembly_txt), 'retmode': 'JSON'}
     data = requests.get(ESEARCH_URL, params=payload).json()
-    if data:
+    if data and data.get('esearchresult', {}).get('idlist'):
         assembly_id_list = data.get('esearchresult').get('idlist')
         payload = {'db': 'Assembly', 'id': ','.join(assembly_id_list), 'retmode': 'JSON'}
         summary_list = requests.get(ESUMMARY_URL, params=payload).json()

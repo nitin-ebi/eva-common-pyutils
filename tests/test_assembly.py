@@ -2,7 +2,7 @@ import os
 import shutil
 from unittest.mock import Mock
 
-from ebi_eva_common_pyutils.assembly.assembly import NCBIAssembly
+from ebi_eva_common_pyutils.reference.assembly import NCBIAssembly
 from tests.test_common import TestCommon
 
 
