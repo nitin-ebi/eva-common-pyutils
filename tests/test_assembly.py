@@ -35,6 +35,9 @@ class TestNCBIAssembly(TestCommon):
     def tearDown(self) -> None:
         shutil.rmtree(os.path.join(self.genome_folder))
 
+    def test_check_assembly_accession_format(self):
+        self.assertRaises(ValueError, NCBIAssembly.check_assembly_accession_format, 'TTT_000008865.1')
+
     def test_get_assembly_report_rows(self):
         expected_lines = [
             {'# Sequence-Name': 'ANONYMOUS', 'Sequence-Role': 'assembled-molecule', 'Assigned-Molecule': 'na',

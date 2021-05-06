@@ -51,18 +51,18 @@ class NCBISequence(AppLogger):
         self.reference_directory = reference_directory
         self.eutils_api_key = eutils_api_key
 
-    @classmethod
-    def is_genbank_accession_format(cls, accession):
+    @staticmethod
+    def is_genbank_accession_format(accession):
         if any(
                 re.match(insdc_accession_format, accession)
-                for insdc_accession_format in cls.insdc_accession_formats
+                for insdc_accession_format in NCBISequence.insdc_accession_formats
         ):
             return True
         return False
 
-    @classmethod
-    def check_genbank_accession_format(cls, accession):
-        if not cls.is_genbank_accession_format(accession):
+    @staticmethod
+    def check_genbank_accession_format(accession):
+        if not NCBISequence.is_genbank_accession_format(accession):
             raise ValueError('Invalid INSDC accession: %s' % accession)
 
     @property

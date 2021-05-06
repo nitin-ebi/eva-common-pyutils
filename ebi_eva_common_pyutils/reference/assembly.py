@@ -47,13 +47,14 @@ class NCBIAssembly(AppLogger):
 
     @staticmethod
     def is_assembly_accession_format(assembly_accession):
-        if re.match(r"^GC[F|A]_\d+\.\d+$", assembly_accession) is None:
-            return False
+        if re.match(r"^GC[F|A]_\d+\.\d+$", assembly_accession) is not None:
+            return True
+        return False
 
     @staticmethod
     def check_assembly_accession_format(assembly_accession):
-        if NCBIAssembly.is_assembly_accession_format(assembly_accession):
-            raise ValueError('Invalid assembly accession: it has to be in the form of '
+        if not NCBIAssembly.is_assembly_accession_format(assembly_accession):
+            raise ValueError(f'Invalid assembly accession: {assembly_accession} it has to be in the form of '
                             'GCF_XXXXXXXXX.X or GCA_XXXXXXXXX.X where X is a number')
 
     @property
