@@ -2,7 +2,7 @@ import os
 import shutil
 from unittest.mock import Mock
 
-from ebi_eva_common_pyutils.assembly.assembly import NCBIAssembly
+from ebi_eva_common_pyutils.reference.assembly import NCBIAssembly
 from tests.test_common import TestCommon
 
 
@@ -34,6 +34,9 @@ class TestNCBIAssembly(TestCommon):
 
     def tearDown(self) -> None:
         shutil.rmtree(os.path.join(self.genome_folder))
+
+    def test_check_assembly_accession_format(self):
+        self.assertRaises(ValueError, NCBIAssembly.check_assembly_accession_format, 'TTT_000008865.1')
 
     def test_get_assembly_report_rows(self):
         expected_lines = [
