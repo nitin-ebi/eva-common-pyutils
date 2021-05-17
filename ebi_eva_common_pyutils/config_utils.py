@@ -35,12 +35,24 @@ class EVAPrivateSettingsXMLConfig:
         return result
 
 
-def get_pg_metadata_uri_for_eva_profile(eva_profile_name: str, settings_xml_file: str):
+def get_pg_uri_for_accession_profile(profile_name: str, settings_xml_file: str):
+    return get_pg_uri_details_for_profile(profile_name, settings_xml_file, "eva.accession.jdbc.url")
+
+
+def get_pg_uri_for_variant_profile(profile_name: str, settings_xml_file: str):
+    return get_pg_uri_details_for_profile(profile_name, settings_xml_file, "eva.variant.jdbc.url")
+
+
+def get_pg_metadata_uri_for_eva_profile(profile_name: str, settings_xml_file: str):
+    return get_pg_uri_details_for_profile(profile_name, settings_xml_file, "eva.evapro.jdbc.url")
+
+
+def get_pg_uri_details_for_profile(eva_profile_name: str, settings_xml_file: str, tag_name: str):
     config = EVAPrivateSettingsXMLConfig(settings_xml_file)
     xpath_location_template = '//settings/profiles/profile/id[text()="{0}"]/../properties/{1}/text()'
     # Format is jdbc:postgresql://host:port/db
     metadata_db_jdbc_url = config.get_value_with_xpath(
-        xpath_location_template.format(eva_profile_name, "eva.evapro.jdbc.url"))[0]
+        xpath_location_template.format(eva_profile_name, tag_name))[0]
     return metadata_db_jdbc_url.split("jdbc:")[-1]
 
 
