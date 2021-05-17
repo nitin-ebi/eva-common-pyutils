@@ -14,10 +14,12 @@
 
 import copy
 import subprocess
+
 from cached_property import cached_property
-from ebi_eva_common_pyutils.logger import AppLogger
-from ebi_eva_common_pyutils.command_utils import run_command_with_output
 from pymongo import MongoClient, uri_parser
+
+from ebi_eva_common_pyutils.command_utils import run_command_with_output
+from ebi_eva_common_pyutils.logger import AppLogger
 
 
 class MongoDatabase(AppLogger):
@@ -115,7 +117,7 @@ class MongoDatabase(AppLogger):
             sharding_command += self._get_optional_secrets_file_stdin()
             run_command_with_output(f"Sharding collection {collection_name} in the database {self.uri_with_db_name} "
                                     f"with key {shard_key_repr}...", sharding_command,
-                                    log_error_stream_to_output=True,)
+                                    log_error_stream_to_output=True, )
 
     def dump_data(self, dump_dir, mongodump_args=None):
         mongodump_args = " ".join([f"--{arg} {val}"
@@ -149,7 +151,7 @@ class MongoDatabase(AppLogger):
         except subprocess.CalledProcessError as ex:
             raise Exception("mongorestore failed! HINT: Did you forget to provide a secrets file for authentication?")
 
-    def export_data(mongo_source, accession_export_directory, mongoexport_args=None):
+    def export_data(self, mongo_source, accession_export_directory, mongoexport_args=None):
         mongoexport_args = " ".join([f"--{arg} {val}"
                                      for arg, val in mongoexport_args.items()]) if mongoexport_args else ""
         mongoexport_command = f"mongoexport --uri {mongo_source.uri_with_db_name}  --out {accession_export_directory} {mongoexport_args}" + \
@@ -159,7 +161,7 @@ class MongoDatabase(AppLogger):
         except subprocess.CalledProcessError as ex:
             raise Exception("mongoexport failed! HINT: Did you forget to provide a secrets file for authentication?")
 
-    def import_data(mongo_source, coll_file_loc, mongoimport_args=None):
+    def import_data(self, mongo_source, coll_file_loc, mongoimport_args=None):
         mongoimport_args = " ".join([f"--{arg} {val}"
                                      for arg, val in mongoimport_args.items()]) if mongoimport_args else ""
         mongoimport_command = f"mongoimport --uri {mongo_source.uri_with_db_name}  --file {coll_file_loc} {mongoimport_args}" + \
