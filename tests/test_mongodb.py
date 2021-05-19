@@ -1,6 +1,7 @@
 import os
-import pymongo
 import tempfile
+
+import pymongo
 
 from ebi_eva_common_pyutils.command_utils import run_command_with_output
 from ebi_eva_common_pyutils.mongodb import MongoDatabase
@@ -8,7 +9,6 @@ from tests.test_common import TestCommon
 
 
 class TestMongoDatabase(TestCommon):
-
     dump_db_name = "test_mongo_db"
     uri = "mongodb://localhost:27017/admin"
     local_mongo_handle = pymongo.MongoClient()
@@ -135,3 +135,30 @@ class TestMongoDatabase(TestCommon):
     def test_restore_data(self):
         test_restore_db = self._restore_data_to_another_db()
         self.assertTrue(test_restore_db.db_name in self.local_mongo_handle.list_database_names())
+
+    def test_export_import_data(self):
+        org_collection_name = "variants_2_0"
+        mongo_export_args = {
+            "collection": org_collection_name
+        }
+        with tempfile.TemporaryDirectory() as tempdir:
+            export_file_path = os.path.join(tempdir, self.dump_db_name)
+            coll_doc_count = self.test_mongo_db.mongo_handle[self.dump_db_name][org_collection_name].count_documents({})
+            self.test_mongo_db.export_data(export_file_path, mongo_export_args)
+            with open(export_file_path, "r") as exported_file:
+                export_doc_count = len(exported_file.readlines())
+                self.assertEqual(coll_doc_count, export_doc_count)
+
+            # import whatever we have exported into a new collection in the same database
+            new_collection_name = "temp_variants_2_0"
+            mongo_import_args = {
+                "mode": "upsert",
+                "collection": new_collection_name
+            }
+            self.test_mongo_db.import_data(export_file_path, mongo_import_args)
+            imported_doc_count = self.test_mongo_db.mongo_handle[self.dump_db_name][
+                new_collection_name].count_documents({})
+            self.assertEqual(coll_doc_count, imported_doc_count)
+
+            # delete the newly created temp collection
+            self.test_mongo_db.mongo_handle[self.dump_db_name][new_collection_name].drop()
