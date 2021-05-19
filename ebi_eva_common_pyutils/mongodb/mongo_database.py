@@ -151,10 +151,10 @@ class MongoDatabase(AppLogger):
         except subprocess.CalledProcessError as ex:
             raise Exception("mongorestore failed! HINT: Did you forget to provide a secrets file for authentication?")
 
-    def export_data(self, accession_export_directory, mongoexport_args=None):
+    def export_data(self, export_directory, mongoexport_args=None):
         mongoexport_args = " ".join([f"--{arg} {val}"
                                      for arg, val in mongoexport_args.items()]) if mongoexport_args else ""
-        mongoexport_command = f"mongoexport --uri {self.uri_with_db_name}  --out {accession_export_directory} {mongoexport_args}" + \
+        mongoexport_command = f"mongoexport --uri {self.uri_with_db_name}  --out {export_directory} {mongoexport_args}" + \
                               self._get_optional_secrets_file_stdin()
         try:
             run_command_with_output("mongoexport", mongoexport_command, log_error_stream_to_output=True)
