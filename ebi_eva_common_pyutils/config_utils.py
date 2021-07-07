@@ -29,10 +29,10 @@ class EVAPrivateSettingsXMLConfig:
         with open(settings_xml_file) as xml_file_handle:
             self.config_data = et.parse(xml_file_handle)
 
-    def get_value_with_xpath(self, location: str):
+    def get_value_with_xpath(self, location: str, optional: bool = False):
         etree = self.config_data.getroot()
         result = etree.xpath(location)
-        if not result:
+        if not result and not optional:
             raise ValueError("Invalid XPath location: " + location)
         return result
 
@@ -50,7 +50,10 @@ def get_mongo_creds_for_profile(profile_name, settings_xml_file):
     # Use the primary mongo host from configuration:
     # https://github.com/EBIvariation/configuration/blob/master/eva-maven-settings.xml#L111
     # TODO: revisit once accessioning/variant pipelines can support multiple hosts
-    mongo_host = split_hosts(properties['eva.mongo.host'])[1][0]
+    try:
+        mongo_host = split_hosts(properties['eva.mongo.host'])[1][0]
+    except IndexError:  # some profiles have only one host
+        mongo_host = split_hosts(properties['eva.mongo.host'])[0][0]
     mongo_user = properties['eva.mongo.user']
     mongo_pass = properties['eva.mongo.passwd']
     return mongo_host, mongo_user, mongo_pass
@@ -92,7 +95,10 @@ def get_mongo_uri_for_eva_profile(eva_profile_name: str, settings_xml_file: str)
     mongo_hosts_and_ports = config.get_value_with_xpath(
         xpath_location_template.format(eva_profile_name, "eva.mongo.host"))[0]
     username = config.get_value_with_xpath(
-        xpath_location_template.format(eva_profile_name, "eva.mongo.user"))[0]
+        xpath_location_template.format(eva_profile_name, "eva.mongo.user"), optional=True)
+    if not username:  # no authentication
+        return f"mongodb://{mongo_hosts_and_ports}"
+    username = username[0]
     password = config.get_value_with_xpath(
         xpath_location_template.format(eva_profile_name, "eva.mongo.passwd"))[0]
     authentication_db = config.get_value_with_xpath(

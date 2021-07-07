@@ -64,9 +64,18 @@ class TestDatabaseConfig(TestCommon):
             ValueError,
             get_mongo_uri_for_eva_profile, 'test1', self.config_file
         )
+        # test for local mongo with no authentication
+        self.assertEqual(
+            get_mongo_uri_for_eva_profile('local', self.config_file),
+            'mongodb://localhost:27017'
+        )
 
     def test_get_mongo_creds_for_profile(self):
         self.assertEqual(
             get_mongo_creds_for_profile('test', self.config_file),
             ('mongo.example-primary.com', 'testuser', 'testpassword')
+        )
+        self.assertEqual(
+            get_mongo_creds_for_profile('local', self.config_file),
+            ('localhost', None, None)
         )
