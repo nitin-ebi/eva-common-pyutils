@@ -17,6 +17,8 @@ from lxml import etree as et
 import json
 import yaml
 import urllib.request
+
+from pymongo.uri_parser import split_hosts
 from retry import retry
 
 
@@ -33,6 +35,33 @@ class EVAPrivateSettingsXMLConfig:
         if not result:
             raise ValueError("Invalid XPath location: " + location)
         return result
+
+
+def get_metadata_creds_for_profile(profile_name, settings_xml_file):
+    properties = get_properties_from_xml_file(profile_name, settings_xml_file)
+    pg_url = properties['eva.evapro.jdbc.url']
+    pg_user = properties['eva.evapro.user']
+    pg_pass = properties['eva.evapro.password']
+    return pg_url, pg_user, pg_pass
+
+
+def get_mongo_creds_for_profile(profile_name, settings_xml_file):
+    properties = get_properties_from_xml_file(profile_name, settings_xml_file)
+    # Use the primary mongo host from configuration:
+    # https://github.com/EBIvariation/configuration/blob/master/eva-maven-settings.xml#L111
+    # TODO: revisit once accessioning/variant pipelines can support multiple hosts
+    mongo_host = split_hosts(properties['eva.mongo.host'])[1][0]
+    mongo_user = properties['eva.mongo.user']
+    mongo_pass = properties['eva.mongo.passwd']
+    return mongo_host, mongo_user, mongo_pass
+
+
+def get_accession_pg_creds_for_profile(profile_name, settings_xml_file):
+    properties = get_properties_from_xml_file(profile_name, settings_xml_file)
+    pg_url = properties['eva.accession.jdbc.url']
+    pg_user = properties['eva.accession.user']
+    pg_pass = properties['eva.accession.password']
+    return pg_url, pg_user, pg_pass
 
 
 def get_pg_uri_for_accession_profile(profile_name: str, settings_xml_file: str):
