@@ -37,7 +37,12 @@ class EVAPrivateSettingsXMLConfig:
         return result
 
 
-def get_metadata_creds_for_profile(profile_name, settings_xml_file):
+def get_metadata_creds_for_profile(profile_name: str, settings_xml_file: str):
+    """
+    Gets host, username, and password for metadata postgres database.
+    Useful for filling properties files, for connection purposes you can use
+    `metadata_utils.get_metadata_connection_handle`.
+    """
     properties = get_properties_from_xml_file(profile_name, settings_xml_file)
     pg_url = properties['eva.evapro.jdbc.url']
     pg_user = properties['eva.evapro.user']
@@ -45,7 +50,12 @@ def get_metadata_creds_for_profile(profile_name, settings_xml_file):
     return pg_url, pg_user, pg_pass
 
 
-def get_mongo_creds_for_profile(profile_name, settings_xml_file):
+def get_primary_mongo_creds_for_profile(profile_name: str, settings_xml_file: str):
+    """
+    Gets primary host, username, and password for mongo database.
+    Useful for filling properties files, for connection purposes it is preferable to use
+    `mongo_utils.get_mongo_connection_handle` as that will handle multiple hosts appropriately.
+    """
     properties = get_properties_from_xml_file(profile_name, settings_xml_file)
     # Use the primary mongo host from configuration:
     # https://github.com/EBIvariation/configuration/blob/master/eva-maven-settings.xml#L111
@@ -59,7 +69,11 @@ def get_mongo_creds_for_profile(profile_name, settings_xml_file):
     return mongo_host, mongo_user, mongo_pass
 
 
-def get_accession_pg_creds_for_profile(profile_name, settings_xml_file):
+def get_accession_pg_creds_for_profile(profile_name: str, settings_xml_file: str):
+    """
+    Gets host, username, and password for accessioning job tracker database.
+    Useful for filling properties files.
+    """
     properties = get_properties_from_xml_file(profile_name, settings_xml_file)
     pg_url = properties['eva.accession.jdbc.url']
     pg_user = properties['eva.accession.user']
