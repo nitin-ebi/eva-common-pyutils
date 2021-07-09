@@ -15,7 +15,7 @@ import os
 from lxml.etree import XPathEvalError
 
 from ebi_eva_common_pyutils.config_utils import EVAPrivateSettingsXMLConfig, get_pg_metadata_uri_for_eva_profile, \
-    get_mongo_uri_for_eva_profile
+    get_mongo_uri_for_eva_profile, get_primary_mongo_creds_for_profile
 from tests.test_common import TestCommon
 
 
@@ -30,7 +30,7 @@ class TestEVAPrivateSettingsXMLConfig(TestCommon):
             self.private_settings.get_value_with_xpath(
                 '//settings/profiles/profile/id[text()="test"]/../properties/eva.mongo.host/text()'
             ),
-            ['mongo.example.com:27017']
+            ['mongo.example.com:27017,mongo.example-primary.com:27017']
         )
         self.assertRaises(
             ValueError,
@@ -58,9 +58,24 @@ class TestDatabaseConfig(TestCommon):
     def test_get_mongo_uri_for_eva_profile(self):
         self.assertEqual(
             get_mongo_uri_for_eva_profile('test', self.config_file),
-            'mongodb://testuser:testpassword@mongo.example.com:27017/admin'
+            'mongodb://testuser:testpassword@mongo.example.com:27017,mongo.example-primary.com:27017/admin'
         )
         self.assertRaises(
             ValueError,
             get_mongo_uri_for_eva_profile, 'test1', self.config_file
+        )
+        # test for local mongo with no authentication
+        self.assertEqual(
+            get_mongo_uri_for_eva_profile('local', self.config_file),
+            'mongodb://localhost:27017'
+        )
+
+    def test_get_primary_mongo_creds_for_profile(self):
+        self.assertEqual(
+            get_primary_mongo_creds_for_profile('test', self.config_file),
+            ('mongo.example-primary.com', 'testuser', 'testpassword')
+        )
+        self.assertEqual(
+            get_primary_mongo_creds_for_profile('local', self.config_file),
+            ('localhost', None, None)
         )

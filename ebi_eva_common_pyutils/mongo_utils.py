@@ -16,6 +16,7 @@ import pymongo
 from urllib.parse import quote_plus
 from ebi_eva_common_pyutils.command_utils import run_command_with_output
 from ebi_eva_common_pyutils.common_utils import merge_two_dicts
+from ebi_eva_common_pyutils.config_utils import get_mongo_uri_for_eva_profile, get_primary_mongo_creds_for_profile
 
 
 class MongoConfig:
@@ -29,10 +30,15 @@ class MongoConfig:
             self.parameters["host"] = "localhost"
 
 
-def get_mongo_connection_handle(username: str, password: str, host: str,
-                                port: int = 27017, authentication_database: str = "admin") -> pymongo.MongoClient:
+def get_mongo_connection_handle(profile: str, settings_xml_file: str) -> pymongo.MongoClient:
+    mongo_connection_uri = get_mongo_uri_for_eva_profile(profile, settings_xml_file)
+    return pymongo.MongoClient(mongo_connection_uri)
+
+
+def get_primary_mongo_connection_handle(profile: str, settings_xml_file: str) -> pymongo.MongoClient:
+    host, username, password = get_primary_mongo_creds_for_profile(profile, settings_xml_file)
     mongo_connection_uri = "mongodb://{0}:{1}@{2}:{3}/{4}".format(username, quote_plus(password), host,
-                                                                  port, authentication_database)
+                                                                  27017, "admin")
     return pymongo.MongoClient(mongo_connection_uri)
 
 

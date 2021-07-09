@@ -11,9 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from urllib.parse import urlsplit
 
 import psycopg2
+
+from ebi_eva_common_pyutils.config_utils import get_metadata_creds_for_profile
 from ebi_eva_common_pyutils.pg_utils import get_result_cursor, get_all_results_for_query
+
+
+def get_metadata_connection_handle(profile, settings_xml_file):
+    pg_url, pg_user, pg_pass = get_metadata_creds_for_profile(profile, settings_xml_file)
+    return psycopg2.connect(urlsplit(pg_url).path, user=pg_user, password=pg_pass)
 
 
 def get_db_conn_for_species(species_db_info):

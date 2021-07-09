@@ -17,6 +17,8 @@ from lxml import etree as et
 import json
 import yaml
 import urllib.request
+
+from pymongo.uri_parser import split_hosts
 from retry import retry
 
 
@@ -27,12 +29,56 @@ class EVAPrivateSettingsXMLConfig:
         with open(settings_xml_file) as xml_file_handle:
             self.config_data = et.parse(xml_file_handle)
 
-    def get_value_with_xpath(self, location: str):
+    def get_value_with_xpath(self, location: str, optional: bool = False):
         etree = self.config_data.getroot()
         result = etree.xpath(location)
-        if not result:
+        if not result and not optional:
             raise ValueError("Invalid XPath location: " + location)
         return result
+
+
+def get_metadata_creds_for_profile(profile_name: str, settings_xml_file: str):
+    """
+    Gets host, username, and password for metadata postgres database.
+    Useful for filling properties files, for connection purposes you can use
+    `metadata_utils.get_metadata_connection_handle`.
+    """
+    properties = get_properties_from_xml_file(profile_name, settings_xml_file)
+    pg_url = properties['eva.evapro.jdbc.url']
+    pg_user = properties['eva.evapro.user']
+    pg_pass = properties['eva.evapro.password']
+    return pg_url, pg_user, pg_pass
+
+
+def get_primary_mongo_creds_for_profile(profile_name: str, settings_xml_file: str):
+    """
+    Gets primary host, username, and password for mongo database.
+    Useful for filling properties files, for connection purposes it is preferable to use
+    `mongo_utils.get_mongo_connection_handle` as that will handle multiple hosts appropriately.
+    """
+    properties = get_properties_from_xml_file(profile_name, settings_xml_file)
+    # Use the primary mongo host from configuration:
+    # https://github.com/EBIvariation/configuration/blob/master/eva-maven-settings.xml#L111
+    # TODO: revisit once accessioning/variant pipelines can support multiple hosts
+    try:
+        mongo_host = split_hosts(properties['eva.mongo.host'])[1][0]
+    except IndexError:  # some profiles have only one host
+        mongo_host = split_hosts(properties['eva.mongo.host'])[0][0]
+    mongo_user = properties['eva.mongo.user']
+    mongo_pass = properties['eva.mongo.passwd']
+    return mongo_host, mongo_user, mongo_pass
+
+
+def get_accession_pg_creds_for_profile(profile_name: str, settings_xml_file: str):
+    """
+    Gets host, username, and password for accessioning job tracker database.
+    Useful for filling properties files.
+    """
+    properties = get_properties_from_xml_file(profile_name, settings_xml_file)
+    pg_url = properties['eva.accession.jdbc.url']
+    pg_user = properties['eva.accession.user']
+    pg_pass = properties['eva.accession.password']
+    return pg_url, pg_user, pg_pass
 
 
 def get_pg_uri_for_accession_profile(profile_name: str, settings_xml_file: str):
@@ -63,7 +109,10 @@ def get_mongo_uri_for_eva_profile(eva_profile_name: str, settings_xml_file: str)
     mongo_hosts_and_ports = config.get_value_with_xpath(
         xpath_location_template.format(eva_profile_name, "eva.mongo.host"))[0]
     username = config.get_value_with_xpath(
-        xpath_location_template.format(eva_profile_name, "eva.mongo.user"))[0]
+        xpath_location_template.format(eva_profile_name, "eva.mongo.user"), optional=True)
+    if not username:  # no authentication
+        return f"mongodb://{mongo_hosts_and_ports}"
+    username = username[0]
     password = config.get_value_with_xpath(
         xpath_location_template.format(eva_profile_name, "eva.mongo.passwd"))[0]
     authentication_db = config.get_value_with_xpath(
