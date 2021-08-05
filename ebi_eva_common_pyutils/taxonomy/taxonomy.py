@@ -25,8 +25,15 @@ def get_scientific_name_from_ensembl(taxonomy_id: int) -> str:
     return response["scientific_name"]
 
 
+def normalise_taxon_scientific_name(taxon_name):
+    """
+    Match Ensembl representation
+    See Clostridium sp. SS2/1 represented as clostridium_sp_ss2_1 in
+    ftp://ftp.ensemblgenomes.org/pub/bacteria/release-48/fasta/bacteria_25_collection/clostridium_sp_ss2_1/
+    """
+    return re.sub('[^0-9a-zA-Z]+', '_', taxon_name.lower())
+
+
 def get_normalized_scientific_name_from_ensembl(taxonomy_id: int) -> str:
-    # Match Ensembl representation
-    # See Clostridium sp. SS2/1 represented as clostridium_sp_ss2_1 in
-    # ftp://ftp.ensemblgenomes.org/pub/bacteria/release-48/fasta/bacteria_25_collection/clostridium_sp_ss2_1/
-    return re.sub('[^0-9a-zA-Z]+', '_', get_scientific_name_from_ensembl(taxonomy_id).lower())
+    """Get the scientific name for that taxon"""
+    return normalise_taxon_scientific_name(get_scientific_name_from_ensembl(taxonomy_id))
