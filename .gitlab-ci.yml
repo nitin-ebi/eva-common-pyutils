@@ -1,0 +1,44 @@
+stages:
+  - test
+  - deploy
+
+test:
+  stage: test
+  image: python:3.8.7-slim-buster
+  before_script:
+    - python -m pip install --upgrade pip
+    - pip install pytest certifi twine
+    - if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - python setup.py install
+    # reduce the default SSL security level to get around a misconfiguration in the Ensembl server
+    # https://github.com/Ensembl/ensembl-rest/issues/427
+    # See https://askubuntu.com/a/1233456
+    - sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/' /usr/lib/ssl/openssl.cnf
+  script:
+    - PYTHONPATH=. pytest tests
+  environment:
+    name: test-env
+  only:
+    - external_pull_requests
+    - tags
+    - master
+
+
+# Not executed, parent job definition
+deploy-python-package-production:
+  stage: deploy
+  image: python:3.8.7-slim-buster
+  script:
+    - python setup.py sdist
+    - twine upload dist/*
+  dependencies:
+    - test
+  variables:
+    EVA_SUBMISSION_PATH: $EVA_SUBMISSION_PRODUCTION_PATH
+    DEPLOY_POINT: $CI_COMMIT_TAG
+    TWINE_NON_INTERACTIVE: "true"
+    TWINE_USERNAME: $PYPI_USERNAME
+    TWINE_PASSWORD: $PYPI_PASSWORD
+    only:
+      - tags
+
