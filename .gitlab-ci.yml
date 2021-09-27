@@ -6,8 +6,8 @@ test:
   stage: test
   image: python:3.8.7-slim-buster
   before_script:
-    - mkdir /tmp/nextflow && cd /tmp/nextflow && (curl -s https://get.nextflow.io | bash) && chmod 755 nextflow $$ export PATH=/tmp/:$PATH
-    - /usr/bin/nextflow -version
+    - mkdir /tmp/nextflow && cd /tmp/nextflow && (curl -s https://get.nextflow.io | bash) && chmod 755 nextflow $$ export PATH=/tmp/:$PATH && cd -
+    - nextflow -version
     - python -m pip install --upgrade pip
     - pip install pytest certifi twine
     - if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
