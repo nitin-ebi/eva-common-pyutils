@@ -95,7 +95,7 @@ def build_variant_warehouse_database_name(taxonomy_code, assembly_code):
     return None
 
 
-def get_variant_warehouse_db_name_from_assembly_and_taxonomy(metadata_connection_handle, assembly, taxonomy):
+def resolve_existing_variant_warehouse_db_name(metadata_connection_handle, assembly, taxonomy):
     """
     Retrieve an existing database name by combining the taxonomy_code and assembly code registered in the metadata
     database.
@@ -106,9 +106,13 @@ def get_variant_warehouse_db_name_from_assembly_and_taxonomy(metadata_connection
     )
 
 
-def get_new_variant_warehouse_db_name_from_assembly_and_taxonomy(metadata_connection_handle, assembly, taxonomy):
+# For backward compatibility
+get_variant_warehouse_db_name_from_assembly_and_taxonomy = resolve_existing_variant_warehouse_db_name
+
+
+def resolve_variant_warehouse_db_name(metadata_connection_handle, assembly, taxonomy):
     """
-    Retrieve the database name  for this taxonomy/assembly pair whether it exists or not.
+    Retrieve the database name for this taxonomy/assembly pair whether it exists or not.
     It will use existing taxonomy code or assembly code if available in the metadata database.
     """
     taxonomy_code = get_taxonomy_code_from_taxonomy(metadata_connection_handle, taxonomy)
