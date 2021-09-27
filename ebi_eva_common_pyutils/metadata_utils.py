@@ -11,12 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import re
 from urllib.parse import urlsplit
 
 import psycopg2
 
 from ebi_eva_common_pyutils.config_utils import get_metadata_creds_for_profile
+from ebi_eva_common_pyutils.ncbi_utils import get_ncbi_assembly_dicts_from_term
 from ebi_eva_common_pyutils.pg_utils import get_result_cursor, get_all_results_for_query
+from ebi_eva_common_pyutils.taxonomy.taxonomy import get_scientific_name_from_ensembl
 
 
 def get_metadata_connection_handle(profile, settings_xml_file):
@@ -58,18 +61,71 @@ def get_dbsnp_mirror_db_info(pg_metadata_dbname, pg_metadata_user, pg_metadata_h
     return dbsnp_mirror_db_info
 
 
-def get_variant_warehouse_db_name_from_assembly_and_taxonomy(metadata_connection_handle, assembly, taxonomy):
-    query = f"select t.taxonomy_code, a.assembly_code " \
-            f"from assembly a " \
-            f"left join taxonomy t on (t.taxonomy_id = a.taxonomy_id) " \
-            f"where a.assembly_accession = '{assembly}'" \
-            f"and a.taxonomy_id = {taxonomy}"
+def get_taxonomy_code_from_taxonomy(metadata_connection_handle, taxonomy):
+    """
+    Retrieve an existing taxonomy code registered in the metadata database.
+    """
+    query = f"select distinct t.taxonomy_code from  taxonomy t where t.taxonomy_id = {taxonomy}"
     rows = get_all_results_for_query(metadata_connection_handle, query)
     if len(rows) == 0:
         return None
     elif len(rows) > 1:
-        options = ', '.join((f'{r[0]}_{r[1]}' for r in rows))
-        raise ValueError(f'More than one possible database for assembly {assembly} and taxonomy {taxonomy} found: '
-                         f'{options}')
-    database_name = f'eva_{rows[0][0]}_{rows[0][1]}'
-    return database_name
+        options = ', '.join(rows)
+        raise ValueError(f'More than one possible code for taxonomy {taxonomy} found: {options}')
+    return rows[0]
+
+
+def get_assembly_code_from_assembly(metadata_connection_handle, assembly):
+    """
+    Retrieve an existing assembly code registered in the metadata database.
+    """
+    query = f"select distinct assembly_code from assembly where assembly_accession={assembly};"
+    rows = get_all_results_for_query(metadata_connection_handle, query)
+    if len(rows) == 0:
+        return None
+    elif len(rows) > 1:
+        options = ', '.join(rows)
+        raise ValueError(f'More than one possible code for assembly {assembly} found: {options}')
+    return rows[0]
+
+
+def build_variant_warehouse_database_name(taxonomy_code, assembly_code):
+    if taxonomy_code and assembly_code:
+        return f'eva_{taxonomy_code}_{assembly_code}'
+    return None
+
+
+def resolve_existing_variant_warehouse_db_name(metadata_connection_handle, assembly, taxonomy):
+    """
+    Retrieve an existing database name by combining the taxonomy_code and assembly code registered in the metadata
+    database.
+    """
+    return build_variant_warehouse_database_name(
+        get_taxonomy_code_from_taxonomy(metadata_connection_handle, taxonomy),
+        get_assembly_code_from_assembly(metadata_connection_handle, assembly)
+    )
+
+
+# For backward compatibility
+get_variant_warehouse_db_name_from_assembly_and_taxonomy = resolve_existing_variant_warehouse_db_name
+
+
+def resolve_variant_warehouse_db_name(metadata_connection_handle, assembly, taxonomy):
+    """
+    Retrieve the database name for this taxonomy/assembly pair whether it exists or not.
+    It will use existing taxonomy code or assembly code if available in the metadata database.
+    """
+    taxonomy_code = get_taxonomy_code_from_taxonomy(metadata_connection_handle, taxonomy)
+    if not taxonomy_code:
+        scientific_name = get_scientific_name_from_ensembl(taxonomy)
+        taxonomy_code = scientific_name[0].lower() + re.sub('[^0-9a-zA-Z]+', '',
+                                                            ''.join(scientific_name.split()[1:]).lower())
+    assembly_code = get_assembly_code_from_assembly(metadata_connection_handle, assembly)
+    if not assembly_code:
+        assembl_dicts = get_ncbi_assembly_dicts_from_term(assembly)
+        assembly_names = set([d.get('assemblyname') for d in assembl_dicts])
+        if len(assembly_names) != 1:
+            raise ValueError(f'Cannot resolve assembly name for assembly {assembly} in NCBI. '
+                             f'Found {",".join([str(a) for a in assembly_names])}')
+        assembly_code = re.sub('[^0-9a-zA-Z]+', '', assembly_names.pop().lower())
+    return build_variant_warehouse_database_name(taxonomy_code, assembly_code)
