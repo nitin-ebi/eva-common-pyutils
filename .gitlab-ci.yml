@@ -6,6 +6,8 @@ test:
   stage: test
   image: python:3.8.7-slim-buster
   before_script:
+    - sudo bash -c "export JAVA_CMD="$(which java)" && cd /usr/bin && (curl -s https://get.nextflow.io | bash) && chmod 755 nextflow"
+    - /usr/bin/nextflow -version
     - python -m pip install --upgrade pip
     - pip install pytest certifi twine
     - if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
