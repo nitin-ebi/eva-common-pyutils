@@ -36,6 +36,6 @@ deploy-python-package-production:
     TWINE_NON_INTERACTIVE: "true"
     TWINE_USERNAME: $PYPI_USERNAME
     TWINE_PASSWORD: $PYPI_PASSWORD
-    only:
-      - tags
+  only:
+    - tags
 
