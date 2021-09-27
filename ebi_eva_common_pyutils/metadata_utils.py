@@ -65,7 +65,7 @@ def get_taxonomy_code_from_taxonomy(metadata_connection_handle, taxonomy):
     """
     Retrieve an existing taxonomy code registered in the metadata database.
     """
-    query = f"select t.taxonomy_code from  taxonomy t where t.taxonomy_id = {taxonomy}"
+    query = f"select distinct t.taxonomy_code from  taxonomy t where t.taxonomy_id = {taxonomy}"
     rows = get_all_results_for_query(metadata_connection_handle, query)
     if len(rows) == 0:
         return None
