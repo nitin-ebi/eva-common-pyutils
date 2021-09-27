@@ -108,7 +108,7 @@ def get_variant_warehouse_db_name_from_assembly_and_taxonomy(metadata_connection
 
 def get_new_variant_warehouse_db_name_from_assembly_and_taxonomy(metadata_connection_handle, assembly, taxonomy):
     """
-    Retrieve the database name  for this taxonomy/assembly pair weather it exists or not.
+    Retrieve the database name  for this taxonomy/assembly pair whether it exists or not.
     It will use existing taxonomy code or assembly code if available in the metadata database.
     """
     taxonomy_code = get_taxonomy_code_from_taxonomy(metadata_connection_handle, taxonomy)
