@@ -23,7 +23,7 @@ def get_ncbi_assembly_dicts_from_term(term):
     if data:
         assembly_id_list = data.get('esearchresult').get('idlist')
         payload = {'db': 'Assembly', 'id': ','.join(assembly_id_list), 'retmode': 'JSON'}
-        req = requests.get(esummary_url, params=payload).json()
+        req = requests.get(esummary_url, params=payload)
         req.raise_for_status()
         summary_list = req.json()
         for assembly_id in summary_list.get('result', {}).get('uids', []):
