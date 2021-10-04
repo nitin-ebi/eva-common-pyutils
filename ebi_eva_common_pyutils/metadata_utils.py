@@ -72,21 +72,21 @@ def get_taxonomy_code_from_taxonomy(metadata_connection_handle, taxonomy):
     elif len(rows) > 1:
         options = ', '.join(rows)
         raise ValueError(f'More than one possible code for taxonomy {taxonomy} found: {options}')
-    return rows[0]
+    return rows[0][0]
 
 
 def get_assembly_code_from_assembly(metadata_connection_handle, assembly):
     """
     Retrieve an existing assembly code registered in the metadata database.
     """
-    query = f"select distinct assembly_code from assembly where assembly_accession={assembly};"
+    query = f"select distinct assembly_code from assembly where assembly_accession='{assembly}';"
     rows = get_all_results_for_query(metadata_connection_handle, query)
     if len(rows) == 0:
         return None
     elif len(rows) > 1:
         options = ', '.join(rows)
         raise ValueError(f'More than one possible code for assembly {assembly} found: {options}')
-    return rows[0]
+    return rows[0][0]
 
 
 def build_variant_warehouse_database_name(taxonomy_code, assembly_code):
