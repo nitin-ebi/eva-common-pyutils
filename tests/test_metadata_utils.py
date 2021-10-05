@@ -1,10 +1,23 @@
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch
 
-from ebi_eva_common_pyutils.metadata_utils import resolve_variant_warehouse_db_name
+from ebi_eva_common_pyutils.metadata_utils import resolve_variant_warehouse_db_name, get_taxonomy_code_from_taxonomy, \
+    get_assembly_code_from_assembly
 
 
 class TestMetadata(TestCase):
+
+    def test_get_taxonomy_code_from_taxonomy(self):
+        db_handle = MagicMock()
+        with patch('ebi_eva_common_pyutils.metadata_utils.get_all_results_for_query', return_value=[('hsapiens',)]):
+            taxcode = get_taxonomy_code_from_taxonomy(db_handle, 9096)
+            assert taxcode == 'hsapiens'
+
+    def test_get_assembly_code_from_assembly(self):
+        db_handle = MagicMock()
+        with patch('ebi_eva_common_pyutils.metadata_utils.get_all_results_for_query', return_value=[('grch38',)]):
+            taxcode = get_assembly_code_from_assembly(db_handle, 'GCA_000001405.15')
+            assert taxcode == 'grch38'
 
     def test_resolve_variant_warehouse_db_name(self):
         expected_results = [
