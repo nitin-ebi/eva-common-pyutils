@@ -86,6 +86,9 @@ class LoggingConfiguration:
     def add_stderr_handler(self, level=None):
         self.add_handler(logging.StreamHandler(stderr), level=level or self._log_level)
 
+    def add_file_handler(self, filename, level=None):
+        self.add_handler(logging.FileHandler(filename=filename), level=level or self._log_level)
+
     def set_log_level(self, level):
         self._log_level = level
         for h in self.handlers:
