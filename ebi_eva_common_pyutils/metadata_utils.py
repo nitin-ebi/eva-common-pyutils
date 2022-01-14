@@ -84,7 +84,7 @@ def get_assembly_code_from_assembly(metadata_connection_handle, assembly):
     if len(rows) == 0:
         return None
     elif len(rows) > 1:
-        options = ', '.join(rows)
+        options = ', '.join([row for row, in rows])
         raise ValueError(f'More than one possible code for assembly {assembly} found: {options}')
     return rows[0][0]
 
