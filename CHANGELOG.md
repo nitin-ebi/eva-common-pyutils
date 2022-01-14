@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-0.3.19 (unreleased)
+0.3.19 (2022-01-14)
 -------------------
 
-- Nothing changed yet.
+- New function to add File handler to the logging configuration.
 
 
 0.3.18 (2021-10-07)
