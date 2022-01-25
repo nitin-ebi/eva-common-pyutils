@@ -81,6 +81,18 @@ def get_accession_pg_creds_for_profile(profile_name: str, settings_xml_file: str
     return pg_url, pg_user, pg_pass
 
 
+def get_count_service_creds_for_profile(profile_name: str, settings_xml_file: str):
+    """
+    Gets host, username, and password for eva count service.
+    Useful for filling properties files.
+    """
+    properties = get_properties_from_xml_file(profile_name, settings_xml_file)
+    counts_url = properties['eva.count-stats.url']
+    counts_user = properties['eva.count-stats.username']
+    counts_pass = properties['eva.count-stats.password']
+    return counts_url, counts_user, counts_pass
+
+
 def get_pg_uri_for_accession_profile(profile_name: str, settings_xml_file: str):
     return get_pg_uri_details_for_profile(profile_name, settings_xml_file, "eva.accession.jdbc.url")
 
