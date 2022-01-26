@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-0.3.20 (unreleased)
+0.3.20 (2022-01-26)
 -------------------
 
-- Nothing changed yet.
+- New function to get count service credentials from maven profile.
 
 
 0.3.19 (2022-01-14)
