@@ -81,6 +81,19 @@ def get_accession_pg_creds_for_profile(profile_name: str, settings_xml_file: str
     return pg_url, pg_user, pg_pass
 
 
+def get_contig_alias_db_creds_for_profile(profile_name: str, settings_xml_file: str):
+    """
+    Gets url, username, and password for contig alias database.
+
+    """
+    properties = get_properties_from_xml_file(profile_name, settings_xml_file)
+    contig_alias_url = properties['contig-alias.url']
+    contig_alias_user = properties['contig-alias.admin-user']
+    contig_alias_pass = properties['contig-alias.admin-password']
+
+    return contig_alias_url, contig_alias_user, contig_alias_pass
+
+
 def get_count_service_creds_for_profile(profile_name: str, settings_xml_file: str):
     """
     Gets host, username, and password for eva count service.
