@@ -5,7 +5,8 @@ Changelog for ebi_eva_common_pyutils
 0.3.21 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- New function to retrieve contig alias credentials.
+- New functions to search NCBI taxonomy info
 
 0.3.20 (2022-01-26)
 -------------------

@@ -5,7 +5,7 @@ from setuptools import find_packages
 setup(
     name='ebi_eva_common_pyutils',
     packages=find_packages(),
-    version='0.3.21.dev0',
+    version='0.3.21',
     license='Apache',
     description='EBI EVA - Common Python Utilities',
     url='https://github.com/EBIVariation/eva-common-pyutils',
