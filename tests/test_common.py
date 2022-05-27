@@ -1,9 +1,7 @@
 import os
 from unittest import TestCase
 
-from more_itertools import grouper
-
-from ebi_eva_common_pyutils.common_utils import merge_two_dicts, grouper
+from ebi_eva_common_pyutils.common_utils import merge_two_dicts
 
 
 class TestCommon(TestCase):
