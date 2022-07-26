@@ -182,7 +182,7 @@ class TestNextFlowPipeline(TestCommon):
         p5 = NextFlowProcess(process_name="fifth_process",
                              command_to_run=f"echo fifth_process >> {pipeline_output_file}")
         # Dependency graphs
-        #   p1		     p1   p4         p1---    p4
+        #   p1	         p1   p4         -p1--    p4
         # /    \     +	  \  /    =     /  \  \  /
         # p2    p3         p5          p2  p3  p5
         #
