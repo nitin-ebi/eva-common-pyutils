@@ -100,14 +100,20 @@ class NextFlowPipeline(AppLogger):
         run_command_with_output(f"Running pipeline {workflow_file_path}...", workflow_command)
 
     @staticmethod
-    def join_pipelines(main_pipeline: 'NextFlowPipeline', dependent_pipeline: 'NextFlowPipeline', with_dependencies=True) -> 'NextFlowPipeline':
+    def join_pipelines(main_pipeline: 'NextFlowPipeline', dependent_pipeline: 'NextFlowPipeline',
+                       with_dependencies: bool = True) -> 'NextFlowPipeline':
         """
-        Join two pipelines.
+        Join two pipelines with or without dependencies
 
-        Returns a new pipeline where:
+        With Dependencies it returns a new pipeline where:
             1) root processes are those of the main pipeline.
             2) final processes are those of the dependent pipeline and
             3) every root process of the dependent pipeline depends on the final processes of the main pipeline.
+        Without Dependencies it returns a new pipeline where:
+            1) the two pipeline are left independent
+            2) Only shared dependencies
+            3) every root process of the dependent pipeline depends on the final processes of the main pipeline.
+
         """
         joined_pipeline = NextFlowPipeline()
         # Aggregate dependency maps of both pipelines
