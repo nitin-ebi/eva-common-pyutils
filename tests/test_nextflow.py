@@ -165,3 +165,36 @@ class TestNextFlowPipeline(TestCommon):
         # Due to parallelism, order in which p4 and p5 are executed cannot be guaranteed
         self.assertTrue("fourth_process" in lines[3:5] and "fifth_process" in lines[3:5])
         self.assertEqual("sixth_process", lines[5])
+
+    def test_pipeline_join_no_dependencies(self):
+        pipeline_output_file = os.path.join(self.nextflow_test_dir, "non_linear_pipeline_output.txt")
+        if os.path.isfile(pipeline_output_file):
+            os.remove(pipeline_output_file)
+
+        p1 = NextFlowProcess(process_name="first_process",
+                             command_to_run=f"echo first_process >> {pipeline_output_file}")
+        p2 = NextFlowProcess(process_name="second_process",
+                             command_to_run=f"echo second_process >> {pipeline_output_file}")
+        p3 = NextFlowProcess(process_name="third_process",
+                             command_to_run=f"echo third_process >> {pipeline_output_file}")
+        p4 = NextFlowProcess(process_name="fourth_process",
+                             command_to_run=f"echo fourth_process >> {pipeline_output_file}")
+        p5 = NextFlowProcess(process_name="fifth_process",
+                             command_to_run=f"echo fifth_process >> {pipeline_output_file}")
+        # Dependency graphs
+        #   p1		      p1  p4		 p1---    p4
+        # /    \     +	  \  /    =     /  \  \  /
+        # p2    p3          p5	       p2  p3  p5
+        #
+        pipe1 = NextFlowPipeline(process_dependency_map={p2: [p1], p3: [p1]})
+        pipe2 = NextFlowPipeline(process_dependency_map={p5: [p1, p4]})
+        pipe3 = NextFlowPipeline.join_pipelines(pipe1, pipe2, with_dependencies=False)
+        pipe3.run_pipeline(workflow_file_path=self.non_linear_workflow_file_path, working_dir=self.nextflow_test_dir,
+                           nextflow_config_path=self.nextflow_config_file)
+        lines = [line.strip() for line in open(pipeline_output_file).readlines()]
+        self.assertEqual(5, len(lines))
+        # Due to parallelism, order in which p1 and p4 are executed cannot be guaranteed
+        self.assertTrue("first_process" in lines[0:2] and "fourth_process" in lines[0:2])
+        # Due to parallelism, order in which p2, p3 and p5 are executed cannot be guaranteed
+        self.assertTrue("second_process" in lines[2:5] and "third_process" in lines[2:5] and
+                        "fifth_process" in lines[2:5])

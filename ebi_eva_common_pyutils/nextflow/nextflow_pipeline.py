@@ -100,7 +100,7 @@ class NextFlowPipeline(AppLogger):
         run_command_with_output(f"Running pipeline {workflow_file_path}...", workflow_command)
 
     @staticmethod
-    def join_pipelines(main_pipeline: 'NextFlowPipeline', dependent_pipeline: 'NextFlowPipeline') -> 'NextFlowPipeline':
+    def join_pipelines(main_pipeline: 'NextFlowPipeline', dependent_pipeline: 'NextFlowPipeline', with_dependencies=True) -> 'NextFlowPipeline':
         """
         Join two pipelines.
 
@@ -113,10 +113,11 @@ class NextFlowPipeline(AppLogger):
         # Aggregate dependency maps of both pipelines
         joined_pipeline.process_dependency_map = nx.compose(main_pipeline.process_dependency_map,
                                                             dependent_pipeline.process_dependency_map)
-        for final_process_in_main_pipeline in main_pipeline._get_final_processes():
-            for root_process_in_dependent_pipeline in dependent_pipeline._get_root_processes():
-                joined_pipeline.add_process_dependency(root_process_in_dependent_pipeline,
-                                                       final_process_in_main_pipeline)
+        if with_dependencies:
+            for final_process_in_main_pipeline in main_pipeline._get_final_processes():
+                for root_process_in_dependent_pipeline in dependent_pipeline._get_root_processes():
+                    joined_pipeline.add_process_dependency(root_process_in_dependent_pipeline,
+                                                           final_process_in_main_pipeline)
         return joined_pipeline
 
     def _get_root_processes(self) -> List[NextFlowProcess]:
