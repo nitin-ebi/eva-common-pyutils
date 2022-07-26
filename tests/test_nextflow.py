@@ -143,14 +143,14 @@ class TestNextFlowPipeline(TestCommon):
         p6 = NextFlowProcess(process_name="sixth_process",
                              command_to_run=f"echo sixth_process >> {pipeline_output_file}")
         # Dependency graphs
-        #   p1		      p4  p5		 p1
+        #   p1           p4   p5         p1
         # /    \     +	  \  /    =     /  \
         # p2    p3          p6	       p2  p3
-        #			                    / \/\
-        #			                    / /\ \
-        #			                    p4  p5
-        #			                    \   /
-        #			                      p6
+        #                              /\  /\
+        #                              | \/ |
+        #                              p4  p5
+        #                              \   /
+        #                                p6
         pipe1 = NextFlowPipeline(process_dependency_map={p2: [p1], p3: [p1]})
         pipe2 = NextFlowPipeline(process_dependency_map={p6: [p4, p5]})
         pipe3 = NextFlowPipeline.join_pipelines(pipe1, pipe2)
@@ -182,9 +182,9 @@ class TestNextFlowPipeline(TestCommon):
         p5 = NextFlowProcess(process_name="fifth_process",
                              command_to_run=f"echo fifth_process >> {pipeline_output_file}")
         # Dependency graphs
-        #   p1		      p1  p4		 p1---    p4
+        #   p1		     p1   p4         p1---    p4
         # /    \     +	  \  /    =     /  \  \  /
-        # p2    p3          p5	       p2  p3  p5
+        # p2    p3         p5          p2  p3  p5
         #
         pipe1 = NextFlowPipeline(process_dependency_map={p2: [p1], p3: [p1]})
         pipe2 = NextFlowPipeline(process_dependency_map={p5: [p1, p4]})
