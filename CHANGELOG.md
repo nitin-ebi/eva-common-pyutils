@@ -2,7 +2,12 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-0.3.21 (unreleased)
+0.3.22 (2022-07-27)
+-------------------
+
+- New option in Nextflow.join_pipeline to keep the two pipeline independent
+
+0.3.21 (2022-05-27)
 -------------------
 
 - New function to retrieve contig alias credentials.
