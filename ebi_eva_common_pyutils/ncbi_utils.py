@@ -65,16 +65,3 @@ def get_ncbi_taxonomy_dicts_from_ids(taxonomy_ids, api_key=None):
     for taxonomy_id in summary_list.get('result', {}).get('uids', []):
         taxonomy_dicts.append(summary_list.get('result').get(taxonomy_id))
     return taxonomy_dicts
-
-
-def get_ncbi_an_assembly_name_from_term(term):
-    assembl_dicts = get_ncbi_assembly_dicts_from_term(term)
-    assembly_names = set([d.get('assemblyname') for d in assembl_dicts])
-    if len(assembly_names) > 1:
-        # Only keep the one that have the assembly accession as a synonymous and check again
-        assembly_names = set([d.get('assemblyname') for d in assembl_dicts
-                              if term in d['synonym'].values() or term == d['assemblyaccession']])
-    if len(assembly_names) > 1:
-        raise ValueError(f'Cannot resolve assembly name for assembly {term} in NCBI. '
-                         f'Found {",".join([str(a) for a in assembly_names])}')
-    return assembly_names.pop() if assembly_names else None
