@@ -74,7 +74,7 @@ def get_ncbi_assembly_name_from_term(term):
         # Only keep the one that have the assembly accession as a synonymous and check again
         assembly_names = set([d.get('assemblyname') for d in assembl_dicts
                               if term in d['synonym'].values() or term == d['assemblyaccession']])
-    if len(assembly_names) > 1:
+    if len(assembly_names) != 1:
         raise ValueError(f'Cannot resolve assembly name for assembly {term} in NCBI. '
                          f'Found {",".join([str(a) for a in assembly_names])}')
     return assembly_names.pop() if assembly_names else None

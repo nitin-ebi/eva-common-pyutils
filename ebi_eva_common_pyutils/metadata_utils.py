@@ -19,7 +19,7 @@ import psycopg2
 from ebi_eva_common_pyutils.config_utils import get_metadata_creds_for_profile
 from ebi_eva_common_pyutils.ena_utils import get_scientific_name_and_common_name
 from ebi_eva_common_pyutils.logger import logging_config
-from ebi_eva_common_pyutils.ncbi_utils import get_ncbi_an_assembly_name_from_term
+from ebi_eva_common_pyutils.ncbi_utils import get_ncbi_assembly_name_from_term
 from ebi_eva_common_pyutils.pg_utils import get_result_cursor, get_all_results_for_query
 from ebi_eva_common_pyutils.taxonomy.taxonomy import get_scientific_name_from_ensembl
 
@@ -117,7 +117,7 @@ get_variant_warehouse_db_name_from_assembly_and_taxonomy = resolve_existing_vari
 def get_assembly_code(metadata_connection_handle, assembly):
     assembly_code = get_assembly_code_from_metadata(metadata_connection_handle, assembly)
     if not assembly_code:
-        assembly_name = get_ncbi_an_assembly_name_from_term(assembly)
+        assembly_name = get_ncbi_assembly_name_from_term(assembly)
         assembly_code = re.sub('[^0-9a-zA-Z]+', '', assembly_name.lower())
     return assembly_code
 
@@ -160,7 +160,7 @@ def insert_new_assembly_and_taxonomy(metadata_connection_handle, assembly_access
         Not required if the taxonomy exists or ENA has a common name available.
     :param in_accessioning: Flag that this assembly is in the accessioning data store.
     """
-    assembly_name = get_ncbi_an_assembly_name_from_term(assembly_accession)
+    assembly_name = get_ncbi_assembly_name_from_term(assembly_accession)
 
     # check if assembly is already in EVAPRO, adding it if not
     assembly_set_id = get_assembly_set_from_metadata(metadata_connection_handle, taxonomy_id, assembly_accession)
