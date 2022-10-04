@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-0.4 (unreleased)
--------------------
+0.4 (2022-10-04)
+----------------
 
-- Nothing changed yet.
+- New functions to create assemblies in the metadata databases
 
 
 0.3.22 (2022-07-27)
