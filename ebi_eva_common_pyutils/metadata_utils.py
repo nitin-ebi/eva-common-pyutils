@@ -17,9 +17,13 @@ from urllib.parse import urlsplit
 import psycopg2
 
 from ebi_eva_common_pyutils.config_utils import get_metadata_creds_for_profile
-from ebi_eva_common_pyutils.ncbi_utils import get_ncbi_assembly_dicts_from_term
+from ebi_eva_common_pyutils.ena_utils import get_scientific_name_and_common_name
+from ebi_eva_common_pyutils.logger import logging_config
+from ebi_eva_common_pyutils.ncbi_utils import get_ncbi_assembly_name_from_term
 from ebi_eva_common_pyutils.pg_utils import get_result_cursor, get_all_results_for_query
 from ebi_eva_common_pyutils.taxonomy.taxonomy import get_scientific_name_from_ensembl
+
+logger = logging_config.get_logger(__name__)
 
 
 def get_metadata_connection_handle(profile, settings_xml_file):
@@ -35,10 +39,10 @@ def get_db_conn_for_species(species_db_info):
 
 
 def get_species_info(metadata_connection_handle, dbsnp_species_name="all"):
-    get_species_info_query = "select distinct database_name, scientific_name, dbsnp_build, pg_host, pg_port from " \
-                             "dbsnp_ensembl_species.import_progress a " \
-                             "join dbsnp_ensembl_species.dbsnp_build_instance b " \
-                                "on b.dbsnp_build = a.ebi_pg_dbsnp_build "
+    get_species_info_query = "SELECT DISTINCT database_name, scientific_name, dbsnp_build, pg_host, pg_port " \
+                             "FROM dbsnp_ensembl_species.import_progress a " \
+                             "JOIN dbsnp_ensembl_species.dbsnp_build_instance b " \
+                             "ON b.dbsnp_build = a.ebi_pg_dbsnp_build "
     if dbsnp_species_name != "all":
         get_species_info_query += "where database_name = '{0}' ".format(dbsnp_species_name)
     get_species_info_query += "order by database_name"
@@ -55,17 +59,17 @@ def get_species_info(metadata_connection_handle, dbsnp_species_name="all"):
 def get_dbsnp_mirror_db_info(pg_metadata_dbname, pg_metadata_user, pg_metadata_host):
     with psycopg2.connect("dbname='{0}' user='{1}' host='{2}'".format(pg_metadata_dbname, pg_metadata_user,
                                                                       pg_metadata_host)) as pg_conn:
-        dbsnp_mirror_db_info_query = "select * from dbsnp_ensembl_species.dbsnp_build_instance"
+        dbsnp_mirror_db_info_query = "SELECT * FROM dbsnp_ensembl_species.dbsnp_build_instance"
         dbsnp_mirror_db_info = [{"dbsnp_build": result[0], "pg_host": result[1], "pg_port": result[2]}
                                 for result in get_all_results_for_query(pg_conn, dbsnp_mirror_db_info_query)]
     return dbsnp_mirror_db_info
 
 
-def get_taxonomy_code_from_taxonomy(metadata_connection_handle, taxonomy):
+def get_taxonomy_code_from_metadata(metadata_connection_handle, taxonomy):
     """
     Retrieve an existing taxonomy code registered in the metadata database.
     """
-    query = f"select distinct t.taxonomy_code from  taxonomy t where t.taxonomy_id = {taxonomy}"
+    query = f"SELECT DISTINCT t.taxonomy_code FROM taxonomy t WHERE t.taxonomy_id = {taxonomy}"
     rows = get_all_results_for_query(metadata_connection_handle, query)
     if len(rows) == 0:
         return None
@@ -75,11 +79,11 @@ def get_taxonomy_code_from_taxonomy(metadata_connection_handle, taxonomy):
     return rows[0][0]
 
 
-def get_assembly_code_from_assembly(metadata_connection_handle, assembly):
+def get_assembly_code_from_metadata(metadata_connection_handle, assembly):
     """
     Retrieve an existing assembly code registered in the metadata database.
     """
-    query = f"select distinct assembly_code from assembly where assembly_accession='{assembly}';"
+    query = f"SELECT DISTINCT assembly_code FROM assembly WHERE assembly_accession='{assembly}'"
     rows = get_all_results_for_query(metadata_connection_handle, query)
     if len(rows) == 0:
         return None
@@ -101,8 +105,8 @@ def resolve_existing_variant_warehouse_db_name(metadata_connection_handle, assem
     database.
     """
     return build_variant_warehouse_database_name(
-        get_taxonomy_code_from_taxonomy(metadata_connection_handle, taxonomy),
-        get_assembly_code_from_assembly(metadata_connection_handle, assembly)
+        get_taxonomy_code_from_metadata(metadata_connection_handle, taxonomy),
+        get_assembly_code_from_metadata(metadata_connection_handle, assembly)
     )
 
 
@@ -110,22 +114,143 @@ def resolve_existing_variant_warehouse_db_name(metadata_connection_handle, assem
 get_variant_warehouse_db_name_from_assembly_and_taxonomy = resolve_existing_variant_warehouse_db_name
 
 
+def get_assembly_code(metadata_connection_handle, assembly):
+    assembly_code = get_assembly_code_from_metadata(metadata_connection_handle, assembly)
+    if not assembly_code:
+        assembly_name = get_ncbi_assembly_name_from_term(assembly)
+        assembly_code = re.sub('[^0-9a-zA-Z]+', '', assembly_name.lower())
+    return assembly_code
+
+
+def build_taxonomy_code(scientific_name):
+    """Given a scientific name like "Zea mays", the corresponding taxonomy code should be zmays"""
+    return scientific_name[0].lower() + re.sub('[^0-9a-zA-Z]+', '', ''.join(scientific_name.split()[1:])).lower()
+
+
+def get_taxonomy_code(metadata_connection_handle, taxonomy):
+    taxonomy_code = get_taxonomy_code_from_metadata(metadata_connection_handle, taxonomy)
+    if not taxonomy_code:
+        scientific_name = get_scientific_name_from_ensembl(taxonomy)
+        taxonomy_code = build_taxonomy_code(scientific_name)
+    return taxonomy_code
+
+
 def resolve_variant_warehouse_db_name(metadata_connection_handle, assembly, taxonomy):
     """
     Retrieve the database name for this taxonomy/assembly pair whether it exists or not.
     It will use existing taxonomy code or assembly code if available in the metadata database.
     """
-    taxonomy_code = get_taxonomy_code_from_taxonomy(metadata_connection_handle, taxonomy)
-    if not taxonomy_code:
-        scientific_name = get_scientific_name_from_ensembl(taxonomy)
-        taxonomy_code = scientific_name[0].lower() + re.sub('[^0-9a-zA-Z]+', '',
-                                                            ''.join(scientific_name.split()[1:]).lower())
-    assembly_code = get_assembly_code_from_assembly(metadata_connection_handle, assembly)
-    if not assembly_code:
-        assembl_dicts = get_ncbi_assembly_dicts_from_term(assembly)
-        assembly_names = set([d.get('assemblyname') for d in assembl_dicts])
-        if len(assembly_names) != 1:
-            raise ValueError(f'Cannot resolve assembly name for assembly {assembly} in NCBI. '
-                             f'Found {",".join([str(a) for a in assembly_names])}')
-        assembly_code = re.sub('[^0-9a-zA-Z]+', '', assembly_names.pop().lower())
+    taxonomy_code = get_taxonomy_code(metadata_connection_handle, taxonomy)
+    assembly_code = get_assembly_code(metadata_connection_handle, assembly)
     return build_variant_warehouse_database_name(taxonomy_code, assembly_code)
+
+
+def insert_new_assembly_and_taxonomy(metadata_connection_handle, assembly_accession, taxonomy_id, eva_species_name=None,
+                                     in_accessioning=True):
+    """
+    This script adds new assemblies and taxonomies to EVAPRO.
+    You can also add the assembly with a different taxonomy if you provide the
+    taxonomy parameters. Example taxonomy page:
+    https://www.ebi.ac.uk/ena/data/view/Taxon:9031
+
+    :param assembly_accession: Assembly accession (Example: GCA_000002315.3)
+    :param metadata_connection_handle: Metadata DB connection
+    :param taxonomy_id: Taxonomy id (Example: 9031)
+    :param eva_species_name: EVA species name (Example: chicken).
+        Not required if the taxonomy exists or ENA has a common name available.
+    :param in_accessioning: Flag that this assembly is in the accessioning data store.
+    """
+    assembly_name = get_ncbi_assembly_name_from_term(assembly_accession)
+
+    # check if assembly is already in EVAPRO, adding it if not
+    assembly_set_id = get_assembly_set_from_metadata(metadata_connection_handle, taxonomy_id, assembly_accession)
+    if assembly_set_id is None:
+        ensure_taxonomy_is_in_evapro(metadata_connection_handle, taxonomy_id, eva_species_name)
+        assembly_code = get_assembly_code(metadata_connection_handle, assembly_accession)
+        insert_assembly_in_evapro(metadata_connection_handle, taxonomy_id, assembly_accession, assembly_name, assembly_code)
+
+    update_accessioning_status(metadata_connection_handle, assembly_accession, in_accessioning)
+    metadata_connection_handle.commit()
+
+
+def ensure_taxonomy_is_in_evapro(metadata_connection_handle, taxonomy, eva_species_name=None):
+    if is_taxonomy_in_evapro(metadata_connection_handle, taxonomy):
+        logger.debug('Taxonomy {} is already in the database'.format(taxonomy))
+    else:
+        logger.info("Taxonomy {} not present in EVAPRO. Adding taxonomy ...".format(taxonomy))
+        scientific_name, common_name = get_scientific_name_and_common_name(taxonomy)
+        taxonomy_code = build_taxonomy_code(scientific_name)
+        eva_species_name = eva_species_name if eva_species_name is not None else common_name
+        if eva_species_name is None:
+            raise ValueError(
+                'The taxonomy in ENA doesn\'t include a common name. '
+                'Please specify the EVA name for the species "{}"'.format(scientific_name))
+        insert_taxonomy(metadata_connection_handle, taxonomy, scientific_name, common_name, taxonomy_code, eva_species_name)
+
+
+def insert_assembly_in_evapro(metadata_connection_handle, taxonomy_id, assembly_accession, assembly_name, assembly_code):
+    cur = metadata_connection_handle.cursor()
+    cur.execute('INSERT INTO evapro.assembly_set(taxonomy_id, assembly_name, assembly_code) VALUES (%s, %s, %s)',
+                (taxonomy_id, assembly_name, assembly_code))
+
+    # get the assembly_set_id that was autogenerated in the row that we just inserted in assembly_set
+    assembly_set_id = get_all_results_for_query(metadata_connection_handle,
+                                    'SELECT assembly_set_id FROM evapro.assembly_set '
+                                    'WHERE taxonomy_id={} and assembly_name=\'{}\' and assembly_code=\'{}\''
+                                                .format(taxonomy_id, assembly_name, assembly_code))[0][0]
+
+    assembly_chain = assembly_accession.split('.')[0]
+    assembly_version = assembly_accession.split('.')[1]
+    cur.execute('INSERT INTO evapro.accessioned_assembly('
+                'assembly_set_id, assembly_accession, assembly_chain, assembly_version) VALUES (%s,%s,%s,%s)',
+                (assembly_set_id, assembly_accession, assembly_chain, assembly_version))
+
+    logger.info('New assembly added with assembly_set_id: {0}'.format(assembly_set_id))
+    return assembly_set_id
+
+
+def update_accessioning_status(metadata_connection_handle, assembly_accession, in_accessioning_flag):
+    cur = metadata_connection_handle.cursor()
+    # Only insert assembly accessions which are NOT already in the assembly_accessioning_store_status table
+    assembly_accessioning_store_insert_query = "INSERT INTO evapro.assembly_accessioning_store_status " \
+                                               "SELECT * FROM (SELECT " \
+                                               "cast('{0}' as text) as assembly_accession" \
+                                               ", cast('{1}' as boolean) as loaded) temp " \
+                                               "WHERE assembly_accession NOT IN " \
+                                               "(SELECT assembly_accession FROM " \
+                                               "evapro.assembly_accessioning_store_status)" \
+                                               .format(assembly_accession, in_accessioning_flag)
+    cur.execute(assembly_accessioning_store_insert_query)
+
+
+def get_assembly_set_from_metadata(metadata_connection_handle, taxonomy, assembly_accession):
+    query = (f"SELECT acc.assembly_set_id "
+             f"FROM evapro.accessioned_assembly acc "
+             f"JOIN assembly_set asm on acc.assembly_set_id = asm.assembly_set_id "
+             f"WHERE assembly_accession='{assembly_accession}' AND taxonomy_id={taxonomy}")
+    rows = get_all_results_for_query(metadata_connection_handle, query)
+
+    if len(rows) == 1:
+        return rows[0][0]
+    elif len(rows) == 0:
+        return None
+    else:
+        raise ValueError('Inconsistent database state: several assembly_set_ids for the same taxonomy ({}) and '
+                         'assembly accession ({}): {}'.format(taxonomy, assembly_accession, rows))
+
+
+def is_taxonomy_in_evapro(metadata_connection_handle, taxonomy_id):
+    taxonomy_query = 'SELECT taxonomy_id FROM evapro.taxonomy WHERE taxonomy_id={}'.format(taxonomy_id)
+    taxonomy_ids_in_evapro = get_all_results_for_query(metadata_connection_handle, taxonomy_query)
+    return len(taxonomy_ids_in_evapro) > 0
+
+
+def insert_taxonomy(metadata_connection_handle, taxonomy_id, scientific_name, common_name, taxonomy_code, eva_species_name):
+    if taxonomy_code is None or eva_species_name is None:
+        raise ValueError('Error: taxonomy code ({}) and EVA taxonomy name ({}) are required '
+                         'for inserting a taxonomy'.format(taxonomy_code, eva_species_name))
+    cur = metadata_connection_handle.cursor()
+    cur.execute('INSERT INTO evapro.taxonomy(taxonomy_id, common_name, scientific_name, taxonomy_code, eva_name) '
+                'VALUES (%s, %s, %s, %s, %s)',
+                (taxonomy_id, common_name, scientific_name, taxonomy_code, eva_species_name))
+    logger.info('New taxonomy {} added'.format(taxonomy_id))
