@@ -17,7 +17,7 @@ jobs:
       matrix:
         mongodb-version: [4.0.18]
         python-version: [3.8, 3.9]
-        java-version: [1.8]
+        java-version: [1.11]
 
     steps:
     - uses: actions/checkout@v2
