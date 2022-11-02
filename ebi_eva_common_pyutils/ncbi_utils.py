@@ -1,3 +1,5 @@
+import re
+
 import requests
 from retry import retry
 
@@ -78,3 +80,17 @@ def get_ncbi_assembly_name_from_term(term):
         raise ValueError(f'Cannot resolve assembly name for assembly {term} in NCBI. '
                          f'Found {",".join([str(a) for a in assembly_names])}')
     return assembly_names.pop() if assembly_names else None
+
+
+def retrieve_species_names_from_tax_id_ncbi(taxid):
+    payload = {'db': 'Taxonomy', 'id': taxid}
+    r = requests.get(efetch_url, params=payload)
+    match = re.search('<Rank>(.+?)</Rank>', r.text, re.MULTILINE)
+    rank = None
+    if match:
+        rank = match.group(1)
+    if rank not in ['species', 'subspecies']:
+        logger.warning('Taxonomy id %s does not point to a species', taxid)
+    match = re.search('<ScientificName>(.+?)</ScientificName>', r.text, re.MULTILINE)
+    if match:
+        return match.group(1)

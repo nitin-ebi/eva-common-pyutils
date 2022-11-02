@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import re
+
+from ebi_eva_common_pyutils.ncbi_utils import retrieve_species_names_from_tax_id_ncbi
 from ebi_eva_common_pyutils.network_utils import json_request
 
 
@@ -37,3 +39,14 @@ def normalise_taxon_scientific_name(taxon_name):
 def get_normalized_scientific_name_from_ensembl(taxonomy_id: int) -> str:
     """Get the scientific name for that taxon"""
     return normalise_taxon_scientific_name(get_scientific_name_from_ensembl(taxonomy_id))
+
+
+def get_scientific_name_from_taxonomy(taxonomy_id: int) -> str:
+    """
+    Search for a species scientific name based on the taxonomy id.
+    Will first attempt to retrieve from Ensembl and then NCBI, if not found returns None.
+    """
+    species_name = get_scientific_name_from_ensembl(taxonomy_id)
+    if not species_name:
+        species_name = retrieve_species_names_from_tax_id_ncbi(taxonomy_id)
+    return species_name
