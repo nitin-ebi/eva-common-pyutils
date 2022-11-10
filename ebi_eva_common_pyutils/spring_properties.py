@@ -26,7 +26,7 @@ class SpringPropertiesGenerator:
         self.maven_profile = maven_profile
         self.private_settings_file = private_settings_file
 
-    def _common_properties(self):
+    def _common_properties(self, assembly_accession):
         """Properties common to all Spring pipelines"""
         mongo_host, mongo_user, mongo_pass = get_primary_mongo_creds_for_profile(
             self.maven_profile, self.private_settings_file)
@@ -50,8 +50,9 @@ mongodb.read-preference=secondaryPreferred
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
-logging.level.uk.ac.ebi.eva.accession.remapping=INFO
+
 parameters.chunkSize=1000
+parameters.assemblyAccession={assembly_accession}
 '''
 
     def _accessioning_properties(self, instance):
@@ -78,10 +79,9 @@ eva.count-stats.password={counts_password}
     def get_remapping_extraction_properties(self, *, taxonomy='', source_assembly='', fasta='', assembly_report='',
                                             projects='', output_folder='.'):
         """Properties for remapping extraction pipeline."""
-        return self._common_properties() + f'''
+        return self._common_properties(source_assembly) + f'''
 spring.batch.job.names=EXPORT_SUBMITTED_VARIANTS_JOB
 parameters.taxonomy={taxonomy}
-parameters.assemblyAccession={source_assembly}
 parameters.fasta={fasta}
 parameters.assemblyReportUrl=file:{assembly_report}
 parameters.projects={projects}
@@ -91,10 +91,9 @@ parameters.outputFolder={output_folder}
     def get_remapping_ingestion_properties(self, *, source_assembly='', target_assembly='', vcf='', load_to='',
                                            remapping_version=1.0):
         """Properties for remapping ingestion pipeline."""
-        return self._common_properties() + f'''
+        return self._common_properties(target_assembly) + f'''
 spring.batch.job.names=INGEST_REMAPPED_VARIANTS_FROM_VCF_JOB
 parameters.vcf={vcf}
-parameters.assemblyAccession={target_assembly}
 parameters.remappedFrom={source_assembly}
 parameters.loadTo={load_to}
 parameters.remappingVersion={remapping_version}
@@ -104,12 +103,11 @@ parameters.remappingVersion={remapping_version}
                                   job_name='', target_assembly='', rs_report_path='', projects='',
                                   project_accession='', vcf='', source_assembly=''):
         """Properties common to all clustering pipelines, though not all are always used."""
-        return self._common_properties() + self._accessioning_properties(instance) + f'''
+        return self._common_properties(target_assembly) + self._accessioning_properties(instance) + f'''
 spring.batch.job.names={job_name}
 parameters.projects={projects}
 parameters.projectAccession={project_accession}
 parameters.vcf={vcf}
-parameters.assemblyAccession={target_assembly}
 parameters.remappedFrom={source_assembly}
 parameters.rsReportPath={rs_report_path}
 '''

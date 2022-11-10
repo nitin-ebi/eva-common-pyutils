@@ -48,7 +48,7 @@ class ContigAliasClient(AppLogger):
         if response.status_code == 200:
             self.info(f'Assembly accession {assembly} successfully added to Contig-Alias DB')
         elif response.status_code == 409:
-            self.warning(f'Assembly accession {assembly} already exist in Contig-Alias DB. Response: {response.text}')
+            self.warning(f'Assembly accession {assembly} already exists in Contig-Alias DB. Response: {response.text}')
         elif response.status_code == 500:
             self.error(f'Could not save Assembly accession {assembly} to Contig-Alias DB. Error: {response.text}')
             raise InternalServerError
