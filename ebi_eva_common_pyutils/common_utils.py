@@ -17,3 +17,14 @@ def merge_two_dicts(x, y):
     z = x.copy()  # start with x's keys and values
     z.update(y)  # modifies z with y's keys and values & returns None
     return z
+
+
+def pretty_print(header, table):
+    cell_widths = [len(h) for h in header]
+    for row in table:
+        for i, cell in enumerate(row):
+            cell_widths[i] = max(cell_widths[i], len(str(cell)))
+    format_string = ' | '.join('{%s:>%s}' % (i, w) for i, w in enumerate(cell_widths))
+    print('| ' + format_string.format(*header) + ' |')
+    for row in table:
+        print('| ' + format_string.format(*row) + ' |')

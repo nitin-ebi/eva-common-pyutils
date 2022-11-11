@@ -54,6 +54,7 @@ class ContigAliasClient(AppLogger):
             raise InternalServerError
         else:
             self.error(f'Could not save Assembly accession {assembly} to Contig-Alias DB. Error: {response.text}')
+            response.raise_for_status()
 
     @retry(InternalServerError, tries=3, delay=2, backoff=1.5, jitter=(1, 3))
     def delete_assembly(self, assembly):

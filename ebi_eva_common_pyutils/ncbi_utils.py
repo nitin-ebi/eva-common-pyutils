@@ -82,7 +82,7 @@ def get_ncbi_assembly_name_from_term(term):
     return assembly_names.pop() if assembly_names else None
 
 
-def retrieve_species_names_from_tax_id_ncbi(taxid):
+def retrieve_species_scientific_name_from_tax_id_ncbi(taxid):
     payload = {'db': 'Taxonomy', 'id': taxid}
     r = requests.get(efetch_url, params=payload)
     match = re.search('<Rank>(.+?)</Rank>', r.text, re.MULTILINE)
