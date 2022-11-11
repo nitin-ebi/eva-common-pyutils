@@ -14,7 +14,7 @@
 
 import re
 
-from ebi_eva_common_pyutils.ncbi_utils import retrieve_species_names_from_tax_id_ncbi
+from ebi_eva_common_pyutils.ncbi_utils import retrieve_species_scientific_name_from_tax_id_ncbi
 from ebi_eva_common_pyutils.network_utils import json_request
 
 
@@ -48,5 +48,5 @@ def get_scientific_name_from_taxonomy(taxonomy_id: int) -> str:
     """
     species_name = get_scientific_name_from_ensembl(taxonomy_id)
     if not species_name:
-        species_name = retrieve_species_names_from_tax_id_ncbi(taxonomy_id)
+        species_name = retrieve_species_scientific_name_from_tax_id_ncbi(taxonomy_id)
     return species_name
