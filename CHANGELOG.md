@@ -2,6 +2,13 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
+0.5 (2022-11-15)
+----------------
+
+- Client for contig alias API
+- Default read/write concerns for mongo clients
+- Utilities for printing tables, generating properties files, scientific names
+
 0.4 (2022-10-04)
 ----------------
 
