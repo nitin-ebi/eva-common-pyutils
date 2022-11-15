@@ -2,8 +2,11 @@ import os
 import tempfile
 
 import pymongo
+from pymongo import WriteConcern, ReadPreference
+from pymongo.read_concern import ReadConcern
 
 from ebi_eva_common_pyutils.command_utils import run_command_with_output
+from ebi_eva_common_pyutils.mongo_utils import get_mongo_connection_handle
 from ebi_eva_common_pyutils.mongodb import MongoDatabase
 from tests.test_common import TestCommon
 
@@ -12,6 +15,7 @@ class TestMongoDatabase(TestCommon):
     dump_db_name = "test_mongo_db"
     uri = "mongodb://localhost:27017/admin"
     local_mongo_handle = pymongo.MongoClient()
+    config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'resources/test_config_file.xml')
 
     # Tests expect a local sharded Mongo instance
     def setUp(self) -> None:
@@ -162,3 +166,9 @@ class TestMongoDatabase(TestCommon):
 
             # delete the newly created temp collection
             self.test_mongo_db.mongo_handle[self.dump_db_name][new_collection_name].drop()
+
+    def test_get_mongo_connection_handle_sets_defaults(self):
+        conn = get_mongo_connection_handle('local', self.config_file)
+        self.assertEqual(conn.write_concern, WriteConcern('majority'))
+        self.assertEqual(conn.read_concern, ReadConcern('majority'))
+        self.assertEqual(conn.read_preference, ReadPreference.PRIMARY)
