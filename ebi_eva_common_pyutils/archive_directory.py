@@ -52,15 +52,15 @@ def retryable_copy(src_file_path, dest_file_path, **kwargs):
     shutil.copyfile(src_file_path, dest_file_path, **kwargs)
 
 
-def archive_directory(root_dir, scratch_dir, destination_dir, filter_patterns=None):
+def archive_directory(source_dir, scratch_dir, destination_dir, filter_patterns=None):
     """
     Archive a directory by copying the data it contains to a scratch directory compressing all files that are not
     already compressed. Then it create a tar file to the destination_dir under the name of the original directory.
     """
-    root_dir_name = os.path.basename(root_dir)
-    logger.info(f'Archive {root_dir_name} from {root_dir}')
-    parent_root_dir = os.path.dirname(root_dir)
-    for base, dirs, files in os.walk(root_dir, topdown=True, followlinks=False):
+    source_dir_name = os.path.basename(source_dir)
+    logger.info(f'Archive {source_dir_name} from {source_dir}')
+    parent_source_dir = os.path.dirname(source_dir)
+    for base, dirs, files in os.walk(source_dir, topdown=True, followlinks=False):
         # Filter the downstream directory to
         filtered_dir = []
         for d in dirs:
@@ -70,7 +70,7 @@ def archive_directory(root_dir, scratch_dir, destination_dir, filter_patterns=No
                 filtered_dir.append(d)
         # modify dirs in place
         dirs[:] = filtered_dir
-        src_basename = os.path.relpath(base, parent_root_dir)
+        src_basename = os.path.relpath(base, parent_source_dir)
         scratch_dest_dir = os.path.join(scratch_dir, src_basename)
         os.makedirs(scratch_dest_dir, exist_ok=True)
         for fname in files:
@@ -85,8 +85,8 @@ def archive_directory(root_dir, scratch_dir, destination_dir, filter_patterns=No
             else:
                 logger.info(f'Compress {src_file_path}')
                 retriable_compress(src_file_path, dest_file_path + '.gz')
-    final_tar_file = os.path.join(destination_dir, root_dir_name + '.tar')
-    scratch_dir_archived = os.path.join(scratch_dir, root_dir_name)
+    final_tar_file = os.path.join(destination_dir, source_dir_name + '.tar')
+    scratch_dir_archived = os.path.join(scratch_dir, source_dir_name)
     make_tarfile(final_tar_file, scratch_dir_archived)
     logger.info(f'Delete scratch folder {scratch_dir_archived}.')
     retriable_remove(scratch_dir_archived)
@@ -97,7 +97,7 @@ def main():
     parser = ArgumentParser(description='Archive a directory by copying the data it contains to a scratch directory '
                                         'compressing all files that are not already compressed. Then it create a tar '
                                         'file to the destination_dir under the name of the original directory.')
-    parser.add_argument('--root_dir', required=True, type=str,
+    parser.add_argument('--source_dir', required=True, type=str,
                         help='base directory you want to archive. All sub directories will be included.')
     parser.add_argument('--destination_dir', required=True, type=str,
                         help='Directory where the archive should be placed at the end of the process.')
@@ -106,7 +106,7 @@ def main():
     parser.add_argument('--filter_patterns', type=str, nargs='*', default=[],
                         help='keyword found in file and directory names that not be included to the archive.')
     args = parser.parse_args()
-    archive_directory(args.root_dir, args.scratch_dir,  args.destination_dir, args.filter_patterns)
+    archive_directory(args.source_dir, args.scratch_dir,  args.destination_dir, args.filter_patterns)
 
 
 if __name__ == '__main__':
