@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from ebi_eva_common_pyutils.config_utils import get_primary_mongo_creds_for_profile, get_accession_pg_creds_for_profile,\
-    get_count_service_creds_for_profile
+from ebi_eva_common_pyutils.config_utils import get_primary_mongo_creds_for_profile, get_accession_pg_creds_for_profile, \
+    get_count_service_creds_for_profile, get_properties_from_xml_file
 
 
 class SpringPropertiesGenerator:
@@ -31,6 +31,8 @@ class SpringPropertiesGenerator:
         mongo_host, mongo_user, mongo_pass = get_primary_mongo_creds_for_profile(
             self.maven_profile, self.private_settings_file)
         pg_url, pg_user, pg_pass = get_accession_pg_creds_for_profile(self.maven_profile, self.private_settings_file)
+        accession_db = get_properties_from_xml_file(
+            self.maven_profile, self.private_settings_file)['eva.accession.mongo.database']
         return f'''spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.url={pg_url}
 spring.datasource.username={pg_user}
@@ -41,7 +43,7 @@ spring.jpa.generate-ddl=true
 
 spring.data.mongodb.host={mongo_host}
 spring.data.mongodb.port=27017
-spring.data.mongodb.database=eva_accession_sharded
+spring.data.mongodb.database={accession_db}
 spring.data.mongodb.username={mongo_user}
 spring.data.mongodb.password={mongo_pass}
 
@@ -83,7 +85,7 @@ eva.count-stats.password={counts_password}
 spring.batch.job.names=EXPORT_SUBMITTED_VARIANTS_JOB
 parameters.taxonomy={taxonomy}
 parameters.fasta={fasta}
-parameters.assemblyReportUrl=file:{assembly_report}
+parameters.assemblyReportUrl={'file:' if assembly_report else ''}{assembly_report}
 parameters.projects={projects}
 parameters.outputFolder={output_folder}
 '''
