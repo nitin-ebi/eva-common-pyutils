@@ -2,6 +2,12 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
+0.5.1 (2022-12-21)
+----------------
+
+- Script to archive directories
+- Get accession database from settings in properties generator
+
 0.5 (2022-11-15)
 ----------------
 
