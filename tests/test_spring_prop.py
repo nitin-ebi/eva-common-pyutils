@@ -15,6 +15,7 @@ class TestSpringPropertiesGenerator(TestCommon):
 
         expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
 spring.datasource.password=accpassword
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -47,6 +48,7 @@ parameters.outputFolder=/path/to/output_folder
     def test_get_remapping_ingestion_properties(self):
         expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
 spring.datasource.password=accpassword
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -77,6 +79,7 @@ parameters.remappingVersion=1.0
     def test_get_clustering_properties(self):
         expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
 spring.datasource.password=accpassword
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -98,7 +101,6 @@ parameters.assemblyAccession=GCA_00000002.1
 parameters.projects=
 parameters.projectAccession=
 parameters.vcf=
-parameters.remappedFrom=GCA_00000001.1
 parameters.rsReportPath=/path/to/rs_report.txt
 
 accessioning.instanceId=instance-1
@@ -116,12 +118,13 @@ eva.count-stats.username=statsuser
 eva.count-stats.password=statspassword
 '''
         assert self.prop.get_clustering_properties(
-            instance=1, job_name='CLUSTERING_RSID', source_assembly='GCA_00000001.1', target_assembly='GCA_00000002.1',
+            instance=1, job_name='CLUSTERING_RSID', target_assembly='GCA_00000002.1',
             rs_report_path='/path/to/rs_report.txt') == expected
 
     def test_get_accessioning_properties(self):
         expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
 spring.datasource.password=accpassword
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -149,6 +152,7 @@ parameters.projectAccession=PRJEB0001
 parameters.taxonomyAccession=9906
 parameters.vcfAggregation=BASIC
 parameters.vcf=/path/to/vcf_file.vcf
+parameters.outputVcf=
 
 accessioning.instanceId=instance-1
 accessioning.submitted.categoryId=ss
@@ -172,6 +176,7 @@ eva.count-stats.password=statspassword
     def test_get_accessioning_properties_with_none(self):
         expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
 spring.datasource.password=accpassword
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -197,6 +202,7 @@ parameters.projectAccession=PRJEB0001
 parameters.taxonomyAccession=9906
 parameters.vcfAggregation=BASIC
 parameters.vcf=/path/to/vcf_file.vcf
+parameters.outputVcf=
 
 accessioning.instanceId=instance-1
 accessioning.submitted.categoryId=ss
@@ -216,4 +222,38 @@ eva.count-stats.password=statspassword
             instance=1, target_assembly='GCA_00000001.1', fasta=None,
             assembly_report=None, project_accession='PRJEB0001', aggregation='BASIC',
             taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
+
+    def test_get_release_properties(self):
+        expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
+spring.datasource.password=accpassword
+spring.datasource.tomcat.max-active=3
+spring.jpa.generate-ddl=true
+spring.data.mongodb.host=mongos-host2.example.com
+spring.data.mongodb.port=27017
+spring.data.mongodb.database=eva_accession_sharded
+spring.data.mongodb.username=mongouser
+spring.data.mongodb.password=mongopassword
+spring.data.mongodb.authentication-database=admin
+spring.main.web-application-type=none
+spring.main.allow-bean-definition-overriding=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.batch.job.names=RELEASE
+
+mongodb.read-preference=secondaryPreferred
+
+parameters.chunkSize=1000
+parameters.assemblyAccession=GCA_00000002.1
+parameters.contigNaming=INSDC
+parameters.fasta=/path/to/fasta.fa
+parameters.assemblyReportUrl=('file:/path/to/assembly_report.txt',)
+parameters.outputFolder=/path/to/output_folder
+
+logging.level.uk.ac.ebi.eva.accession.release=INFO
+'''
+        assert (self.prop.get_release_properties(
+            job_name='RELEASE', assembly_accession='GCA_00000002.1',fasta='/path/to/fasta.fa',
+            assembly_report='/path/to/assembly_report.txt', output_folder='/path/to/output_folder')
+        ) == expected
 
