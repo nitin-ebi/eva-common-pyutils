@@ -43,7 +43,16 @@ class SpringPropertiesGenerator:
 
         return '\n'.join(lines)
 
-    def _common_properties(self, assembly_accession):
+    @staticmethod
+    def _format_str(string, param):
+        if param is None:
+            return None
+        elif not param:
+            return ''
+        else:
+            return string.format(param)
+
+    def _common_properties(self, assembly_accession, chunkSize=1000):
         """Properties common to all Spring pipelines"""
         mongo_host, mongo_user, mongo_pass = get_primary_mongo_creds_for_profile(
             self.maven_profile, self.private_settings_file)
@@ -53,6 +62,7 @@ class SpringPropertiesGenerator:
         return {
             'spring.datasource.driver-class-name': 'org.postgresql.Driver',
             'spring.datasource.url': pg_url,
+            'spring.datasource.username': pg_user,
             'spring.datasource.password': pg_pass,
             'spring.datasource.tomcat.max-active': 3,
             'spring.jpa.generate-ddl': 'true',
@@ -66,16 +76,17 @@ class SpringPropertiesGenerator:
             'spring.main.web-application-type': 'none',
             'spring.main.allow-bean-definition-overriding': 'true',
             'spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation': 'true',
-            'parameters.chunkSize': 1000,
+            'parameters.chunkSize': chunkSize,
             'parameters.assemblyAccession': assembly_accession,
         }
 
-    def _accessioning_properties(self, instance):
+    def _accessioning_properties(self, instance=''):
         """Properties common to accessioning and clustering pipelines."""
         counts_url, counts_username, counts_password = get_count_service_creds_for_profile(
             self.maven_profile, self.private_settings_file)
+
         return {
-            'accessioning.instanceId': f'instance-{instance}',
+            'accessioning.instanceId': self._format_str('instance-{0}', instance),
             'accessioning.submitted.categoryId': 'ss',
             'accessioning.clustered.categoryId': 'rs',
             'accessioning.monotonic.ss.blockSize': 100000,
@@ -89,17 +100,15 @@ class SpringPropertiesGenerator:
             'eva.count-stats.password': counts_password
         }
 
-    def get_accessioning_properties(self, instance, target_assembly,  fasta='', assembly_report='',
+    def get_accessioning_properties(self, instance='', target_assembly='',  fasta='', assembly_report='',
                                     project_accession='', aggregation='BASIC', taxonomy_accession='',
-                                    vcf_file=''):
+                                    vcf_file='', output_vcf=''):
         """Properties for accessioning pipeline."""
-        if assembly_report is not None:
-            assembly_report = f"{'file:' if assembly_report else ''}{assembly_report}",
         return self._format(
             self._common_properties(target_assembly), self._accessioning_properties(instance),
             {
                 'spring.batch.job.names': 'CREATE_SUBSNP_ACCESSION_JOB',
-                'parameters.assemblyReportUrl': assembly_report,
+                'parameters.assemblyReportUrl': self._format_str('file:{0}', assembly_report),
                 'parameters.chunkSize': 100,
                 'parameters.contigNaming': 'NO_REPLACEMENT',
                 'parameters.fasta': fasta,
@@ -108,21 +117,20 @@ class SpringPropertiesGenerator:
                 'parameters.taxonomyAccession': taxonomy_accession,
                 'parameters.vcfAggregation': aggregation,
                 'parameters.vcf': vcf_file,
+                'parameters.outputVcf': output_vcf
             },
         )
 
     def get_remapping_extraction_properties(self, *, taxonomy='', source_assembly='', fasta='', assembly_report='',
                                             projects='', output_folder='.'):
         """Properties for remapping extraction pipeline."""
-        if assembly_report is not None:
-            assembly_report = f"{'file:' if assembly_report else ''}{assembly_report}",
         return self._format(
             self._common_properties(source_assembly),
             {
                 'spring.batch.job.names': 'EXPORT_SUBMITTED_VARIANTS_JOB',
                 'parameters.taxonomy': taxonomy,
                 'parameters.fasta': fasta,
-                'parameters.assemblyReportUrl': assembly_report,
+                'parameters.assemblyReportUrl': self._format_str('file:{0}', assembly_report),
                 'parameters.projects': projects,
                 'parameters.outputFolder': output_folder
             })
@@ -143,7 +151,7 @@ class SpringPropertiesGenerator:
 
     def get_clustering_properties(self, *, instance,
                                   job_name='', target_assembly='', rs_report_path='', projects='',
-                                  project_accession='', vcf='', source_assembly=''):
+                                  project_accession='', vcf=''):
         """Properties common to all clustering pipelines, though not all are always used."""
         return self._format(
             self._common_properties(target_assembly),
@@ -153,7 +161,20 @@ class SpringPropertiesGenerator:
                 'parameters.projects': projects,
                 'parameters.projectAccession': project_accession,
                 'parameters.vcf': vcf,
-                'parameters.remappedFrom': source_assembly,
-                'parameters.rsReportPath': rs_report_path,
+                'parameters.rsReportPath': rs_report_path
             }
         )
+
+    def get_release_properties(self, job_name='', assembly_accession='', fasta='', assembly_report='', output_folder=''):
+        if assembly_report is not None:
+            assembly_report = f"{'file:' if assembly_report else ''}{assembly_report}",
+        return self._format(
+            self._common_properties(assembly_accession=assembly_accession),
+            {
+                'spring.batch.job.names': job_name,
+                'parameters.contigNaming': 'INSDC',
+                'parameters.fasta': fasta,
+                'parameters.assemblyReportUrl': assembly_report,
+                'parameters.outputFolder': output_folder,
+                'logging.level.uk.ac.ebi.eva.accession.release': 'INFO'
+            })
