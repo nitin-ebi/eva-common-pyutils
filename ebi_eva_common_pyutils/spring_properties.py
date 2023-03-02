@@ -52,7 +52,7 @@ class SpringPropertiesGenerator:
         else:
             return string.format(param)
 
-    def _common_properties(self, *, assembly_accession, read_preference, chunk_size=100):
+    def _common_properties(self, *, assembly_accession, read_preference='primary', chunk_size=100):
         """Properties common to all Spring pipelines"""
         mongo_host, mongo_user, mongo_pass = get_primary_mongo_creds_for_profile(
             self.maven_profile, self.private_settings_file)
@@ -153,7 +153,7 @@ class SpringPropertiesGenerator:
             }
         )
 
-    def get_clustering_properties(self, *, instance=None, read_preference='PrimaryPreferred',
+    def get_clustering_properties(self, *, instance=None, read_preference='primary',
                                   job_name=None, source_assembly='', target_assembly='', rs_report_path='', projects='',
                                   project_accession='', vcf=''):
         """Properties common to all clustering pipelines, though not all are always used."""
