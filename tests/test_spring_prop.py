@@ -67,13 +67,14 @@ mongodb.read-preference=secondaryPreferred
 
 parameters.chunkSize=1000
 parameters.assemblyAccession=GCA_00000002.1
-parameters.vcf=
+parameters.vcf=/path/to/remapped.vcf
 parameters.remappedFrom=GCA_00000001.1
 parameters.loadTo=collection
 parameters.remappingVersion=1.0
 '''
         assert self.prop.get_remapping_ingestion_properties(
-            source_assembly='GCA_00000001.1', target_assembly='GCA_00000002.1', load_to='collection'
+            source_assembly='GCA_00000001.1', target_assembly='GCA_00000002.1', load_to='collection',
+            vcf='/path/to/remapped.vcf'
         ) == expected
 
     def test_get_clustering_properties(self):
@@ -94,7 +95,7 @@ spring.main.allow-bean-definition-overriding=true
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
 spring.batch.job.names=CLUSTERING_RSID
 
-mongodb.read-preference=secondaryPreferred
+mongodb.read-preference=PrimaryPreferred
 
 parameters.chunkSize=100
 parameters.assemblyAccession=GCA_00000002.1

@@ -100,8 +100,8 @@ class SpringPropertiesGenerator:
             'eva.count-stats.password': counts_password
         }
 
-    def get_accessioning_properties(self, *, instance='', target_assembly='',  fasta='', assembly_report='',
-                                    project_accession='', aggregation='BASIC', taxonomy_accession='',
+    def get_accessioning_properties(self, *, instance=None, target_assembly=None,  fasta=None, assembly_report=None,
+                                    project_accession=None, aggregation='BASIC', taxonomy_accession=None,
                                     vcf_file='', output_vcf='', chunk_size=100):
         """Properties for accessioning pipeline."""
         return self._format(
@@ -122,8 +122,9 @@ class SpringPropertiesGenerator:
             },
         )
 
-    def get_remapping_extraction_properties(self, *, taxonomy='', source_assembly='', fasta='', assembly_report='',
-                                            projects='', output_folder='.'):
+    def get_remapping_extraction_properties(self, *, taxonomy=None, source_assembly=None, fasta=None,
+                                            assembly_report=None,
+                                            projects=None, output_folder=None):
         """Properties for remapping extraction pipeline."""
         return self._format(
             self._common_properties(assembly_accession=source_assembly, read_preference='secondaryPreferred',
@@ -137,7 +138,7 @@ class SpringPropertiesGenerator:
                 'parameters.outputFolder': output_folder
             })
 
-    def get_remapping_ingestion_properties(self, *, source_assembly='', target_assembly='', vcf='', load_to='',
+    def get_remapping_ingestion_properties(self, *, source_assembly=None, target_assembly=None, vcf=None, load_to=None,
                                            remapping_version=1.0):
         """Properties for remapping ingestion pipeline."""
         return self._format(
@@ -152,8 +153,8 @@ class SpringPropertiesGenerator:
             }
         )
 
-    def get_clustering_properties(self, *, instance, read_preference='secondaryPreferred',
-                                  job_name='', source_assembly='', target_assembly='', rs_report_path='', projects='',
+    def get_clustering_properties(self, *, instance=None, read_preference='PrimaryPreferred',
+                                  job_name=None, source_assembly='', target_assembly='', rs_report_path='', projects='',
                                   project_accession='', vcf=''):
         """Properties common to all clustering pipelines, though not all are always used."""
         return self._format(
@@ -170,8 +171,8 @@ class SpringPropertiesGenerator:
             }
         )
 
-    def get_release_properties(self, *, job_name='', assembly_accession='', fasta='', assembly_report='',
-                               contig_naming='', output_folder='', accessioned_vcf=''):
+    def get_release_properties(self, *, job_name=None, assembly_accession=None, fasta=None, assembly_report=None,
+                               contig_naming=None, output_folder=None, accessioned_vcf=None):
 
         return self._format(
             self._common_properties(assembly_accession=assembly_accession, read_preference='secondaryPreferred',
