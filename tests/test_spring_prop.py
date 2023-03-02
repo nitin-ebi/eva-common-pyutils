@@ -96,8 +96,9 @@ spring.batch.job.names=CLUSTERING_RSID
 
 mongodb.read-preference=secondaryPreferred
 
-parameters.chunkSize=1000
+parameters.chunkSize=100
 parameters.assemblyAccession=GCA_00000002.1
+parameters.remappedFrom=
 parameters.projects=
 parameters.projectAccession=
 parameters.vcf=
@@ -141,10 +142,9 @@ spring.batch.job.names=CREATE_SUBSNP_ACCESSION_JOB
 
 mongodb.read-preference=secondaryPreferred
 
-parameters.chunkSize=1000
+parameters.chunkSize=100
 parameters.assemblyAccession=GCA_00000001.1
 parameters.assemblyReportUrl=file:/path/to/assembly_report.txt
-parameters.chunkSize=100
 parameters.contigNaming=NO_REPLACEMENT
 parameters.fasta=/path/to/fasta.fa
 parameters.forceRestart=false
@@ -193,9 +193,8 @@ spring.batch.job.names=CREATE_SUBSNP_ACCESSION_JOB
 
 mongodb.read-preference=secondaryPreferred
 
-parameters.chunkSize=1000
-parameters.assemblyAccession=GCA_00000001.1
 parameters.chunkSize=100
+parameters.assemblyAccession=GCA_00000001.1
 parameters.contigNaming=NO_REPLACEMENT
 parameters.forceRestart=false
 parameters.projectAccession=PRJEB0001
@@ -247,13 +246,15 @@ parameters.chunkSize=1000
 parameters.assemblyAccession=GCA_00000002.1
 parameters.contigNaming=INSDC
 parameters.fasta=/path/to/fasta.fa
-parameters.assemblyReportUrl=('file:/path/to/assembly_report.txt',)
+parameters.assemblyReportUrl=file:/path/to/assembly_report.txt
 parameters.outputFolder=/path/to/output_folder
+parameters.accessionedVcf=/path/to/output.vcf
 
 logging.level.uk.ac.ebi.eva.accession.release=INFO
 '''
         assert (self.prop.get_release_properties(
             job_name='RELEASE', assembly_accession='GCA_00000002.1',fasta='/path/to/fasta.fa',
-            assembly_report='/path/to/assembly_report.txt', output_folder='/path/to/output_folder')
+            assembly_report='/path/to/assembly_report.txt', output_folder='/path/to/output_folder',
+            contig_naming='INSDC', accessioned_vcf='/path/to/output.vcf')
         ) == expected
 

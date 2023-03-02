@@ -52,7 +52,7 @@ class SpringPropertiesGenerator:
         else:
             return string.format(param)
 
-    def _common_properties(self, assembly_accession, chunkSize=1000):
+    def _common_properties(self, *, assembly_accession, read_preference, chunk_size=100):
         """Properties common to all Spring pipelines"""
         mongo_host, mongo_user, mongo_pass = get_primary_mongo_creds_for_profile(
             self.maven_profile, self.private_settings_file)
@@ -72,15 +72,15 @@ class SpringPropertiesGenerator:
             'spring.data.mongodb.username': mongo_user,
             'spring.data.mongodb.password': mongo_pass,
             'spring.data.mongodb.authentication-database': 'admin',
-            'mongodb.read-preference': 'secondaryPreferred',
+            'mongodb.read-preference': read_preference,
             'spring.main.web-application-type': 'none',
             'spring.main.allow-bean-definition-overriding': 'true',
             'spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation': 'true',
-            'parameters.chunkSize': chunkSize,
+            'parameters.chunkSize': chunk_size,
             'parameters.assemblyAccession': assembly_accession,
         }
 
-    def _accessioning_properties(self, instance=''):
+    def _accessioning_properties(self, *, instance=''):
         """Properties common to accessioning and clustering pipelines."""
         counts_url, counts_username, counts_password = get_count_service_creds_for_profile(
             self.maven_profile, self.private_settings_file)
@@ -100,16 +100,17 @@ class SpringPropertiesGenerator:
             'eva.count-stats.password': counts_password
         }
 
-    def get_accessioning_properties(self, instance='', target_assembly='',  fasta='', assembly_report='',
+    def get_accessioning_properties(self, *, instance='', target_assembly='',  fasta='', assembly_report='',
                                     project_accession='', aggregation='BASIC', taxonomy_accession='',
-                                    vcf_file='', output_vcf=''):
+                                    vcf_file='', output_vcf='', chunk_size=100):
         """Properties for accessioning pipeline."""
         return self._format(
-            self._common_properties(target_assembly), self._accessioning_properties(instance),
+            self._common_properties(assembly_accession=target_assembly, read_preference='secondaryPreferred',
+                                    chunk_size=chunk_size),
+            self._accessioning_properties(instance=instance),
             {
                 'spring.batch.job.names': 'CREATE_SUBSNP_ACCESSION_JOB',
                 'parameters.assemblyReportUrl': self._format_str('file:{0}', assembly_report),
-                'parameters.chunkSize': 100,
                 'parameters.contigNaming': 'NO_REPLACEMENT',
                 'parameters.fasta': fasta,
                 'parameters.forceRestart': 'false',
@@ -125,7 +126,8 @@ class SpringPropertiesGenerator:
                                             projects='', output_folder='.'):
         """Properties for remapping extraction pipeline."""
         return self._format(
-            self._common_properties(source_assembly),
+            self._common_properties(assembly_accession=source_assembly, read_preference='secondaryPreferred',
+                                    chunk_size=1000),
             {
                 'spring.batch.job.names': 'EXPORT_SUBMITTED_VARIANTS_JOB',
                 'parameters.taxonomy': taxonomy,
@@ -139,7 +141,8 @@ class SpringPropertiesGenerator:
                                            remapping_version=1.0):
         """Properties for remapping ingestion pipeline."""
         return self._format(
-            self._common_properties(target_assembly),
+            self._common_properties(assembly_accession=target_assembly, read_preference='secondaryPreferred',
+                                    chunk_size=1000),
             {
                 'spring.batch.job.names': 'INGEST_REMAPPED_VARIANTS_FROM_VCF_JOB',
                 'parameters.vcf': vcf,
@@ -149,15 +152,17 @@ class SpringPropertiesGenerator:
             }
         )
 
-    def get_clustering_properties(self, *, instance,
-                                  job_name='', target_assembly='', rs_report_path='', projects='',
+    def get_clustering_properties(self, *, instance, read_preference='secondaryPreferred',
+                                  job_name='', source_assembly='', target_assembly='', rs_report_path='', projects='',
                                   project_accession='', vcf=''):
         """Properties common to all clustering pipelines, though not all are always used."""
         return self._format(
-            self._common_properties(target_assembly),
-            self._accessioning_properties(instance),
+            self._common_properties(assembly_accession=target_assembly, read_preference=read_preference,
+                                    chunk_size=100),
+            self._accessioning_properties(instance=instance),
             {
                 'spring.batch.job.names': job_name,
+                'parameters.remappedFrom': source_assembly,
                 'parameters.projects': projects,
                 'parameters.projectAccession': project_accession,
                 'parameters.vcf': vcf,
@@ -165,16 +170,18 @@ class SpringPropertiesGenerator:
             }
         )
 
-    def get_release_properties(self, job_name='', assembly_accession='', fasta='', assembly_report='', output_folder=''):
-        if assembly_report is not None:
-            assembly_report = f"{'file:' if assembly_report else ''}{assembly_report}",
+    def get_release_properties(self, *, job_name='', assembly_accession='', fasta='', assembly_report='',
+                               contig_naming='', output_folder='', accessioned_vcf=''):
+
         return self._format(
-            self._common_properties(assembly_accession=assembly_accession),
+            self._common_properties(assembly_accession=assembly_accession, read_preference='secondaryPreferred',
+                                    chunk_size=1000),
             {
                 'spring.batch.job.names': job_name,
-                'parameters.contigNaming': 'INSDC',
+                'parameters.contigNaming': contig_naming,
                 'parameters.fasta': fasta,
-                'parameters.assemblyReportUrl': assembly_report,
+                'parameters.assemblyReportUrl': self._format_str('file:{0}', assembly_report),
                 'parameters.outputFolder': output_folder,
+                'parameters.accessionedVcf': accessioned_vcf,
                 'logging.level.uk.ac.ebi.eva.accession.release': 'INFO'
             })
