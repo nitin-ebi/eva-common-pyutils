@@ -2,6 +2,11 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
+0.5.2 (2023-03-03)
+----------------
+
+- Add new spring properties generation options
+
 0.5.1 (2022-12-21)
 ----------------
 
