@@ -124,7 +124,7 @@ class SpringPropertiesGenerator:
 
     def get_remapping_extraction_properties(self, *, taxonomy=None, source_assembly=None, fasta=None,
                                             assembly_report=None,
-                                            projects=None, output_folder=None):
+                                            projects='', output_folder=None):
         """Properties for remapping extraction pipeline."""
         return self._format(
             self._common_properties(assembly_accession=source_assembly, read_preference='secondaryPreferred',

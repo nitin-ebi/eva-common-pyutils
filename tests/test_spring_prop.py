@@ -95,7 +95,7 @@ spring.main.allow-bean-definition-overriding=true
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
 spring.batch.job.names=CLUSTERING_RSID
 
-mongodb.read-preference=PrimaryPreferred
+mongodb.read-preference=primary
 
 parameters.chunkSize=100
 parameters.assemblyAccession=GCA_00000002.1
