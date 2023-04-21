@@ -28,6 +28,8 @@ spring.data.mongodb.authentication-database=admin
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
 spring.batch.job.names=EXPORT_SUBMITTED_VARIANTS_JOB
 
 mongodb.read-preference=secondaryPreferred
@@ -61,6 +63,8 @@ spring.data.mongodb.authentication-database=admin
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
 spring.batch.job.names=INGEST_REMAPPED_VARIANTS_FROM_VCF_JOB
 
 mongodb.read-preference=secondaryPreferred
@@ -93,6 +97,8 @@ spring.data.mongodb.authentication-database=admin
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
 spring.batch.job.names=CLUSTERING_RSID
 
 mongodb.read-preference=primary
@@ -139,6 +145,8 @@ spring.data.mongodb.authentication-database=admin
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
 spring.batch.job.names=CREATE_SUBSNP_ACCESSION_JOB
 
 mongodb.read-preference=secondaryPreferred
@@ -174,6 +182,59 @@ eva.count-stats.password=statspassword
             assembly_report='/path/to/assembly_report.txt', project_accession='PRJEB0001', aggregation='BASIC',
             taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
 
+    def test_get_variant_load_properties(self):
+        expected = '''spring.profiles.active=production,mongo
+spring.profiles.include=variant-writer-mongo,variant-annotation-mongo
+spring.data.mongodb.authentication-database=admin
+spring.data.mongodb.host=mongos-host2.example.com
+spring.data.mongodb.password=mongopassword
+spring.data.mongodb.port=27017
+spring.data.mongodb.username=mongouser
+spring.data.mongodb.authentication-mechanism=SCRAM-SHA-1
+spring.main.allow-bean-definition-overriding=true
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=True
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
+
+job.repository.driverClassName=org.postgresql.Driver
+job.repository.url=jdbc:postgresql://host1.example.com:5432/jtdb
+job.repository.username=varuser
+job.repository.password=varpassword
+
+app.opencga.path=/nfs/production/keane/eva/software/opencga/
+app.vep.cache.path=/nfs/production/keane/eva/datasources/vep-cache
+app.vep.num-forks=4
+app.vep.timeout=500
+
+annotation.overwrite=False
+
+config.chunk.size=200
+config.restartability.allow=false
+config.db.read-preference=secondaryPreferred
+
+db.collections.files.name=files_2_0
+db.collections.variants.name=variants_2_0
+db.collections.annotation-metadata.name=annotationMetadata_2_0
+db.collections.annotations.name=annotations_2_0
+
+input.study.id=PRJEB0001
+input.study.name=study_name
+input.study.type=COLLECTION
+
+logging.level.embl.ebi.variation.eva=DEBUG
+logging.level.org.opencb.opencga=DEBUG
+logging.level.org.springframework=INFO
+
+output.dir=/path/to/output/dir
+output.dir.annotation=/path/to/annotation/dir
+output.dir.statistics=/path/to/stats/dir
+
+statistics.skip=False
+'''
+        assert self.prop.get_variant_load_properties(project_accession='PRJEB0001', study_name='study_name',
+            output_dir='/path/to/output/dir', annotation_dir='/path/to/annotation/dir',
+                                                     stats_dir='/path/to/stats/dir',) == expected
+
     def test_get_accessioning_properties_with_none(self):
         expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
@@ -190,6 +251,8 @@ spring.data.mongodb.authentication-database=admin
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
 spring.batch.job.names=CREATE_SUBSNP_ACCESSION_JOB
 
 mongodb.read-preference=secondaryPreferred
@@ -239,6 +302,8 @@ spring.data.mongodb.authentication-database=admin
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
 spring.batch.job.names=RELEASE
 
 mongodb.read-preference=secondaryPreferred

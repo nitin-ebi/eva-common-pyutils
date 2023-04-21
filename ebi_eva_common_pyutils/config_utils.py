@@ -81,6 +81,18 @@ def get_accession_pg_creds_for_profile(profile_name: str, settings_xml_file: str
     return pg_url, pg_user, pg_pass
 
 
+def get_variant_pg_creds_for_profile(profile_name: str, settings_xml_file: str):
+    """
+    Gets host, username, and password for variant load job tracker database.
+    Useful for filling properties files.
+    """
+    properties = get_properties_from_xml_file(profile_name, settings_xml_file)
+    variant_url = properties['eva.variant.jdbc.url']
+    variant_user = properties['eva.variant.user']
+    variant_pass = properties['eva.variant.password']
+    return variant_url, variant_user, variant_pass
+
+
 def get_contig_alias_db_creds_for_profile(profile_name: str, settings_xml_file: str):
     """
     Gets url, username, and password for contig alias database.

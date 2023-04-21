@@ -94,3 +94,23 @@ def retrieve_species_scientific_name_from_tax_id_ncbi(taxid):
     match = re.search('<ScientificName>(.+?)</ScientificName>', r.text, re.MULTILINE)
     if match:
         return match.group(1)
+
+
+def get_species_name_from_ncbi(assembly_acc):
+    # We first need to search for the species associated with the assembly
+    assembly_dicts = get_ncbi_assembly_dicts_from_term(assembly_acc)
+    taxid_and_assembly_name = set([
+        (assembly_dict.get('taxid'), assembly_dict.get('assemblyname'))
+        for assembly_dict in assembly_dicts
+        if assembly_dict.get('assemblyaccession') == assembly_acc or
+           assembly_dict.get('synonym', {}).get('genbank') == assembly_acc
+    ])
+    # This is a search so could retrieve multiple results
+    if len(taxid_and_assembly_name) != 1:
+        raise ValueError(f'Multiple assembly found for {assembly_acc}. '
+                         f'Cannot resolve single assembly for assembly {assembly_acc} in NCBI.')
+
+    taxonomy_id, _ = taxid_and_assembly_name.pop()
+
+    scientific_name = retrieve_species_scientific_name_from_tax_id_ncbi(taxonomy_id)
+    return scientific_name.replace(' ', '_').lower()
