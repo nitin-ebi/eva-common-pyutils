@@ -125,8 +125,10 @@ class SpringPropertiesGenerator:
         )
 
     def get_variant_load_properties(self,  project_accession, study_name, output_dir, annotation_dir, stats_dir,
-                                    read_preference='secondaryPreferred'):
+                                    vep_cache_path, read_preference='secondaryPreferred'):
         mongo_host, mongo_user, mongo_pass = get_primary_mongo_creds_for_profile(
+            self.maven_profile, self.private_settings_file)
+        counts_url, counts_username, counts_password = get_count_service_creds_for_profile(
             self.maven_profile, self.private_settings_file)
         variant_url, variant_user, variant_pass = get_variant_pg_creds_for_profile(self.maven_profile, self.private_settings_file)
         files_collection = get_properties_from_xml_file(
@@ -141,6 +143,7 @@ class SpringPropertiesGenerator:
         return self._format({
             'spring.profiles.active': 'production,mongo',
             'spring.profiles.include': 'variant-writer-mongo,variant-annotation-mongo',
+
             'spring.data.mongodb.authentication-database': 'admin',
             'spring.data.mongodb.host': mongo_host,
             'spring.data.mongodb.password': mongo_pass,
@@ -151,9 +154,13 @@ class SpringPropertiesGenerator:
             'job.repository.url': variant_url,
             'job.repository.username': variant_user,
             'job.repository.password': variant_pass,
+            'eva.count-stats.url': counts_url,
+            'eva.count-stats.username': counts_username,
+            'eva.count-stats.password': counts_password,
 
             'app.opencga.path': '/nfs/production/keane/eva/software/opencga/',
-            'app.vep.cache.path': '/nfs/production/keane/eva/datasources/vep-cache',
+            'app.vep.cache.path': vep_cache_path,
+
             'annotation.overwrite': False,
             'app.vep.num-forks': 4,
             'app.vep.timeout': 500,

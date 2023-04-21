@@ -201,8 +201,12 @@ job.repository.url=jdbc:postgresql://host1.example.com:5432/jtdb
 job.repository.username=varuser
 job.repository.password=varpassword
 
+eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
+eva.count-stats.username=statsuser
+eva.count-stats.password=statspassword
+
 app.opencga.path=/nfs/production/keane/eva/software/opencga/
-app.vep.cache.path=/nfs/production/keane/eva/datasources/vep-cache
+app.vep.cache.path=/path/to/vep/cache
 app.vep.num-forks=4
 app.vep.timeout=500
 
@@ -233,7 +237,7 @@ statistics.skip=False
 '''
         assert self.prop.get_variant_load_properties(project_accession='PRJEB0001', study_name='study_name',
             output_dir='/path/to/output/dir', annotation_dir='/path/to/annotation/dir',
-                                                     stats_dir='/path/to/stats/dir',) == expected
+            stats_dir='/path/to/stats/dir', vep_cache_path='/path/to/vep/cache') == expected
 
     def test_get_accessioning_properties_with_none(self):
         expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
