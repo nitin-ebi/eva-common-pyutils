@@ -123,24 +123,15 @@ class SpringPropertiesGenerator:
                 'parameters.outputVcf': output_vcf
             },
         )
-
-    def get_variant_load_properties(self,  project_accession, study_name, output_dir, annotation_dir, stats_dir,
-                                    vep_cache_path, read_preference='secondaryPreferred'):
+    def _common_eva_pipeline_properties(self, opencga_path, read_preference='se'):
         mongo_host, mongo_user, mongo_pass = get_primary_mongo_creds_for_profile(
             self.maven_profile, self.private_settings_file)
         counts_url, counts_username, counts_password = get_count_service_creds_for_profile(
             self.maven_profile, self.private_settings_file)
-        variant_url, variant_user, variant_pass = get_variant_pg_creds_for_profile(self.maven_profile, self.private_settings_file)
-        files_collection = get_properties_from_xml_file(
-            self.maven_profile, self.private_settings_file)['eva.mongo.collections.files']
-        variants_collection = get_properties_from_xml_file(
-            self.maven_profile, self.private_settings_file)['eva.mongo.collections.variants']
-        annotation_metadata_collection = get_properties_from_xml_file(
-            self.maven_profile, self.private_settings_file)['eva.mongo.collections.annotation-metadata']
-        annotation_collection = get_properties_from_xml_file(
-            self.maven_profile, self.private_settings_file)['eva.mongo.collections.annotations']
+        variant_url, variant_user, variant_pass = get_variant_pg_creds_for_profile(self.maven_profile,
+                                                                                   self.private_settings_file)
 
-        return self._format({
+        return {
             'spring.profiles.active': 'production,mongo',
             'spring.profiles.include': 'variant-writer-mongo,variant-annotation-mongo',
 
@@ -150,37 +141,71 @@ class SpringPropertiesGenerator:
             'spring.data.mongodb.port': 27017,
             'spring.data.mongodb.username': mongo_user,
             'spring.data.mongodb.authentication-mechanism': 'SCRAM-SHA-1',
+
             'job.repository.driverClassName': 'org.postgresql.Driver',
             'job.repository.url': variant_url,
             'job.repository.username': variant_user,
             'job.repository.password': variant_pass,
+
             'eva.count-stats.url': counts_url,
             'eva.count-stats.username': counts_username,
             'eva.count-stats.password': counts_password,
 
-            'app.opencga.path': '/nfs/production/keane/eva/software/opencga/',
-            'app.vep.cache.path': vep_cache_path,
-
-            'annotation.overwrite': False,
-            'app.vep.num-forks': 4,
-            'app.vep.timeout': 500,
-            'config.chunk.size': 200,
+            'app.opencga.path': opencga_path,
             'config.restartability.allow': 'false',
             'config.db.read-preference': read_preference,
-            'db.collections.files.name': files_collection,
-            'db.collections.variants.name': variants_collection,
-            'db.collections.annotation-metadata.name': annotation_metadata_collection,
-            'db.collections.annotations.name': annotation_collection,
-            'input.study.id': project_accession,
-            'input.study.name': study_name,
-            'input.study.type': 'COLLECTION',
+
             'logging.level.embl.ebi.variation.eva': 'DEBUG',
             'logging.level.org.opencb.opencga': 'DEBUG',
             'logging.level.org.springframework': 'INFO',
+
+            'spring.main.allow-bean-definition-overriding': 'true',
+            }
+
+    def get_accession_import_properties(self, opencga_path, read_preference='secondaryPreferred'):
+        variants_collection = get_properties_from_xml_file(
+            self.maven_profile, self.private_settings_file)['eva.mongo.collections.variants']
+
+        return self._format(
+            self._common_eva_pipeline_properties(opencga_path, read_preference),
+            {
+                'db.collections.variants.name': variants_collection,
+            },
+        )
+
+    def get_variant_load_properties(self,  project_accession, study_name, output_dir, annotation_dir, stats_dir,
+                                    vep_cache_path, opencga_path, read_preference='secondaryPreferred'):
+        variants_collection = get_properties_from_xml_file(
+            self.maven_profile, self.private_settings_file)['eva.mongo.collections.variants']
+        files_collection = get_properties_from_xml_file(
+            self.maven_profile, self.private_settings_file)['eva.mongo.collections.files']
+        annotation_metadata_collection = get_properties_from_xml_file(
+            self.maven_profile, self.private_settings_file)['eva.mongo.collections.annotation-metadata']
+        annotation_collection = get_properties_from_xml_file(
+            self.maven_profile, self.private_settings_file)['eva.mongo.collections.annotations']
+
+        return self._format(
+            self._common_eva_pipeline_properties(opencga_path, read_preference),
+            {
+            'annotation.overwrite': False,
+            'app.vep.cache.path': vep_cache_path,
+            'app.vep.num-forks': 4,
+            'app.vep.timeout': 500,
+            'config.chunk.size': 200,
+
+            'db.collections.variants.name': variants_collection,
+            'db.collections.files.name': files_collection,
+            'db.collections.annotation-metadata.name': annotation_metadata_collection,
+            'db.collections.annotations.name': annotation_collection,
+
+            'input.study.id': project_accession,
+            'input.study.name': study_name,
+            'input.study.type': 'COLLECTION',
+
             'output.dir': str(output_dir),
             'output.dir.annotation': str(annotation_dir),
             'output.dir.statistics': str(stats_dir),
-            'spring.main.allow-bean-definition-overriding': 'true',
+
             'spring.jpa.database-platform': 'org.hibernate.dialect.PostgreSQL9Dialect',
             'spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation': True,
             'spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults': False,

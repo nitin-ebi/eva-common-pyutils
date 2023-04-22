@@ -205,29 +205,29 @@ eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
 eva.count-stats.username=statsuser
 eva.count-stats.password=statspassword
 
-app.opencga.path=/nfs/production/keane/eva/software/opencga/
+app.opencga.path=/path/to/opencga
 app.vep.cache.path=/path/to/vep/cache
 app.vep.num-forks=4
 app.vep.timeout=500
 
-annotation.overwrite=False
-
-config.chunk.size=200
 config.restartability.allow=false
 config.db.read-preference=secondaryPreferred
+config.chunk.size=200
 
-db.collections.files.name=files_2_0
+logging.level.embl.ebi.variation.eva=DEBUG
+logging.level.org.opencb.opencga=DEBUG
+logging.level.org.springframework=INFO
+
+annotation.overwrite=False
+
 db.collections.variants.name=variants_2_0
+db.collections.files.name=files_2_0
 db.collections.annotation-metadata.name=annotationMetadata_2_0
 db.collections.annotations.name=annotations_2_0
 
 input.study.id=PRJEB0001
 input.study.name=study_name
 input.study.type=COLLECTION
-
-logging.level.embl.ebi.variation.eva=DEBUG
-logging.level.org.opencb.opencga=DEBUG
-logging.level.org.springframework=INFO
 
 output.dir=/path/to/output/dir
 output.dir.annotation=/path/to/annotation/dir
@@ -237,7 +237,42 @@ statistics.skip=False
 '''
         assert self.prop.get_variant_load_properties(project_accession='PRJEB0001', study_name='study_name',
             output_dir='/path/to/output/dir', annotation_dir='/path/to/annotation/dir',
-            stats_dir='/path/to/stats/dir', vep_cache_path='/path/to/vep/cache') == expected
+            stats_dir='/path/to/stats/dir', vep_cache_path='/path/to/vep/cache',
+            opencga_path='/path/to/opencga') == expected
+
+    def test_get_accession_import_properties(self):
+        expected = '''spring.profiles.active=production,mongo
+spring.profiles.include=variant-writer-mongo,variant-annotation-mongo
+spring.data.mongodb.authentication-database=admin
+spring.data.mongodb.host=mongos-host2.example.com
+spring.data.mongodb.password=mongopassword
+spring.data.mongodb.port=27017
+spring.data.mongodb.username=mongouser
+spring.data.mongodb.authentication-mechanism=SCRAM-SHA-1
+spring.main.allow-bean-definition-overriding=true
+
+job.repository.driverClassName=org.postgresql.Driver
+job.repository.url=jdbc:postgresql://host1.example.com:5432/jtdb
+job.repository.username=varuser
+job.repository.password=varpassword
+
+eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
+eva.count-stats.username=statsuser
+eva.count-stats.password=statspassword
+
+app.opencga.path=/path/to/opencga
+
+config.restartability.allow=false
+config.db.read-preference=secondaryPreferred
+
+logging.level.embl.ebi.variation.eva=DEBUG
+logging.level.org.opencb.opencga=DEBUG
+logging.level.org.springframework=INFO
+
+db.collections.variants.name=variants_2_0
+'''
+        assert self.prop.get_accession_import_properties(opencga_path='/path/to/opencga') == expected
+
 
     def test_get_accessioning_properties_with_none(self):
         expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
