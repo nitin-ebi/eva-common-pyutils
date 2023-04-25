@@ -21,7 +21,7 @@ logging_config.add_stdout_handler()
 logger = logging_config.get_logger(__name__)
 
 
-def get_supported_asm_from_ensembl(tax_id: int) -> str | None:
+def get_supported_asm_from_ensembl(tax_id: int) -> str:
     logger.info(f'Query Ensembl for species name using taxonomy {tax_id}')
     scientific_name_api_param = get_scientific_name_from_ensembl(tax_id).lower().replace(' ', '_')
     ENSEMBL_REST_API_URL = "http://rest.ensembl.org/info/assembly/{0}?content-type=application/json".format(
