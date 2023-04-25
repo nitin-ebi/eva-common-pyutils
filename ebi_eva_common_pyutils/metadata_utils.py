@@ -258,19 +258,6 @@ def insert_taxonomy(metadata_connection_handle, taxonomy_id, scientific_name, co
     logger.info('New taxonomy {} added'.format(taxonomy_id))
 
 
-def get_tax_submitted_with_asm_in_eva(metadata_connection_handle, assembly_accession: str) -> list[int]:
-    """
-    :param metadata_connection_handle: Connection handle to the metadata database
-    :param assembly_accession: Assembly accession
-    :return: List of taxonomies submitted to EVA where variants were called with the given assembly accession
-
-    """
-    get_tax_for_asm_query = "select distinct taxonomy_id from {0} where assembly_id = '{1}'".format(
-        SUPPORTED_ASSEMBLY_TRACKER_TABLE, assembly_accession)
-    result = get_all_results_for_query(metadata_connection_handle, get_tax_for_asm_query)
-    return [row[0] for row in result]
-
-
 def add_to_supported_assemblies(metadata_connection_handle, source_of_assembly: str, target_assembly: str,
                                 taxonomy_id: int):
     today = datetime.date.today().strftime('%Y-%m-%d')
