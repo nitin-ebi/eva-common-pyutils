@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import datetime
 import re
 from urllib.parse import urlsplit
 
@@ -20,10 +21,11 @@ from ebi_eva_common_pyutils.config_utils import get_metadata_creds_for_profile
 from ebi_eva_common_pyutils.ena_utils import get_scientific_name_and_common_name
 from ebi_eva_common_pyutils.logger import logging_config
 from ebi_eva_common_pyutils.ncbi_utils import get_ncbi_assembly_name_from_term
-from ebi_eva_common_pyutils.pg_utils import get_result_cursor, get_all_results_for_query
+from ebi_eva_common_pyutils.pg_utils import get_result_cursor, get_all_results_for_query, execute_query
 from ebi_eva_common_pyutils.taxonomy.taxonomy import get_scientific_name_from_ensembl
 
 logger = logging_config.get_logger(__name__)
+SUPPORTED_ASSEMBLY_TRACKER_TABLE = "evapro.supported_assembly_tracker"
 
 
 def get_metadata_connection_handle(profile, settings_xml_file):
@@ -254,3 +256,46 @@ def insert_taxonomy(metadata_connection_handle, taxonomy_id, scientific_name, co
                 'VALUES (%s, %s, %s, %s, %s)',
                 (taxonomy_id, common_name, scientific_name, taxonomy_code, eva_species_name))
     logger.info('New taxonomy {} added'.format(taxonomy_id))
+
+
+def get_tax_submitted_with_asm_in_eva(metadata_connection_handle, assembly_accession: str) -> list[int]:
+    """
+    :param metadata_connection_handle: Connection handle to the metadata database
+    :param assembly_accession: Assembly accession
+    :return: List of taxonomies submitted to EVA where variants were called with the given assembly accession
+
+    """
+    get_tax_for_asm_query = "select distinct taxonomy_id from {0} where assembly_id = '{1}'".format(
+        SUPPORTED_ASSEMBLY_TRACKER_TABLE, assembly_accession)
+    result = get_all_results_for_query(metadata_connection_handle, get_tax_for_asm_query)
+    return [row[0] for row in result]
+
+
+def add_to_supported_assemblies(metadata_connection_handle, source_of_assembly: str, target_assembly: str,
+                                taxonomy_id: int):
+    today = datetime.date.today().strftime('%Y-%m-%d')
+    # First check if the current assembly is already target - if so don't do anything
+    current_query = (
+        f"SELECT assembly_id FROM evapro.supported_assembly_tracker "
+        f"WHERE taxonomy_id={taxonomy_id} AND current=true;"
+    )
+    results = get_all_results_for_query(metadata_connection_handle, current_query)
+    if len(results) > 0 and results[0][0] == target_assembly:
+        logger.warning(f'Current assembly for taxonomy {taxonomy_id} is already {target_assembly}!')
+        return
+
+    # Deprecate the last current assembly
+    update_query = (
+        f"UPDATE evapro.supported_assembly_tracker "
+        f"SET current=false, end_date='{today}' "
+        f"WHERE taxonomy_id={taxonomy_id} AND current=true;"
+    )
+    execute_query(metadata_connection_handle, update_query)
+
+    # Then insert the new assembly
+    insert_query = (
+        f"INSERT INTO evapro.supported_assembly_tracker "
+        f"(taxonomy_id, source, assembly_id, current, start_date) "
+        f"VALUES({taxonomy_id}, '{source_of_assembly}', '{target_assembly}', true, '{today}');"
+    )
+    execute_query(metadata_connection_handle, insert_query)
