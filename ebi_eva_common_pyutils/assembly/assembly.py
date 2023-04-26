@@ -29,5 +29,5 @@ def get_supported_asm_from_ensembl(tax_id: int) -> str:
     response = json_request(ENSEMBL_REST_API_URL)
     assembly_accession_attribute = 'assembly_accession'
     if assembly_accession_attribute in response:
-        return str(response.get('assembly_accession'))
+        return str(response.get(assembly_accession_attribute))
     return None

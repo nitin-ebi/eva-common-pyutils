@@ -263,7 +263,7 @@ def add_to_supported_assemblies(metadata_connection_handle, source_of_assembly: 
     today = datetime.date.today().strftime('%Y-%m-%d')
     # First check if the current assembly is already target - if so don't do anything
     current_query = (
-        f"SELECT assembly_id FROM evapro.supported_assembly_tracker "
+        f"SELECT assembly_id FROM {SUPPORTED_ASSEMBLY_TRACKER_TABLE} "
         f"WHERE taxonomy_id={taxonomy_id} AND current=true;"
     )
     results = get_all_results_for_query(metadata_connection_handle, current_query)
@@ -273,7 +273,7 @@ def add_to_supported_assemblies(metadata_connection_handle, source_of_assembly: 
 
     # Deprecate the last current assembly
     update_query = (
-        f"UPDATE evapro.supported_assembly_tracker "
+        f"UPDATE {SUPPORTED_ASSEMBLY_TRACKER_TABLE} "
         f"SET current=false, end_date='{today}' "
         f"WHERE taxonomy_id={taxonomy_id} AND current=true;"
     )
@@ -281,7 +281,7 @@ def add_to_supported_assemblies(metadata_connection_handle, source_of_assembly: 
 
     # Then insert the new assembly
     insert_query = (
-        f"INSERT INTO evapro.supported_assembly_tracker "
+        f"INSERT INTO {SUPPORTED_ASSEMBLY_TRACKER_TABLE} "
         f"(taxonomy_id, source, assembly_id, current, start_date) "
         f"VALUES({taxonomy_id}, '{source_of_assembly}', '{target_assembly}', true, '{today}');"
     )
