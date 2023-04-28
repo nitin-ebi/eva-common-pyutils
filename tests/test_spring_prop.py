@@ -13,24 +13,28 @@ class TestSpringPropertiesGenerator(TestCommon):
 
     def test_get_remapping_extraction_properties(self):
 
-        expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
-spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
-spring.datasource.username=accuser
-spring.datasource.password=accpassword
-spring.datasource.tomcat.max-active=3
-spring.jpa.generate-ddl=true
-spring.data.mongodb.host=mongos-host2.example.com
+        expected = '''spring.data.mongodb.host=mongos-host2.example.com
 spring.data.mongodb.port=27017
-spring.data.mongodb.database=eva_accession_sharded
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.tomcat.max-active=3
+spring.jpa.generate-ddl=true
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
-spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=True
 spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
+spring.datasource.password=accpassword
+spring.data.mongodb.database=eva_accession_sharded
 spring.batch.job.names=EXPORT_SUBMITTED_VARIANTS_JOB
+
+eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
+eva.count-stats.username=statsuser
+eva.count-stats.password=statspassword
 
 mongodb.read-preference=secondaryPreferred
 
@@ -48,24 +52,28 @@ parameters.outputFolder=/path/to/output_folder
         ) == expected
 
     def test_get_remapping_ingestion_properties(self):
-        expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
-spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
-spring.datasource.username=accuser
-spring.datasource.password=accpassword
-spring.datasource.tomcat.max-active=3
-spring.jpa.generate-ddl=true
-spring.data.mongodb.host=mongos-host2.example.com
+        expected = '''spring.data.mongodb.host=mongos-host2.example.com
 spring.data.mongodb.port=27017
-spring.data.mongodb.database=eva_accession_sharded
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.tomcat.max-active=3
+spring.jpa.generate-ddl=true
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
-spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=True
 spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
+spring.datasource.password=accpassword
+spring.data.mongodb.database=eva_accession_sharded
 spring.batch.job.names=INGEST_REMAPPED_VARIANTS_FROM_VCF_JOB
+
+eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
+eva.count-stats.username=statsuser
+eva.count-stats.password=statspassword
 
 mongodb.read-preference=secondaryPreferred
 
@@ -82,24 +90,28 @@ parameters.remappingVersion=1.0
         ) == expected
 
     def test_get_clustering_properties(self):
-        expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
-spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
-spring.datasource.username=accuser
-spring.datasource.password=accpassword
-spring.datasource.tomcat.max-active=3
-spring.jpa.generate-ddl=true
-spring.data.mongodb.host=mongos-host2.example.com
+        expected = '''spring.data.mongodb.host=mongos-host2.example.com
 spring.data.mongodb.port=27017
-spring.data.mongodb.database=eva_accession_sharded
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.tomcat.max-active=3
+spring.jpa.generate-ddl=true
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
-spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=True
 spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
+spring.datasource.password=accpassword
+spring.data.mongodb.database=eva_accession_sharded
 spring.batch.job.names=CLUSTERING_RSID
+
+eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
+eva.count-stats.username=statsuser
+eva.count-stats.password=statspassword
 
 mongodb.read-preference=primary
 
@@ -120,34 +132,34 @@ accessioning.monotonic.ss.nextBlockInterval=1000000000
 accessioning.monotonic.rs.blockSize=100000
 accessioning.monotonic.rs.blockStartValue=3000000000
 accessioning.monotonic.rs.nextBlockInterval=1000000000
-
-eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
-eva.count-stats.username=statsuser
-eva.count-stats.password=statspassword
 '''
         assert self.prop.get_clustering_properties(
             instance=1, job_name='CLUSTERING_RSID', target_assembly='GCA_00000002.1',
             rs_report_path='/path/to/rs_report.txt') == expected
 
     def test_get_accessioning_properties(self):
-        expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
-spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
-spring.datasource.username=accuser
-spring.datasource.password=accpassword
-spring.datasource.tomcat.max-active=3
-spring.jpa.generate-ddl=true
-spring.data.mongodb.host=mongos-host2.example.com
+        expected = '''spring.data.mongodb.host=mongos-host2.example.com
 spring.data.mongodb.port=27017
-spring.data.mongodb.database=eva_accession_sharded
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.tomcat.max-active=3
+spring.jpa.generate-ddl=true
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
-spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=True
 spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
+spring.datasource.password=accpassword
+spring.data.mongodb.database=eva_accession_sharded
 spring.batch.job.names=CREATE_SUBSNP_ACCESSION_JOB
+
+eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
+eva.count-stats.username=statsuser
+eva.count-stats.password=statspassword
 
 mongodb.read-preference=secondaryPreferred
 
@@ -172,10 +184,6 @@ accessioning.monotonic.ss.nextBlockInterval=1000000000
 accessioning.monotonic.rs.blockSize=100000
 accessioning.monotonic.rs.blockStartValue=3000000000
 accessioning.monotonic.rs.nextBlockInterval=1000000000
-
-eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
-eva.count-stats.username=statsuser
-eva.count-stats.password=statspassword
 '''
         assert self.prop.get_accessioning_properties(
             instance=1, target_assembly='GCA_00000001.1', fasta='/path/to/fasta.fa',
@@ -183,27 +191,40 @@ eva.count-stats.password=statspassword
             taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
 
     def test_get_variant_load_properties(self):
-        expected = '''spring.profiles.active=production,mongo
-spring.profiles.include=variant-writer-mongo,variant-annotation-mongo
-spring.data.mongodb.authentication-database=admin
-spring.data.mongodb.host=mongos-host2.example.com
-spring.data.mongodb.password=mongopassword
+        expected = '''spring.data.mongodb.host=mongos-host2.example.com
 spring.data.mongodb.port=27017
 spring.data.mongodb.username=mongouser
-spring.data.mongodb.authentication-mechanism=SCRAM-SHA-1
+spring.data.mongodb.password=mongopassword
+spring.data.mongodb.authentication-database=admin
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.tomcat.max-active=3
+spring.jpa.generate-ddl=true
+spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
-spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=True
 spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+spring.profiles.active=production,mongo
+spring.profiles.include=variant-writer-mongo,variant-annotation-mongo
+spring.data.mongodb.authentication-mechanism=SCRAM-SHA-1
+
+eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
+eva.count-stats.username=statsuser
+eva.count-stats.password=statspassword
+
+mongodb.read-preference=secondaryPreferred
+
+parameters.chunkSize=100
 
 job.repository.driverClassName=org.postgresql.Driver
 job.repository.url=jdbc:postgresql://host1.example.com:5432/jtdb
 job.repository.username=varuser
 job.repository.password=varpassword
 
-eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
-eva.count-stats.username=statsuser
-eva.count-stats.password=statspassword
+db.collections.variants.name=variants_2_0
+db.collections.files.name=files_2_0
+db.collections.annotation-metadata.name=annotationMetadata_2_0
+db.collections.annotations.name=annotations_2_0
 
 app.opencga.path=/path/to/opencga
 app.vep.cache.path=/path/to/vep/cache
@@ -219,11 +240,6 @@ logging.level.org.opencb.opencga=DEBUG
 logging.level.org.springframework=INFO
 
 annotation.overwrite=False
-
-db.collections.variants.name=variants_2_0
-db.collections.files.name=files_2_0
-db.collections.annotation-metadata.name=annotationMetadata_2_0
-db.collections.annotations.name=annotations_2_0
 
 input.study.id=PRJEB0001
 input.study.name=study_name
@@ -241,24 +257,34 @@ statistics.skip=False
             opencga_path='/path/to/opencga') == expected
 
     def test_get_accession_import_properties(self):
-        expected = '''spring.profiles.active=production,mongo
-spring.profiles.include=variant-writer-mongo,variant-annotation-mongo
-spring.data.mongodb.authentication-database=admin
-spring.data.mongodb.host=mongos-host2.example.com
-spring.data.mongodb.password=mongopassword
+        expected = '''spring.data.mongodb.host=mongos-host2.example.com
 spring.data.mongodb.port=27017
 spring.data.mongodb.username=mongouser
-spring.data.mongodb.authentication-mechanism=SCRAM-SHA-1
+spring.data.mongodb.password=mongopassword
+spring.data.mongodb.authentication-database=admin
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.tomcat.max-active=3
+spring.jpa.generate-ddl=true
+spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
-
-job.repository.driverClassName=org.postgresql.Driver
-job.repository.url=jdbc:postgresql://host1.example.com:5432/jtdb
-job.repository.username=varuser
-job.repository.password=varpassword
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=True
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+spring.profiles.active=production,mongo
+spring.profiles.include=variant-writer-mongo,variant-annotation-mongo
+spring.data.mongodb.authentication-mechanism=SCRAM-SHA-1
 
 eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
 eva.count-stats.username=statsuser
 eva.count-stats.password=statspassword
+
+mongodb.read-preference=secondaryPreferred
+
+parameters.chunkSize=100
+
+job.repository.driverClassName=org.postgresql.Driver
+
+db.collections.variants.name=variants_2_0
 
 app.opencga.path=/path/to/opencga
 
@@ -268,31 +294,33 @@ config.db.read-preference=secondaryPreferred
 logging.level.embl.ebi.variation.eva=DEBUG
 logging.level.org.opencb.opencga=DEBUG
 logging.level.org.springframework=INFO
-
-db.collections.variants.name=variants_2_0
 '''
         assert self.prop.get_accession_import_properties(opencga_path='/path/to/opencga') == expected
 
 
     def test_get_accessioning_properties_with_none(self):
-        expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
-spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
-spring.datasource.username=accuser
-spring.datasource.password=accpassword
-spring.datasource.tomcat.max-active=3
-spring.jpa.generate-ddl=true
-spring.data.mongodb.host=mongos-host2.example.com
+        expected = '''spring.data.mongodb.host=mongos-host2.example.com
 spring.data.mongodb.port=27017
-spring.data.mongodb.database=eva_accession_sharded
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.tomcat.max-active=3
+spring.jpa.generate-ddl=true
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
-spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=True
 spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
+spring.datasource.password=accpassword
+spring.data.mongodb.database=eva_accession_sharded
 spring.batch.job.names=CREATE_SUBSNP_ACCESSION_JOB
+
+eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
+eva.count-stats.username=statsuser
+eva.count-stats.password=statspassword
 
 mongodb.read-preference=secondaryPreferred
 
@@ -315,10 +343,6 @@ accessioning.monotonic.ss.nextBlockInterval=1000000000
 accessioning.monotonic.rs.blockSize=100000
 accessioning.monotonic.rs.blockStartValue=3000000000
 accessioning.monotonic.rs.nextBlockInterval=1000000000
-
-eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
-eva.count-stats.username=statsuser
-eva.count-stats.password=statspassword
 '''
         assert self.prop.get_accessioning_properties(
             instance=1, target_assembly='GCA_00000001.1', fasta=None,
@@ -326,24 +350,28 @@ eva.count-stats.password=statspassword
             taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
 
     def test_get_release_properties(self):
-        expected = '''spring.datasource.driver-class-name=org.postgresql.Driver
-spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
-spring.datasource.username=accuser
-spring.datasource.password=accpassword
-spring.datasource.tomcat.max-active=3
-spring.jpa.generate-ddl=true
-spring.data.mongodb.host=mongos-host2.example.com
+        expected = '''spring.data.mongodb.host=mongos-host2.example.com
 spring.data.mongodb.port=27017
-spring.data.mongodb.database=eva_accession_sharded
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.tomcat.max-active=3
+spring.jpa.generate-ddl=true
 spring.main.web-application-type=none
 spring.main.allow-bean-definition-overriding=true
-spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=True
 spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=False
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
+spring.datasource.username=accuser
+spring.datasource.password=accpassword
+spring.data.mongodb.database=eva_accession_sharded
 spring.batch.job.names=RELEASE
+
+eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
+eva.count-stats.username=statsuser
+eva.count-stats.password=statspassword
 
 mongodb.read-preference=secondaryPreferred
 

@@ -81,7 +81,7 @@ def get_accession_pg_creds_for_profile(profile_name: str, settings_xml_file: str
     return pg_url, pg_user, pg_pass
 
 
-def get_job_tracker_creds_for_profile(profile_name: str, settings_xml_file: str):
+def get_variant_load_job_tracker_creds_for_profile(profile_name: str, settings_xml_file: str):
     """
     Gets host, username, and password for variant load job tracker database.
     Useful for filling properties files.
