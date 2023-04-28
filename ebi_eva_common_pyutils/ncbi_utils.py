@@ -99,12 +99,12 @@ def retrieve_species_scientific_name_from_tax_id_ncbi(taxid):
 def get_species_name_from_ncbi(assembly_acc):
     # We first need to search for the species associated with the assembly
     assembly_dicts = get_ncbi_assembly_dicts_from_term(assembly_acc)
-    taxid_and_assembly_name = set([
+    taxid_and_assembly_name = {
         (assembly_dict.get('taxid'), assembly_dict.get('assemblyname'))
         for assembly_dict in assembly_dicts
         if assembly_dict.get('assemblyaccession') == assembly_acc or
            assembly_dict.get('synonym', {}).get('genbank') == assembly_acc
-    ])
+    }
     # This is a search so could retrieve multiple results
     if len(taxid_and_assembly_name) != 1:
         raise ValueError(f'Multiple assembly found for {assembly_acc}. '

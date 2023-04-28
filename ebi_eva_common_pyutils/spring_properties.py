@@ -14,7 +14,7 @@
 from collections import defaultdict
 
 from ebi_eva_common_pyutils.config_utils import get_primary_mongo_creds_for_profile, get_accession_pg_creds_for_profile, \
-    get_count_service_creds_for_profile, get_properties_from_xml_file, get_variant_pg_creds_for_profile
+    get_count_service_creds_for_profile, get_properties_from_xml_file, get_job_tracker_creds_for_profile
 
 
 class SpringPropertiesGenerator:
@@ -128,7 +128,7 @@ class SpringPropertiesGenerator:
             self.maven_profile, self.private_settings_file)
         counts_url, counts_username, counts_password = get_count_service_creds_for_profile(
             self.maven_profile, self.private_settings_file)
-        variant_url, variant_user, variant_pass = get_variant_pg_creds_for_profile(self.maven_profile,
+        variant_url, variant_user, variant_pass = get_job_tracker_creds_for_profile(self.maven_profile,
                                                                                    self.private_settings_file)
 
         return {
