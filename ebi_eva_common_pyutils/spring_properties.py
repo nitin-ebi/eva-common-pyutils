@@ -93,8 +93,8 @@ class SpringPropertiesGenerator:
 
             'spring.main.web-application-type': 'none',
             'spring.main.allow-bean-definition-overriding': 'true',
-            'spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation': True,
-            'spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults': False,
+            'spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation': 'true',
+            'spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults': 'false',
             'spring.jpa.database-platform': 'org.hibernate.dialect.PostgreSQL9Dialect',
             'parameters.chunkSize': chunk_size,
         }
