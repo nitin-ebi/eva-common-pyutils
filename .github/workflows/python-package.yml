@@ -18,6 +18,7 @@ jobs:
         mongodb-version: [4.0.18]
         python-version: [3.8, 3.9]
         java-version: [1.11]
+        nextflow-version: [21.10.5, 22.10.7]
 
     steps:
     - uses: actions/checkout@v2
@@ -28,8 +29,10 @@ jobs:
         java-version: ${{ matrix.java-version }}
     - name: Set up Nextflow
       run: |
-        sudo bash -c "export JAVA_CMD="$(which java)" && cd /usr/bin && (curl -s https://get.nextflow.io | bash) && chmod 755 nextflow"
-        /usr/bin/nextflow -version
+        mkdir /tmp/nextflow && cd /tmp/nextflow
+        wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v${{ matrix.nextflow-version }}/nextflow-${{ matrix.nextflow-version }}-all | bash
+        echo "/tmp/nextflow" >> $GITHUB_PATH
+        cd -
     - name: Set up MongoDB sharded environment ${{ matrix.mongodb-version }}
       run: sudo bash scripts/create_mongo_single_node_sharded_env.sh ${{ matrix.mongodb-version }}
     - name: Set up Python ${{ matrix.python-version }}
