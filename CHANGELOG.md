@@ -2,6 +2,16 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
+0.5.4 (2023-05-22)
+----------------
+
+- Add job tracker properties to accession import job
+
+0.5.3 (2023-05-07)
+----------------
+
+- Add spring properties generation option for variant load and accession import jobs
+
 0.5.2 (2023-03-03)
 ----------------
 
