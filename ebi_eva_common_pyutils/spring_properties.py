@@ -247,7 +247,8 @@ class SpringPropertiesGenerator:
         return merge
 
     def get_accession_import_properties(self, opencga_path, read_preference='secondaryPreferred'):
-        return self._format(self._common_eva_pipeline_properties(opencga_path, read_preference))
+        return self._format(self._common_eva_pipeline_properties(opencga_path, read_preference),
+            self._variant_load_job_tracker_properties())
 
     def get_variant_load_properties(self, project_accession, study_name, output_dir, annotation_dir, stats_dir,
                                     vep_cache_path, opencga_path, read_preference='secondaryPreferred'):

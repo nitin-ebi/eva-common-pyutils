@@ -283,6 +283,9 @@ mongodb.read-preference=secondaryPreferred
 parameters.chunkSize=100
 
 job.repository.driverClassName=org.postgresql.Driver
+job.repository.url=jdbc:postgresql://host1.example.com:5432/jtdb
+job.repository.username=varuser
+job.repository.password=varpassword
 
 db.collections.variants.name=variants_2_0
 
