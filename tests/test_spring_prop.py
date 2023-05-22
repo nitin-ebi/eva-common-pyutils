@@ -288,6 +288,9 @@ job.repository.username=varuser
 job.repository.password=varpassword
 
 db.collections.variants.name=variants_2_0
+db.collections.files.name=files_2_0
+db.collections.annotation-metadata.name=annotationMetadata_2_0
+db.collections.annotations.name=annotations_2_0
 
 app.opencga.path=/path/to/opencga
 

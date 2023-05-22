@@ -223,8 +223,15 @@ class SpringPropertiesGenerator:
             })
 
     def _common_eva_pipeline_properties(self, opencga_path, read_preference='secondaryPreferred'):
+        files_collection = get_properties_from_xml_file(
+            self.maven_profile, self.private_settings_file)['eva.mongo.collections.files']
+        annotation_metadata_collection = get_properties_from_xml_file(
+            self.maven_profile, self.private_settings_file)['eva.mongo.collections.annotation-metadata']
+        annotation_collection = get_properties_from_xml_file(
+            self.maven_profile, self.private_settings_file)['eva.mongo.collections.annotations']
         variants_collection = get_properties_from_xml_file(
             self.maven_profile, self.private_settings_file)['eva.mongo.collections.variants']
+        job_tracker_properties = self._variant_load_job_tracker_properties()
         props = {
             'spring.profiles.active': 'production,mongo',
             'spring.profiles.include': 'variant-writer-mongo,variant-annotation-mongo',
@@ -233,6 +240,9 @@ class SpringPropertiesGenerator:
             'job.repository.driverClassName': 'org.postgresql.Driver',
 
             'db.collections.variants.name': variants_collection,
+            'db.collections.files.name': files_collection,
+            'db.collections.annotation-metadata.name': annotation_metadata_collection,
+            'db.collections.annotations.name': annotation_collection,
 
             'app.opencga.path': opencga_path,
             'config.restartability.allow': 'false',
@@ -243,29 +253,17 @@ class SpringPropertiesGenerator:
             'logging.level.org.springframework': 'INFO',
         }
 
-        merge = {**self._common_properties(read_preference=read_preference, chunk_size=100), **props}
+        merge = {**self._common_properties(read_preference=read_preference, chunk_size=100), **props, **job_tracker_properties}
         return merge
 
     def get_accession_import_properties(self, opencga_path, read_preference='secondaryPreferred'):
-        return self._format(self._common_eva_pipeline_properties(opencga_path, read_preference),
-            self._variant_load_job_tracker_properties())
+        return self._format(self._common_eva_pipeline_properties(opencga_path, read_preference))
 
     def get_variant_load_properties(self, project_accession, study_name, output_dir, annotation_dir, stats_dir,
                                     vep_cache_path, opencga_path, read_preference='secondaryPreferred'):
-        files_collection = get_properties_from_xml_file(
-            self.maven_profile, self.private_settings_file)['eva.mongo.collections.files']
-        annotation_metadata_collection = get_properties_from_xml_file(
-            self.maven_profile, self.private_settings_file)['eva.mongo.collections.annotation-metadata']
-        annotation_collection = get_properties_from_xml_file(
-            self.maven_profile, self.private_settings_file)['eva.mongo.collections.annotations']
         return self._format(
             self._common_eva_pipeline_properties(opencga_path, read_preference),
-            self._variant_load_job_tracker_properties(),
             {
-                'db.collections.files.name': files_collection,
-                'db.collections.annotation-metadata.name': annotation_metadata_collection,
-                'db.collections.annotations.name': annotation_collection,
-
                 'annotation.overwrite': False,
                 'app.vep.cache.path': vep_cache_path,
                 'app.vep.num-forks': 4,
