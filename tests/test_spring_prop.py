@@ -13,8 +13,8 @@ class TestSpringPropertiesGenerator(TestCommon):
 
     def test_get_remapping_extraction_properties(self):
 
-        expected = '''spring.data.mongodb.host=mongos-host2.example.com
-spring.data.mongodb.port=27017
+        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
+spring.data.mongodb.port=
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
@@ -52,8 +52,8 @@ parameters.outputFolder=/path/to/output_folder
         ) == expected
 
     def test_get_remapping_ingestion_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host2.example.com
-spring.data.mongodb.port=27017
+        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
+spring.data.mongodb.port=
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
@@ -90,8 +90,8 @@ parameters.remappingVersion=1.0
         ) == expected
 
     def test_get_clustering_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host2.example.com
-spring.data.mongodb.port=27017
+        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
+spring.data.mongodb.port=
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
@@ -138,8 +138,8 @@ accessioning.monotonic.rs.nextBlockInterval=1000000000
             rs_report_path='/path/to/rs_report.txt') == expected
 
     def test_get_accessioning_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host2.example.com
-spring.data.mongodb.port=27017
+        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
+spring.data.mongodb.port=
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
@@ -191,8 +191,8 @@ accessioning.monotonic.rs.nextBlockInterval=1000000000
             taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
 
     def test_get_variant_load_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host2.example.com
-spring.data.mongodb.port=27017
+        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
+spring.data.mongodb.port=
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
@@ -257,8 +257,8 @@ statistics.skip=False
             opencga_path='/path/to/opencga') == expected
 
     def test_get_accession_import_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host2.example.com
-spring.data.mongodb.port=27017
+        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
+spring.data.mongodb.port=
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
@@ -305,8 +305,8 @@ logging.level.org.springframework=INFO
 
 
     def test_get_accessioning_properties_with_none(self):
-        expected = '''spring.data.mongodb.host=mongos-host2.example.com
-spring.data.mongodb.port=27017
+        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
+spring.data.mongodb.port=
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin
@@ -356,8 +356,8 @@ accessioning.monotonic.rs.nextBlockInterval=1000000000
             taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
 
     def test_get_release_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host2.example.com
-spring.data.mongodb.port=27017
+        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
+spring.data.mongodb.port=
 spring.data.mongodb.username=mongouser
 spring.data.mongodb.password=mongopassword
 spring.data.mongodb.authentication-database=admin

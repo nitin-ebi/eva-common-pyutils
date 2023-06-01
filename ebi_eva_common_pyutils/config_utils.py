@@ -50,20 +50,14 @@ def get_metadata_creds_for_profile(profile_name: str, settings_xml_file: str):
     return pg_url, pg_user, pg_pass
 
 
-def get_primary_mongo_creds_for_profile(profile_name: str, settings_xml_file: str):
+def get_mongo_creds_for_profile(profile_name: str, settings_xml_file: str):
     """
-    Gets primary host, username, and password for mongo database.
+    Gets host, username, and password for mongo database.
     Useful for filling properties files, for connection purposes it is preferable to use
     `mongo_utils.get_mongo_connection_handle` as that will handle multiple hosts appropriately.
     """
     properties = get_properties_from_xml_file(profile_name, settings_xml_file)
-    # Use the primary mongo host from configuration:
-    # https://github.com/EBIvariation/configuration/blob/master/eva-maven-settings.xml#L111
-    # TODO: revisit once accessioning/variant pipelines can support multiple hosts
-    try:
-        mongo_host = split_hosts(properties['eva.mongo.host'])[1][0]
-    except IndexError:  # some profiles have only one host
-        mongo_host = split_hosts(properties['eva.mongo.host'])[0][0]
+    mongo_host = properties['eva.mongo.host']
     mongo_user = properties['eva.mongo.user']
     mongo_pass = properties['eva.mongo.passwd']
     return mongo_host, mongo_user, mongo_pass

@@ -13,7 +13,7 @@
 # limitations under the License.
 from collections import defaultdict
 
-from ebi_eva_common_pyutils.config_utils import get_primary_mongo_creds_for_profile, \
+from ebi_eva_common_pyutils.config_utils import get_mongo_creds_for_profile, \
     get_accession_pg_creds_for_profile, \
     get_count_service_creds_for_profile, get_properties_from_xml_file, get_variant_load_job_tracker_creds_for_profile
 
@@ -54,11 +54,13 @@ class SpringPropertiesGenerator:
             return string.format(param)
 
     def _mongo_properties(self):
-        mongo_host, mongo_user, mongo_pass = get_primary_mongo_creds_for_profile(
+        mongo_host, mongo_user, mongo_pass = get_mongo_creds_for_profile(
             self.maven_profile, self.private_settings_file)
         return {
             'spring.data.mongodb.host': mongo_host,
-            'spring.data.mongodb.port': 27017,
+            # Don't specify port if hosts already have the port encoded in them
+            # Also see https://github.com/EBIvariation/variation-commons/blob/329d4fa18da73bdad419ca5456b9897c059e33f0/variation-commons-mongodb/src/main/java/uk/ac/ebi/eva/commons/mongodb/utils/MongoClientURIBuilder.java#L44
+            'spring.data.mongodb.port': '' if ':' in mongo_host else 27017,
             'spring.data.mongodb.username': mongo_user,
             'spring.data.mongodb.password': mongo_pass,
             'spring.data.mongodb.authentication-database': 'admin',
