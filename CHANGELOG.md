@@ -2,6 +2,11 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
+0.5.5 (2023-06-02)
+----------------
+
+- Include multiple mongos hosts during Spring properties generation
+
 0.5.4 (2023-05-22)
 ----------------
 
