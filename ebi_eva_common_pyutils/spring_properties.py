@@ -61,8 +61,8 @@ class SpringPropertiesGenerator:
             # Don't specify port if hosts already have the port encoded in them
             # Also see https://github.com/EBIvariation/variation-commons/blob/329d4fa18da73bdad419ca5456b9897c059e33f0/variation-commons-mongodb/src/main/java/uk/ac/ebi/eva/commons/mongodb/utils/MongoClientURIBuilder.java#L44
             'spring.data.mongodb.port': '' if ':' in mongo_host else 27017,
-            'spring.data.mongodb.username': mongo_user,
-            'spring.data.mongodb.password': mongo_pass,
+            'spring.data.mongodb.username': '' if mongo_user is None else mongo_user,
+            'spring.data.mongodb.password': '' if mongo_pass is None else mongo_pass,
             'spring.data.mongodb.authentication-database': 'admin',
         }
 

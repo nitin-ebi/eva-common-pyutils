@@ -10,6 +10,7 @@ class TestSpringPropertiesGenerator(TestCommon):
     def setUp(self) -> None:
         private_file = os.path.join(self.resources_folder, 'private_settings.xml')
         self.prop = SpringPropertiesGenerator(maven_profile='dummy', private_settings_file=private_file)
+        self.prop_no_mongo_cred = SpringPropertiesGenerator(maven_profile='dummy_no_mongo_cred', private_settings_file=private_file)
 
     def test_get_remapping_extraction_properties(self):
 
@@ -256,6 +257,71 @@ statistics.skip=False
             stats_dir='/path/to/stats/dir', vep_cache_path='/path/to/vep/cache',
             opencga_path='/path/to/opencga') == expected
 
+    def test_get_variant_load_properties_no_mongo_cred(self):
+        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
+spring.data.mongodb.port=
+spring.data.mongodb.username=
+spring.data.mongodb.password=
+spring.data.mongodb.authentication-database=admin
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.tomcat.max-active=3
+spring.jpa.generate-ddl=true
+spring.main.web-application-type=none
+spring.main.allow-bean-definition-overriding=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults=false
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQL9Dialect
+spring.profiles.active=production,mongo
+spring.profiles.include=variant-writer-mongo,variant-annotation-mongo
+spring.data.mongodb.authentication-mechanism=SCRAM-SHA-1
+
+eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
+eva.count-stats.username=statsuser
+eva.count-stats.password=statspassword
+
+mongodb.read-preference=secondaryPreferred
+
+parameters.chunkSize=100
+
+job.repository.driverClassName=org.postgresql.Driver
+job.repository.url=jdbc:postgresql://host1.example.com:5432/jtdb
+job.repository.username=varuser
+job.repository.password=varpassword
+
+db.collections.variants.name=variants_2_0
+db.collections.files.name=files_2_0
+db.collections.annotation-metadata.name=annotationMetadata_2_0
+db.collections.annotations.name=annotations_2_0
+
+app.opencga.path=/path/to/opencga
+app.vep.cache.path=/path/to/vep/cache
+app.vep.num-forks=4
+app.vep.timeout=500
+
+config.restartability.allow=false
+config.db.read-preference=secondaryPreferred
+config.chunk.size=200
+
+logging.level.embl.ebi.variation.eva=DEBUG
+logging.level.org.opencb.opencga=DEBUG
+logging.level.org.springframework=INFO
+
+annotation.overwrite=False
+
+input.study.id=PRJEB0001
+input.study.name=study_name
+input.study.type=COLLECTION
+
+output.dir=/path/to/output/dir
+output.dir.annotation=/path/to/annotation/dir
+output.dir.statistics=/path/to/stats/dir
+
+statistics.skip=False
+'''
+        assert self.prop_no_mongo_cred.get_variant_load_properties(project_accession='PRJEB0001', study_name='study_name',
+                output_dir='/path/to/output/dir', annotation_dir='/path/to/annotation/dir',
+                stats_dir='/path/to/stats/dir', vep_cache_path='/path/to/vep/cache',
+                opencga_path='/path/to/opencga') == expected
     def test_get_accession_import_properties(self):
         expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
 spring.data.mongodb.port=
