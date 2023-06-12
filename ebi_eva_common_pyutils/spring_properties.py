@@ -206,12 +206,18 @@ class SpringPropertiesGenerator:
         )
 
     def get_release_properties(self, *, job_name=None, assembly_accession=None, taxonomy_accession=None, fasta=None,
-                               assembly_report=None, contig_naming=None, output_folder=None, accessioned_vcf=None):
-
+                               assembly_report=None, contig_naming=None, output_folder=None, accessioned_vcf=None,
+                               temp_mongo_db=None):
+        common_props = self._common_accessioning_properties(assembly_accession=assembly_accession,
+                                                            read_preference='secondaryPreferred', chunk_size=1000)
+        # For release in Embassy only
+        if temp_mongo_db:
+            common_props['spring.data.mongodb.database'] = temp_mongo_db
+            common_props['mongodb.read-preference'] = 'primaryPreferred'
+            common_props.pop('spring.data.mongodb.username')
+            common_props.pop('spring.data.mongodb.password')
         return self._format(
-            self._common_accessioning_properties(assembly_accession=assembly_accession,
-                                                 read_preference='secondaryPreferred',
-                                                 chunk_size=1000),
+            common_props,
             {
                 'spring.batch.job.names': job_name,
                 'parameters.taxonomyAccession': taxonomy_accession,
