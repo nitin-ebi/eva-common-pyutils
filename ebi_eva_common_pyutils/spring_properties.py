@@ -13,8 +13,7 @@
 # limitations under the License.
 from collections import defaultdict
 
-from ebi_eva_common_pyutils.config_utils import get_mongo_creds_for_profile, \
-    get_accession_pg_creds_for_profile, \
+from ebi_eva_common_pyutils.config_utils import get_mongo_creds_for_profile, get_accession_pg_creds_for_profile, \
     get_count_service_creds_for_profile, get_properties_from_xml_file, get_variant_load_job_tracker_creds_for_profile
 
 
@@ -104,8 +103,7 @@ class SpringPropertiesGenerator:
         return merge
 
     def _common_accessioning_properties(self, assembly_accession, read_preference, chunk_size):
-        pg_url, pg_user, pg_pass = get_accession_pg_creds_for_profile(self.maven_profile,
-                                                                               self.private_settings_file)
+        pg_url, pg_user, pg_pass = get_accession_pg_creds_for_profile(self.maven_profile, self.private_settings_file)
         accession_db = get_properties_from_xml_file(
             self.maven_profile, self.private_settings_file)['eva.accession.mongo.database']
         props = {
@@ -207,8 +205,8 @@ class SpringPropertiesGenerator:
             }
         )
 
-    def get_release_properties(self, *, job_name=None, assembly_accession=None, fasta=None, assembly_report=None,
-                               contig_naming=None, output_folder=None, accessioned_vcf=None):
+    def get_release_properties(self, *, job_name=None, assembly_accession=None, taxonomy_accession=None, fasta=None,
+                               assembly_report=None, contig_naming=None, output_folder=None, accessioned_vcf=None):
 
         return self._format(
             self._common_accessioning_properties(assembly_accession=assembly_accession,
@@ -216,6 +214,7 @@ class SpringPropertiesGenerator:
                                                  chunk_size=1000),
             {
                 'spring.batch.job.names': job_name,
+                'parameters.taxonomyAccession': taxonomy_accession,
                 'parameters.contigNaming': contig_naming,
                 'parameters.fasta': fasta,
                 'parameters.assemblyReportUrl': self._format_str('file:{0}', assembly_report),
