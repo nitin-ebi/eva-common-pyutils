@@ -8,7 +8,6 @@ from argparse import ArgumentParser
 from ebi_eva_common_pyutils.logger import logging_config
 from retry import retry
 
-logging_config.add_stdout_handler()
 logger = logging_config.get_logger(__name__)
 
 
@@ -106,6 +105,8 @@ def main():
     parser.add_argument('--filter_patterns', type=str, nargs='*', default=[],
                         help='keyword found in file and directory names that not be included to the archive.')
     args = parser.parse_args()
+
+    logging_config.add_stdout_handler()
     archive_directory(args.source_dir, args.scratch_dir,  args.destination_dir, args.filter_patterns)
 
 
