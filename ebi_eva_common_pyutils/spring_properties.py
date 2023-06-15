@@ -214,6 +214,7 @@ class SpringPropertiesGenerator:
         if temp_mongo_db:
             common_props['spring.data.mongodb.database'] = temp_mongo_db
             common_props['mongodb.read-preference'] = 'primaryPreferred'
+            common_props.pop('spring.data.mongodb.host')
             common_props.pop('spring.data.mongodb.username')
             common_props.pop('spring.data.mongodb.password')
         return self._format(
