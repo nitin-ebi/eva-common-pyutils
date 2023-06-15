@@ -17,7 +17,6 @@ from ebi_eva_common_pyutils.network_utils import json_request
 from ebi_eva_common_pyutils.reference.assembly import NCBIAssembly
 from ebi_eva_common_pyutils.taxonomy.taxonomy import get_scientific_name_from_ensembl
 
-logging_config.add_stdout_handler()
 logger = logging_config.get_logger(__name__)
 
 
