@@ -227,7 +227,7 @@ class SpringPropertiesGenerator:
                 'parameters.fasta': fasta,
                 'parameters.assemblyReportUrl': self._format_str('file:{0}', assembly_report),
                 'parameters.outputFolder': output_folder,
-                'parameters.accessionedVcf': accessioned_vcf,
+                'parameters.accessionedVcf': '' if accessioned_vcf is None else accessioned_vcf,
                 'logging.level.uk.ac.ebi.eva.accession.release': 'INFO'
             })
 
