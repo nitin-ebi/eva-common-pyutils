@@ -449,6 +449,7 @@ mongodb.read-preference=secondaryPreferred
 
 parameters.chunkSize=1000
 parameters.assemblyAccession=GCA_00000002.1
+parameters.taxonomyAccession=1234
 parameters.contigNaming=INSDC
 parameters.fasta=/path/to/fasta.fa
 parameters.assemblyReportUrl=file:/path/to/assembly_report.txt
@@ -458,8 +459,7 @@ parameters.accessionedVcf=/path/to/output.vcf
 logging.level.uk.ac.ebi.eva.accession.release=INFO
 '''
         assert (self.prop.get_release_properties(
-            job_name='RELEASE', assembly_accession='GCA_00000002.1',fasta='/path/to/fasta.fa',
+            job_name='RELEASE', assembly_accession='GCA_00000002.1', taxonomy_accession=1234, fasta='/path/to/fasta.fa',
             assembly_report='/path/to/assembly_report.txt', output_folder='/path/to/output_folder',
             contig_naming='INSDC', accessioned_vcf='/path/to/output.vcf')
         ) == expected
-
