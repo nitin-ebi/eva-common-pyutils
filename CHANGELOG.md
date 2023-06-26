@@ -2,6 +2,12 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
+0.5.6 (2023-06-26)
+----------------
+
+- Fix log duplication in stdout
+- SpringProperties generation: Support release automation and provide empty mongo username/password when missing
+
 0.5.5 (2023-06-02)
 ----------------
 
