@@ -77,6 +77,14 @@ class TestMetadata(TestCase):
             'VALUES (%s, %s, %s, %s, %s)',
             (9606, 'human', 'Homo sapiens', 'hsapiens', 'tortoise')
         )
+        db_handle.reset_mock()
+        # Obscure taxonomy does not have a common name use scientific name instead
+        ensure_taxonomy_is_in_evapro(db_handle, 665079)
+        db_handle.cursor().execute.assert_any_call(
+            'INSERT INTO evapro.taxonomy(taxonomy_id, common_name, scientific_name, taxonomy_code, eva_name) '
+            'VALUES (%s, %s, %s, %s, %s)',
+            (665079, None, 'Sclerotinia sclerotiorum 1980 UF-70', 'ssclerotiorum1980uf70', 'Sclerotinia sclerotiorum 1980 UF-70')
+        )
 
     def test_insert_assembly_in_evapro_no_insert(self):
         db_handle = MagicMock()
