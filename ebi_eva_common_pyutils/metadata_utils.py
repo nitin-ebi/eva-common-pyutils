@@ -182,11 +182,8 @@ def ensure_taxonomy_is_in_evapro(metadata_connection_handle, taxonomy, eva_speci
         logger.info("Taxonomy {} not present in EVAPRO. Adding taxonomy ...".format(taxonomy))
         scientific_name, common_name = get_scientific_name_and_common_name(taxonomy)
         taxonomy_code = build_taxonomy_code(scientific_name)
-        eva_species_name = eva_species_name if eva_species_name is not None else common_name
-        if eva_species_name is None:
-            raise ValueError(
-                'The taxonomy in ENA doesn\'t include a common name. '
-                'Please specify the EVA name for the species "{}"'.format(scientific_name))
+        # If a common name cannot be found then we should  use the scientific name
+        eva_species_name = eva_species_name or common_name or scientific_name
         insert_taxonomy(metadata_connection_handle, taxonomy, scientific_name, common_name, taxonomy_code, eva_species_name)
 
 
