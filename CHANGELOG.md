@@ -2,11 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.5.7 (unreleased)
+## 0.5.7 (2023-08-21)
 ---------------------
 
-- Nothing changed yet.
-
+- Metadata: use scientific name when no common name is available
 
 0.5.6 (2023-06-26)
 ----------------
