@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from functools import lru_cache
 
 from ebi_eva_common_pyutils.logger import logging_config
 from ebi_eva_common_pyutils.network_utils import json_request
@@ -29,3 +30,17 @@ def get_supported_asm_from_ensembl(tax_id: int) -> str:
     if assembly_accession_attribute in response:
         return str(response.get(assembly_accession_attribute))
     return None
+
+
+@lru_cache
+def get_ensembl_rapid_release_data():
+    list_data = json_request('https://ftp.ensembl.org/pub/rapid-release/species_metadata.json')
+    return {
+        d['taxonomy_id']: d['assembly_accession']
+        for d in list_data
+    }
+
+
+def get_supported_asm_from_ensembl_rapid_release(tax_id: int) -> str:
+    rapid_release_data = get_ensembl_rapid_release_data()
+    return rapid_release_data.get(tax_id, None)
