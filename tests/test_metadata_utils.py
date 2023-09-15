@@ -38,9 +38,13 @@ class TestMetadata(TestCase):
         ]
         # No lookup to the database
         db_handle = MagicMock()
-        for assembly, taxonomy, expected_db_name in expected_results:
-            db_name = resolve_variant_warehouse_db_name(db_handle, assembly, taxonomy)
-            assert db_name == expected_db_name
+        with patch('ebi_eva_common_pyutils.metadata_utils.get_scientific_name_from_taxonomy',
+                                         side_effect=['Homo sapiens', 'Setaria italica', 'Anas platyrhynchos',
+                                                      'Thuja plicata', 'Dictyostelium discoideum AX4',
+                                                      'Rattus norvegicus']):
+            for assembly, taxonomy, expected_db_name in expected_results:
+                db_name = resolve_variant_warehouse_db_name(db_handle, assembly, taxonomy)
+                assert db_name == expected_db_name
 
     def test_resolve_variant_warehouse_db_name_from_database(self):
         expected_results = [
@@ -53,7 +57,8 @@ class TestMetadata(TestCase):
                           side_effect=['maize',  None,   'pabies'])
         passembly = patch('ebi_eva_common_pyutils.metadata_utils.get_assembly_code_from_metadata',
                           side_effect=['agpv2', 'umd311', None])
-        with ptaxonomy, passembly:
+        with ptaxonomy, passembly, patch('ebi_eva_common_pyutils.metadata_utils.get_scientific_name_from_taxonomy',
+                                         side_effect=['Bos grunniens']):
             for assembly, taxonomy, expected_db_name in expected_results:
                 db_name = resolve_variant_warehouse_db_name(None, assembly, taxonomy)
                 assert db_name == expected_db_name

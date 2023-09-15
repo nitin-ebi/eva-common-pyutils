@@ -22,7 +22,7 @@ from ebi_eva_common_pyutils.ena_utils import get_scientific_name_and_common_name
 from ebi_eva_common_pyutils.logger import logging_config
 from ebi_eva_common_pyutils.ncbi_utils import get_ncbi_assembly_name_from_term
 from ebi_eva_common_pyutils.pg_utils import get_result_cursor, get_all_results_for_query, execute_query
-from ebi_eva_common_pyutils.taxonomy.taxonomy import get_scientific_name_from_ensembl
+from ebi_eva_common_pyutils.taxonomy.taxonomy import get_scientific_name_from_taxonomy
 
 logger = logging_config.get_logger(__name__)
 SUPPORTED_ASSEMBLY_TRACKER_TABLE = "evapro.supported_assembly_tracker"
@@ -132,7 +132,7 @@ def build_taxonomy_code(scientific_name):
 def get_taxonomy_code(metadata_connection_handle, taxonomy):
     taxonomy_code = get_taxonomy_code_from_metadata(metadata_connection_handle, taxonomy)
     if not taxonomy_code:
-        scientific_name = get_scientific_name_from_ensembl(taxonomy)
+        scientific_name = get_scientific_name_from_taxonomy(taxonomy, metadata_connection_handle=metadata_connection_handle)
         taxonomy_code = build_taxonomy_code(scientific_name)
     return taxonomy_code
 

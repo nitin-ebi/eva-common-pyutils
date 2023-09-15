@@ -16,6 +16,7 @@ import re
 
 from ebi_eva_common_pyutils.ncbi_utils import retrieve_species_scientific_name_from_tax_id_ncbi
 from ebi_eva_common_pyutils.network_utils import json_request
+from ebi_eva_common_pyutils.pg_utils import get_all_results_for_query
 
 
 def get_scientific_name_from_ensembl(taxonomy_id: int) -> str:
@@ -36,17 +37,44 @@ def normalise_taxon_scientific_name(taxon_name):
     return re.sub('[^0-9a-zA-Z]+', '_', taxon_name.lower())
 
 
-def get_normalized_scientific_name_from_ensembl(taxonomy_id: int) -> str:
+def get_normalized_scientific_name(taxonomy_id):
     """Get the scientific name for that taxon"""
-    return normalise_taxon_scientific_name(get_scientific_name_from_ensembl(taxonomy_id))
+    return normalise_taxon_scientific_name(get_scientific_name_from_taxonomy(taxonomy_id))
 
+def get_scientific_name_from_eva(taxonomy_id, private_config_xml_file, profile):
+    from ebi_eva_common_pyutils.metadata_utils import get_metadata_connection_handle
+    query = f"""select scientific_name from evapro.taxonomy where taxonomy_id={taxonomy_id}"""
+    with get_metadata_connection_handle(profile, private_config_xml_file) as pg_conn:
+        result = get_all_results_for_query(pg_conn, query)
+        if not result:
+            return None
+        else:
+            return result[0][0]
 
-def get_scientific_name_from_taxonomy(taxonomy_id: int) -> str:
+def get_scientific_name_from_eva_using_metadata_connection(metadata_connection_handle, taxonomy_id):
+    query = f"""select scientific_name from evapro.taxonomy where taxonomy_id={taxonomy_id}"""
+    result = get_all_results_for_query(metadata_connection_handle, query)
+    if not result:
+        return None
+    else:
+        return result[0][0]
+
+def get_scientific_name_from_taxonomy(taxonomy_id, private_config_xml_file=None, profile='production_processing', metadata_connection_handle=None):
     """
     Search for a species scientific name based on the taxonomy id.
-    Will first attempt to retrieve from Ensembl and then NCBI, if not found returns None.
+    Will first attempt to retrieve from EVA Database, then Ensembl and then NCBI, if not found.
     """
-    species_name = get_scientific_name_from_ensembl(taxonomy_id)
-    if not species_name:
-        species_name = retrieve_species_scientific_name_from_tax_id_ncbi(taxonomy_id)
-    return species_name
+    if not private_config_xml_file and not metadata_connection_handle:
+        raise Exception('To get scientific name from EVA DB, either provide settings_file or connection to metadata db')
+
+    if metadata_connection_handle:
+        scientific_name = get_scientific_name_from_eva_using_metadata_connection(metadata_connection_handle, taxonomy_id)
+    else:
+        scientific_name = get_scientific_name_from_eva(taxonomy_id, private_config_xml_file, profile)
+
+    if not scientific_name:
+        scientific_name = get_scientific_name_from_ensembl(taxonomy_id)
+        if not scientific_name:
+            scientific_name = retrieve_species_scientific_name_from_tax_id_ncbi(taxonomy_id)
+
+    return scientific_name
