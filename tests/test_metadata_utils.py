@@ -65,7 +65,9 @@ class TestMetadata(TestCase):
 
     def test_ensure_taxonomy_is_in_evapro(self):
         db_handle = MagicMock()
-        ensure_taxonomy_is_in_evapro(db_handle, 9606)
+        with patch('ebi_eva_common_pyutils.metadata_utils.get_scientific_name_from_taxonomy',
+                   side_effect=['Homo sapiens']):
+            ensure_taxonomy_is_in_evapro(db_handle, 9606)
         # Checks that the taxonomy does not exist then
         db_handle.cursor().execute.assert_any_call('SELECT taxonomy_id FROM evapro.taxonomy WHERE taxonomy_id=9606')
         # Insert the taxonomy with the appropriate species name
@@ -75,16 +77,20 @@ class TestMetadata(TestCase):
             (9606, 'human', 'Homo sapiens', 'hsapiens', 'human')
         )
         db_handle.reset_mock()
-        # Can override the eva_name
-        ensure_taxonomy_is_in_evapro(db_handle, 9606, 'tortoise')
+        with patch('ebi_eva_common_pyutils.metadata_utils.get_scientific_name_from_taxonomy',
+                   side_effect=['Homo sapiens']):
+            # Can override the eva_name
+            ensure_taxonomy_is_in_evapro(db_handle, 9606, 'tortoise')
         db_handle.cursor().execute.assert_any_call(
             'INSERT INTO evapro.taxonomy(taxonomy_id, common_name, scientific_name, taxonomy_code, eva_name) '
             'VALUES (%s, %s, %s, %s, %s)',
             (9606, 'human', 'Homo sapiens', 'hsapiens', 'tortoise')
         )
         db_handle.reset_mock()
-        # Obscure taxonomy does not have a common name use scientific name instead
-        ensure_taxonomy_is_in_evapro(db_handle, 665079)
+        with patch('ebi_eva_common_pyutils.metadata_utils.get_scientific_name_from_taxonomy',
+                   side_effect=['Sclerotinia sclerotiorum 1980 UF-70']):
+            # Obscure taxonomy does not have a common name use scientific name instead
+            ensure_taxonomy_is_in_evapro(db_handle, 665079)
         db_handle.cursor().execute.assert_any_call(
             'INSERT INTO evapro.taxonomy(taxonomy_id, common_name, scientific_name, taxonomy_code, eva_name) '
             'VALUES (%s, %s, %s, %s, %s)',

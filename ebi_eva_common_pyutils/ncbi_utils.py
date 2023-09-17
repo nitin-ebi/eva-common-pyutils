@@ -4,7 +4,6 @@ import requests
 from retry import retry
 
 from ebi_eva_common_pyutils.logger import logging_config as log_cfg
-from ebi_eva_common_pyutils.taxonomy.taxonomy import normalise_taxon_scientific_name
 
 logger = log_cfg.get_logger(__name__)
 
@@ -97,6 +96,7 @@ def retrieve_species_scientific_name_from_tax_id_ncbi(taxid):
 
 
 def get_species_name_from_ncbi(assembly_acc):
+    from ebi_eva_common_pyutils.taxonomy.taxonomy import normalise_taxon_scientific_name
     # We first need to search for the species associated with the assembly
     assembly_dicts = get_ncbi_assembly_dicts_from_term(assembly_acc)
     taxids = set([assembly_dict.get('taxid')
