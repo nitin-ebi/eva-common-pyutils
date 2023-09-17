@@ -180,7 +180,8 @@ def ensure_taxonomy_is_in_evapro(metadata_connection_handle, taxonomy, eva_speci
         logger.debug('Taxonomy {} is already in the database'.format(taxonomy))
     else:
         logger.info("Taxonomy {} not present in EVAPRO. Adding taxonomy ...".format(taxonomy))
-        scientific_name, common_name = get_scientific_name_and_common_name(taxonomy)
+        scientific_name = get_scientific_name_from_taxonomy(taxonomy, metadata_connection_handle=metadata_connection_handle)
+        _, common_name = get_scientific_name_and_common_name(taxonomy)
         taxonomy_code = build_taxonomy_code(scientific_name)
         # If a common name cannot be found then we should  use the scientific name
         eva_species_name = eva_species_name or common_name or scientific_name

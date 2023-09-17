@@ -4,7 +4,7 @@ import requests
 from retry import retry
 
 from ebi_eva_common_pyutils.logger import logging_config as log_cfg
-
+from ebi_eva_common_pyutils.taxonomy.taxonomy import normalise_taxon_scientific_name
 
 logger = log_cfg.get_logger(__name__)
 
@@ -112,4 +112,4 @@ def get_species_name_from_ncbi(assembly_acc):
     taxonomy_id = taxids.pop()
 
     scientific_name = retrieve_species_scientific_name_from_tax_id_ncbi(taxonomy_id)
-    return scientific_name.replace(' ', '_').lower()
+    return normalise_taxon_scientific_name(scientific_name)

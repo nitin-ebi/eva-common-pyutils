@@ -23,6 +23,7 @@ from retry import retry
 
 from ebi_eva_common_pyutils.command_utils import run_command_with_output
 from ebi_eva_common_pyutils.logger import AppLogger
+from ebi_eva_common_pyutils.taxonomy.taxonomy import normalise_taxon_scientific_name
 
 
 class NCBISequence(AppLogger):
@@ -68,7 +69,7 @@ class NCBISequence(AppLogger):
     @property
     def sequence_directory(self):
         sequence_directory = os.path.join(
-            self.reference_directory,  self.species_scientific_name.lower().replace(' ', '_'), self.sequence_accession
+            self.reference_directory,  normalise_taxon_scientific_name(self.species_scientific_name), self.sequence_accession
         )
         os.makedirs(sequence_directory, exist_ok=True),
         return sequence_directory
