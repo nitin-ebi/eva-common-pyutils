@@ -14,18 +14,24 @@
 
 import re
 
+from ebi_eva_common_pyutils.logger import logging_config as log_cfg
 from ebi_eva_common_pyutils.ncbi_utils import retrieve_species_scientific_name_from_tax_id_ncbi
 from ebi_eva_common_pyutils.network_utils import json_request
 from ebi_eva_common_pyutils.pg_utils import get_all_results_for_query
 
+logger = log_cfg.get_logger(__name__)
+logger.setLevel('INFO')
 
 def get_scientific_name_from_ensembl(taxonomy_id: int) -> str:
     ENSEMBL_REST_API_URL = "https://rest.ensembl.org/taxonomy/id/{0}?content-type=application/json".format(taxonomy_id)
     response = json_request(ENSEMBL_REST_API_URL)
     if "scientific_name" not in response:
-        raise Exception("Scientific name could not be found for taxonomy {0} using the Ensembl API URL: {1}"
-                        .format(taxonomy_id, ENSEMBL_REST_API_URL))
-    return response["scientific_name"]
+        logger.warning("Scientific name could not be found for taxonomy {0} using the Ensembl API URL: {1}"
+                       .format(taxonomy_id, ENSEMBL_REST_API_URL))
+        return None
+    else:
+        logger.info(f'Retrieved scientific name {response["scientific_name"]} from Ensembl for taxonomy {taxonomy_id}')
+        return response["scientific_name"]
 
 
 def normalise_taxon_scientific_name(taxon_name):
@@ -43,15 +49,10 @@ def get_normalized_scientific_name(taxonomy_id):
 
 def get_scientific_name_from_eva(taxonomy_id, private_config_xml_file, profile):
     from ebi_eva_common_pyutils.metadata_utils import get_metadata_connection_handle
-    query = f"""select scientific_name from evapro.taxonomy where taxonomy_id={taxonomy_id}"""
     with get_metadata_connection_handle(profile, private_config_xml_file) as pg_conn:
-        result = get_all_results_for_query(pg_conn, query)
-        if not result:
-            return None
-        else:
-            return result[0][0]
+        return get_scientific_name_from_eva_using_metadata_connection(taxonomy_id, pg_conn)
 
-def get_scientific_name_from_eva_using_metadata_connection(metadata_connection_handle, taxonomy_id):
+def get_scientific_name_from_eva_using_metadata_connection(taxonomy_id, metadata_connection_handle):
     query = f"""select scientific_name from evapro.taxonomy where taxonomy_id={taxonomy_id}"""
     result = get_all_results_for_query(metadata_connection_handle, query)
     if not result:
@@ -68,7 +69,7 @@ def get_scientific_name_from_taxonomy(taxonomy_id, private_config_xml_file=None,
         raise Exception('To get scientific name from EVA DB, either provide settings_file or connection to metadata db')
 
     if metadata_connection_handle:
-        scientific_name = get_scientific_name_from_eva_using_metadata_connection(metadata_connection_handle, taxonomy_id)
+        scientific_name = get_scientific_name_from_eva_using_metadata_connection(taxonomy_id, metadata_connection_handle)
     else:
         scientific_name = get_scientific_name_from_eva(taxonomy_id, private_config_xml_file, profile)
 

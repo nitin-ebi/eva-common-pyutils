@@ -92,7 +92,9 @@ def retrieve_species_scientific_name_from_tax_id_ncbi(taxid):
         logger.warning('Taxonomy id %s does not point to a species', taxid)
     match = re.search('<ScientificName>(.+?)</ScientificName>', r.text, re.MULTILINE)
     if match:
-        return match.group(1)
+        scientific_name = match.group(1)
+        logger.info(f"Retrieved species scientific name {scientific_name} for taxonomy {taxid} from NCBI ")
+        return scientific_name
 
 
 def get_species_name_from_ncbi(assembly_acc):
