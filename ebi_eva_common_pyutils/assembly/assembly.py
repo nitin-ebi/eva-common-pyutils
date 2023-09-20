@@ -19,9 +19,11 @@ from ebi_eva_common_pyutils.taxonomy.taxonomy import get_normalized_scientific_n
 logger = logging_config.get_logger(__name__)
 
 
-def get_supported_asm_from_ensembl(tax_id: int) -> str:
+def get_supported_asm_from_ensembl(tax_id, private_config_xml_file, profile):
     logger.info(f'Query Ensembl for species name using taxonomy {tax_id}')
-    scientific_name_api_param = get_normalized_scientific_name(tax_id)
+    scientific_name_api_param = get_normalized_scientific_name(tax_id,
+                                                               private_config_xml_file=private_config_xml_file,
+                                                               profile=profile)
     ENSEMBL_REST_API_URL = "http://rest.ensembl.org/info/assembly/{0}?content-type=application/json".format(
         scientific_name_api_param)
     response = json_request(ENSEMBL_REST_API_URL)

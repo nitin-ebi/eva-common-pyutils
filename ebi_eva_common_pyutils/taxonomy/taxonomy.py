@@ -43,9 +43,11 @@ def normalise_taxon_scientific_name(taxon_name):
     return re.sub('[^0-9a-zA-Z]+', '_', taxon_name.lower())
 
 
-def get_normalized_scientific_name(taxonomy_id):
+def get_normalized_scientific_name(taxonomy_id, private_config_xml_file, profile):
     """Get the scientific name for that taxon"""
-    return normalise_taxon_scientific_name(get_scientific_name_from_taxonomy(taxonomy_id))
+    return normalise_taxon_scientific_name(get_scientific_name_from_taxonomy(taxonomy_id,
+                                                                        private_config_xml_file=private_config_xml_file,
+                                                                        profile=profile))
 
 def get_scientific_name_from_eva(taxonomy_id, private_config_xml_file, profile):
     from ebi_eva_common_pyutils.metadata_utils import get_metadata_connection_handle
