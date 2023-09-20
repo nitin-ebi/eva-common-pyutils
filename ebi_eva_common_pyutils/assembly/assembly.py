@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from datetime import datetime
 from functools import lru_cache
 
 from ebi_eva_common_pyutils.logger import logging_config
@@ -33,14 +34,36 @@ def get_supported_asm_from_ensembl(tax_id: int) -> str:
 
 
 @lru_cache
-def get_ensembl_rapid_release_data():
+def get_taxonomy_to_assembly_mapping_from_ensembl_rapid_release():
+    """
+    Returns a dict mapping taxonomy ID to assembly accession, choosing the most recently released,
+    lexicographically first, non-alternate haplotype assembly when multiple are present.
+    """
     list_data = json_request('https://ftp.ensembl.org/pub/rapid-release/species_metadata.json')
-    return {
-        d['taxonomy_id']: d['assembly_accession']
-        for d in list_data
-    }
+    results = {}
+    for asm_data in list_data:
+        tax_id = asm_data['taxonomy_id']
+        asm_accession = asm_data['assembly_accession']
+        strain = asm_data['strain']
+        release_date = datetime.strptime(asm_data['release_date'], '%Y-%m-%d')
+
+        # If we haven't seen this taxonomy before, just use this assembly
+        if tax_id not in results:
+            results[tax_id] = (asm_accession, release_date)
+            continue
+
+        # Skip alternate haplotype assemblies
+        if strain and strain.lower() == 'alternate haplotype':
+            continue
+        current_assembly, current_date = results[tax_id]
+        # Keep the more recent assembly, or the lexicographically first one if release dates are equal
+        if current_date < release_date or (current_date == release_date and asm_accession < current_assembly):
+            results[tax_id] = (asm_accession, release_date)
+
+    return {key: val[0] for key, val in results.items()}
 
 
 def get_supported_asm_from_ensembl_rapid_release(tax_id: int) -> str:
-    rapid_release_data = get_ensembl_rapid_release_data()
+    # TODO: Replace with API call once supported
+    rapid_release_data = get_taxonomy_to_assembly_mapping_from_ensembl_rapid_release()
     return rapid_release_data.get(tax_id, None)

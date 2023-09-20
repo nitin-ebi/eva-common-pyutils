@@ -152,3 +152,12 @@ class TestAssembly(TestCommon):
 
     def test_get_supported_asm_from_ensembl_rapid_release_none_found(self):
         assert get_supported_asm_from_ensembl_rapid_release(0) == None
+
+    def test_get_supported_asm_from_ensembl_rapid_release_multiple_found(self):
+        # Two assemblies, released same date and one alternate haplotype
+        assembly = get_supported_asm_from_ensembl_rapid_release(30194)
+        assert assembly == 'GCA_930367275.1'
+
+        # Three assemblies, released same date and none alternate haplotype
+        assembly = get_supported_asm_from_ensembl_rapid_release(69293)
+        assert assembly == 'GCA_006229185.1'
