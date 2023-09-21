@@ -33,7 +33,7 @@ def get_supported_asm_from_ensembl(tax_id: int) -> str:
     return None
 
 
-@lru_cache
+@lru_cache(maxsize=None)
 def get_taxonomy_to_assembly_mapping_from_ensembl_rapid_release():
     """
     Returns a dict mapping taxonomy ID to assembly accession, choosing the most recently released,
