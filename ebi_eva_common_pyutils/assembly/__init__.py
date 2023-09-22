@@ -1,1 +1,1 @@
-from ebi_eva_common_pyutils.assembly.assembly import NCBIAssembly
+from ebi_eva_common_pyutils.reference.assembly import NCBIAssembly
