@@ -37,7 +37,7 @@ def get_supported_asm_from_ensembl(tax_id: int) -> str:
 def get_taxonomy_to_assembly_mapping_from_ensembl_rapid_release():
     """
     Returns a dict mapping taxonomy ID to assembly accession, choosing the most recently released,
-    lexicographically first, non-alternate haplotype assembly when multiple are present.
+    lexicographically last, non-alternate haplotype assembly when multiple are present.
     """
     list_data = json_request('https://ftp.ensembl.org/pub/rapid-release/species_metadata.json')
     results = {}
@@ -56,8 +56,8 @@ def get_taxonomy_to_assembly_mapping_from_ensembl_rapid_release():
         if strain and strain.lower() == 'alternate haplotype':
             continue
         current_assembly, current_date = results[tax_id]
-        # Keep the more recent assembly, or the lexicographically first one if release dates are equal
-        if current_date < release_date or (current_date == release_date and asm_accession < current_assembly):
+        # Keep the more recent assembly, or the lexicographically last one if release dates are equal
+        if current_date < release_date or (current_date == release_date and asm_accession > current_assembly):
             results[tax_id] = (asm_accession, release_date)
 
     return {key: val[0] for key, val in results.items()}

@@ -160,4 +160,4 @@ class TestAssembly(TestCommon):
 
         # Three assemblies, released same date and none alternate haplotype
         assembly = get_supported_asm_from_ensembl_rapid_release(69293)
-        assert assembly == 'GCA_006229185.1'
+        assert assembly == 'GCA_006232285.1'
