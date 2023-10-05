@@ -2,10 +2,12 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.5.8 (unreleased)
+## 0.6.0 (2023-10-05)
 ---------------------
 
-- Nothing changed yet.
+- Refactor to separate functions made for internal EVA use
+- Check Ensembl rapid release for supported assemblies 
+- Scientific name fixes 
 
 
 ## 0.5.7 (2023-08-21)
