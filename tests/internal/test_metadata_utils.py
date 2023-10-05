@@ -1,7 +1,7 @@
 from unittest import TestCase
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
-from ebi_eva_common_pyutils.metadata_utils import resolve_variant_warehouse_db_name, get_taxonomy_code_from_metadata, \
+from ebi_eva_internal_pyutils.metadata_utils import resolve_variant_warehouse_db_name, get_taxonomy_code_from_metadata, \
     get_assembly_code_from_metadata, insert_new_assembly_and_taxonomy, build_taxonomy_code, \
     ensure_taxonomy_is_in_evapro, insert_assembly_in_evapro, update_accessioning_status
 
@@ -17,13 +17,13 @@ class TestMetadata(TestCase):
 
     def test_get_taxonomy_code_from_metadata(self):
         db_handle = MagicMock()
-        with patch('ebi_eva_common_pyutils.metadata_utils.get_all_results_for_query', return_value=[('hsapiens',)]):
+        with patch('ebi_eva_internal_pyutils.metadata_utils.get_all_results_for_query', return_value=[('hsapiens',)]):
             taxcode = get_taxonomy_code_from_metadata(db_handle, 9096)
             assert taxcode == 'hsapiens'
 
     def test_get_assembly_code_from_metadata(self):
         db_handle = MagicMock()
-        with patch('ebi_eva_common_pyutils.metadata_utils.get_all_results_for_query', return_value=[('grch38',)]):
+        with patch('ebi_eva_internal_pyutils.metadata_utils.get_all_results_for_query', return_value=[('grch38',)]):
             taxcode = get_assembly_code_from_metadata(db_handle, 'GCA_000001405.15')
             assert taxcode == 'grch38'
 
@@ -49,9 +49,9 @@ class TestMetadata(TestCase):
             ('GCA_900491625.1', 3329, 'eva_pabies_a541150contigsfastagz')
         ]
         # Patch the lookup functions
-        ptaxonomy = patch('ebi_eva_common_pyutils.metadata_utils.get_taxonomy_code_from_metadata',
+        ptaxonomy = patch('ebi_eva_internal_pyutils.metadata_utils.get_taxonomy_code_from_metadata',
                           side_effect=['maize',  None,   'pabies'])
-        passembly = patch('ebi_eva_common_pyutils.metadata_utils.get_assembly_code_from_metadata',
+        passembly = patch('ebi_eva_internal_pyutils.metadata_utils.get_assembly_code_from_metadata',
                           side_effect=['agpv2', 'umd311', None])
         with ptaxonomy, passembly:
             for assembly, taxonomy, expected_db_name in expected_results:
@@ -89,13 +89,13 @@ class TestMetadata(TestCase):
     def test_insert_assembly_in_evapro_no_insert(self):
         db_handle = MagicMock()
         db_handle.cursor().__enter__().fetchall.return_value = (9606,)
-        with patch('ebi_eva_common_pyutils.metadata_utils.insert_taxonomy') as mock_insert:
+        with patch('ebi_eva_internal_pyutils.metadata_utils.insert_taxonomy') as mock_insert:
             ensure_taxonomy_is_in_evapro(db_handle, 9606)
         mock_insert.assert_not_called()
 
     def test_insert_assembly_in_evapro(self):
         db_handle = MagicMock()
-        with patch('ebi_eva_common_pyutils.metadata_utils.get_all_results_for_query') as mock_results:
+        with patch('ebi_eva_internal_pyutils.metadata_utils.get_all_results_for_query') as mock_results:
             # This will be used when retrieving the assembly set id after it's been inserted
             assembly_set_id = 27
             mock_results.return_value = ((assembly_set_id,),)
@@ -122,10 +122,10 @@ class TestMetadata(TestCase):
 
     def test_insert_new_assembly_and_taxonomy(self):
         db_handle = MagicMock()
-        with patch('ebi_eva_common_pyutils.metadata_utils.ensure_taxonomy_is_in_evapro') as mock_tax_in_evapro, \
-                patch('ebi_eva_common_pyutils.metadata_utils.insert_assembly_in_evapro') as mock_insert_assembly, \
-                patch('ebi_eva_common_pyutils.metadata_utils.update_accessioning_status') as mock_update_status, \
-                patch('ebi_eva_common_pyutils.metadata_utils.get_all_results_for_query') as mock_get_results:
+        with patch('ebi_eva_internal_pyutils.metadata_utils.ensure_taxonomy_is_in_evapro') as mock_tax_in_evapro, \
+                patch('ebi_eva_internal_pyutils.metadata_utils.insert_assembly_in_evapro') as mock_insert_assembly, \
+                patch('ebi_eva_internal_pyutils.metadata_utils.update_accessioning_status') as mock_update_status, \
+                patch('ebi_eva_internal_pyutils.metadata_utils.get_all_results_for_query') as mock_get_results:
             insert_new_assembly_and_taxonomy(db_handle, 'GCA_000001405.15', 9606)
         mock_tax_in_evapro.assert_called_once_with(db_handle, 9606, None)
         mock_insert_assembly.assert_called_once_with(db_handle, 9606, 'GCA_000001405.15', 'GRCh38', 'grch38')
@@ -133,10 +133,10 @@ class TestMetadata(TestCase):
 
     def test_no_insert_new_assembly_and_taxonomy(self):
         db_handle = MagicMock()
-        with patch('ebi_eva_common_pyutils.metadata_utils.ensure_taxonomy_is_in_evapro') as mock_tax_in_evapro, \
-                patch('ebi_eva_common_pyutils.metadata_utils.insert_assembly_in_evapro') as mock_insert_assembly, \
-                patch('ebi_eva_common_pyutils.metadata_utils.update_accessioning_status') as mock_update_status, \
-                patch('ebi_eva_common_pyutils.metadata_utils.get_all_results_for_query') as mock_get_results:
+        with patch('ebi_eva_internal_pyutils.metadata_utils.ensure_taxonomy_is_in_evapro') as mock_tax_in_evapro, \
+                patch('ebi_eva_internal_pyutils.metadata_utils.insert_assembly_in_evapro') as mock_insert_assembly, \
+                patch('ebi_eva_internal_pyutils.metadata_utils.update_accessioning_status') as mock_update_status, \
+                patch('ebi_eva_internal_pyutils.metadata_utils.get_all_results_for_query') as mock_get_results:
             mock_get_results.return_value = ((1,),)
             insert_new_assembly_and_taxonomy(db_handle, 'GCA_000001405.15', 9606)
         mock_tax_in_evapro.assert_not_called()

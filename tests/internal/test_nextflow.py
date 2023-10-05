@@ -1,6 +1,6 @@
 import os
 import shutil
-from ebi_eva_common_pyutils.nextflow import LinearNextFlowPipeline, NextFlowPipeline, NextFlowProcess
+from ebi_eva_internal_pyutils.nextflow import LinearNextFlowPipeline, NextFlowPipeline, NextFlowProcess
 from tests.test_common import TestCommon
 
 

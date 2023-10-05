@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ftplib import FTP
 import http
-import re
 import requests
 
 from ebi_eva_common_pyutils.assembly import NCBIAssembly

@@ -1,7 +1,6 @@
 import os
-from unittest import TestCase
 
-from ebi_eva_common_pyutils.spring_properties import SpringPropertiesGenerator
+from ebi_eva_internal_pyutils.spring_properties import SpringPropertiesGenerator
 from tests.test_common import TestCommon
 
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 from collections import defaultdict
 
-from ebi_eva_common_pyutils.config_utils import get_mongo_creds_for_profile, get_accession_pg_creds_for_profile, \
+from ebi_eva_internal_pyutils.config_utils import get_mongo_creds_for_profile, get_accession_pg_creds_for_profile, \
     get_count_service_creds_for_profile, get_properties_from_xml_file, get_variant_load_job_tracker_creds_for_profile
 
 

@@ -17,11 +17,11 @@ from urllib.parse import urlsplit
 
 import psycopg2
 
-from ebi_eva_common_pyutils.config_utils import get_metadata_creds_for_profile
+from ebi_eva_internal_pyutils.config_utils import get_metadata_creds_for_profile
 from ebi_eva_common_pyutils.ena_utils import get_scientific_name_and_common_name
 from ebi_eva_common_pyutils.logger import logging_config
 from ebi_eva_common_pyutils.ncbi_utils import get_ncbi_assembly_name_from_term
-from ebi_eva_common_pyutils.pg_utils import get_result_cursor, get_all_results_for_query, execute_query
+from ebi_eva_internal_pyutils.pg_utils import get_result_cursor, get_all_results_for_query, execute_query
 from ebi_eva_common_pyutils.taxonomy.taxonomy import get_scientific_name_from_ensembl
 
 logger = logging_config.get_logger(__name__)

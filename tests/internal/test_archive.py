@@ -3,12 +3,12 @@ import shutil
 import tarfile
 from unittest import TestCase
 
-from ebi_eva_common_pyutils.archive_directory import archive_directory
+from ebi_eva_internal_pyutils.archive_directory import archive_directory
 
 
 class TestArchive(TestCase):
 
-    archive = os.path.join(os.path.dirname(__file__), 'resources', 'archive')
+    archive = os.path.join(os.path.dirname(__file__), '../resources', 'archive')
 
     def setUp(self) -> None:
         self.src_dir = os.path.join(self.archive, 'src')

@@ -6,8 +6,8 @@ from pymongo import WriteConcern, ReadPreference
 from pymongo.read_concern import ReadConcern
 
 from ebi_eva_common_pyutils.command_utils import run_command_with_output
-from ebi_eva_common_pyutils.mongo_utils import get_mongo_connection_handle
-from ebi_eva_common_pyutils.mongodb import MongoDatabase
+from ebi_eva_internal_pyutils.mongo_utils import get_mongo_connection_handle
+from ebi_eva_internal_pyutils.mongodb import MongoDatabase
 from tests.test_common import TestCommon
 
 
@@ -15,7 +15,7 @@ class TestMongoDatabase(TestCommon):
     dump_db_name = "test_mongo_db"
     uri = "mongodb://localhost:27017/admin"
     local_mongo_handle = pymongo.MongoClient()
-    config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'resources/test_config_file.xml')
+    config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../resources/test_config_file.xml')
 
     # Tests expect a local sharded Mongo instance
     def setUp(self) -> None:

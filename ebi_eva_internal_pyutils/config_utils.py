@@ -18,7 +18,6 @@ import json
 import yaml
 import urllib.request
 
-from pymongo.uri_parser import split_hosts
 from retry import retry
 
 
