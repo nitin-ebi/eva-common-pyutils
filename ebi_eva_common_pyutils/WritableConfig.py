@@ -9,7 +9,7 @@ class WritableConfig(Configuration):
     """Configuration object that allows writes to the config file"""
 
     def __init__(self, *search_path, version=None):
-        super().__init__(search_path)
+        super().__init__(*search_path)
         self.version = version
 
     def load_config_file(self, *search_path):
