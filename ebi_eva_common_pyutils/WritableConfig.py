@@ -8,7 +8,7 @@ from ebi_eva_common_pyutils.config import Configuration, cfg
 class WritableConfig(Configuration):
     """Configuration object that allows writes to the config file"""
 
-    def __init__(self, version=None, *search_path):
+    def __init__(self, *search_path, version=None):
         super().__init__(search_path)
         self.version = version
 
