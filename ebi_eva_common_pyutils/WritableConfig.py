@@ -2,7 +2,7 @@
 import os
 
 import yaml
-from ebi_eva_common_pyutils.config.config import Configuration, cfg
+from ebi_eva_common_pyutils.config import Configuration, cfg
 
 
 class WritableConfig(Configuration):

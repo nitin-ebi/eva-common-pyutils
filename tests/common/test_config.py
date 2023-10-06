@@ -3,7 +3,7 @@ from os.path import join
 
 import pytest
 
-from ebi_eva_common_pyutils.config.config import Configuration
+from ebi_eva_common_pyutils.config import Configuration
 from tests.test_common import TestCommon
 
 
