@@ -1,5 +1,4 @@
 import os
-from os import environ
 from os.path import join
 
 import pytest
