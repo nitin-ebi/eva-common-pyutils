@@ -4,7 +4,7 @@ from retry import retry
 
 
 @retry(tries=3, delay=2, backoff=1.2, jitter=(1, 3))
-def download_xml_from_ena(ena_url):
+def download_xml_from_ena(ena_url) -> etree.XML:
     """Download and parse XML from ENA"""
     try:  # catches any kind of request error, including non-20X status code
         response = requests.get(ena_url)

@@ -3,6 +3,7 @@ import shutil
 from unittest.mock import Mock
 
 from ebi_eva_common_pyutils.assembly.assembly import get_supported_asm_from_ensembl_rapid_release
+from ebi_eva_common_pyutils.assembly_utils import is_patch_assembly
 from ebi_eva_common_pyutils.reference.assembly import NCBIAssembly
 from tests.test_common import TestCommon
 
@@ -161,3 +162,13 @@ class TestAssembly(TestCommon):
         # Three assemblies, released same date and none alternate haplotype
         assembly = get_supported_asm_from_ensembl_rapid_release(69293)
         assert assembly == 'GCA_006232285.1'
+
+    def test_is_patch_assembly(self):
+        # grch37
+        assert not(is_patch_assembly("GCA_000001405.1"))
+        # grch37.p1
+        assert is_patch_assembly("GCA_000001405.2")
+        # grcm38
+        assert not (is_patch_assembly("GCA_000001635.2"))
+        # grcm38.p1
+        assert is_patch_assembly("GCA_000001635.3")

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from ebi_eva_internal_pyutils.metadata_utils import resolve_variant_warehouse_db_name, get_taxonomy_code_from_metadata, \
     get_assembly_code_from_metadata, insert_new_assembly_and_taxonomy, build_taxonomy_code, \
-    ensure_taxonomy_is_in_evapro, insert_assembly_in_evapro, update_accessioning_status
+    ensure_taxonomy_is_in_evapro, insert_assembly_in_evapro, update_accessioning_status, get_assembly_code
 
 
 class TestMetadata(TestCase):
@@ -21,20 +21,33 @@ class TestMetadata(TestCase):
             taxcode = get_taxonomy_code_from_metadata(db_handle, 9096)
             assert taxcode == 'hsapiens'
 
+    def test_get_assembly_code(self):
+        db_handle = MagicMock()
+        with patch('ebi_eva_internal_pyutils.metadata_utils.get_all_results_for_query', return_value=[('',)]):
+            assembly_code = get_assembly_code(db_handle, 'GCA_000001405.9')
+            assert assembly_code == 'grch37'
+
     def test_get_assembly_code_from_metadata(self):
         db_handle = MagicMock()
         with patch('ebi_eva_internal_pyutils.metadata_utils.get_all_results_for_query', return_value=[('grch38',)]):
-            taxcode = get_assembly_code_from_metadata(db_handle, 'GCA_000001405.15')
-            assert taxcode == 'grch38'
+            assembly_code = get_assembly_code_from_metadata(db_handle, 'GCA_000001405.15')
+            assert assembly_code == 'grch38'
 
     def test_resolve_variant_warehouse_db_name(self):
         expected_results = [
+            ('GCA_000001405.1', 9606, 'eva_hsapiens_grch37'),
+            # grch37p8 - patch versions should not result in a different assembly code
+            ('GCA_000001405.9', 9606, 'eva_hsapiens_grch37'),
             ('GCA_000001405.15', 9606, 'eva_hsapiens_grch38'),
+            # grch38p10 - patch versions should not result in a different assembly code
+            ('GCA_000001405.25', 9606, 'eva_hsapiens_grch38'),
             ('GCA_000263155.1', 4555, 'eva_sitalica_setariav1'),
             ('GCA_008746955.1', 8839, 'eva_aplatyrhynchos_cauwild10'),
             ('GCA_018584345.1', 3316, 'eva_tplicata_redcedarv3'),
             ('GCA_000004695.1', 352472, 'eva_ddiscoideumax4_dicty27'),
-            ('GCA_015227675.2', 10116, 'eva_rnorvegicus_mratbn72')
+            ('GCA_015227675.2', 10116, 'eva_rnorvegicus_mratbn72'),
+            # grcm38.p1
+            ('GCA_000001635.3', 10090, 'eva_mmusculus_grcm38')
         ]
         # No lookup to the database
         db_handle = MagicMock()

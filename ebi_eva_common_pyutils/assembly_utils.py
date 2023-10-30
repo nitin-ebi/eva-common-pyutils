@@ -16,6 +16,7 @@ import http
 import requests
 
 from ebi_eva_common_pyutils.assembly import NCBIAssembly
+from ebi_eva_common_pyutils.ena_utils import download_xml_from_ena
 from ebi_eva_common_pyutils.logger import logging_config as log_cfg
 
 EUTILS_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
@@ -25,6 +26,18 @@ EFETCH_URL = EUTILS_URL + 'efetch.fcgi'
 
 
 logger = log_cfg.get_logger(__name__)
+
+
+def is_patch_assembly(assembly_accession: str) -> bool:
+    """
+    Check if a given assembly is a patch assembly
+    Please see: https://www.ncbi.nlm.nih.gov/grc/help/patches/
+    """
+    xml_root = download_xml_from_ena(f'https://www.ebi.ac.uk/ena/browser/api/xml/{assembly_accession}')
+    xml_assembly = xml_root.xpath("//ASSEMBLY_ATTRIBUTE[TAG='count-patches']/VALUE")
+    if len(xml_assembly) == 0:
+        return False
+    return int(xml_assembly[0].text) > 0
 
 
 def retrieve_genbank_assembly_accessions_from_ncbi(assembly_txt):

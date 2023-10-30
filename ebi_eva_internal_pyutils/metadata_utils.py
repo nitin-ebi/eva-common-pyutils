@@ -17,6 +17,7 @@ from urllib.parse import urlsplit
 
 import psycopg2
 
+from ebi_eva_common_pyutils.assembly_utils import is_patch_assembly
 from ebi_eva_internal_pyutils.config_utils import get_metadata_creds_for_profile
 from ebi_eva_common_pyutils.ena_utils import get_scientific_name_and_common_name
 from ebi_eva_common_pyutils.logger import logging_config
@@ -120,6 +121,9 @@ def get_assembly_code(metadata_connection_handle, assembly):
     assembly_code = get_assembly_code_from_metadata(metadata_connection_handle, assembly)
     if not assembly_code:
         assembly_name = get_ncbi_assembly_name_from_term(assembly)
+        # If the assembly is a patch assembly ex: GRCh37.p8, drop the trailing patch i.e., just return grch37
+        if is_patch_assembly(assembly):
+            assembly_name = re.sub('\\.p[0-9]+$', '', assembly_name.lower())
         assembly_code = re.sub('[^0-9a-zA-Z]+', '', assembly_name.lower())
     return assembly_code
 
