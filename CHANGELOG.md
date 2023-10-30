@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.2 (unreleased)
+## 0.6.2 (2023-10-30)
 ---------------------
 
-- Nothing changed yet.
+- Resolve patch assemblies to proper assembly code. See [here](https://github.com/EBIvariation/eva-common-pyutils/pull/50/files).
 
 
 ## 0.6.1 (2023-10-09)
