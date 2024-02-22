@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.3 (unreleased)
+## 0.6.3 (2024-02-22)
 ---------------------
 
-- Nothing changed yet.
+- Variable log level when running a command
 
 
 ## 0.6.2 (2023-10-30)
