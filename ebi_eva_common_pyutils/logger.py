@@ -127,6 +127,9 @@ class AppLogger:
     """
     log_cfg = logging_config
 
+    def log(self, level, msg, *args, **kwargs):
+        self._logger.log(level, msg, *args, **kwargs)
+
     def debug(self, msg, *args):
         self._logger.debug(msg, *args)
 

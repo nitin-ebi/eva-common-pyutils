@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import logging
 import subprocess
 
 from ebi_eva_common_pyutils.logger import logging_config as log_cfg
@@ -20,11 +20,12 @@ logger = log_cfg.get_logger(__name__)
 
 
 def run_command_with_output(command_description, command, return_process_output=False,
-                            log_error_stream_to_output=False):
+                            log_error_stream_to_output=False, stdout_log_level=logging.INFO,
+                            stderr_log_level=logging.ERROR):
     process_output = ""
 
-    logger.info("Starting process: " + command_description)
-    logger.info("Running command: " + command)
+    logger.log(stdout_log_level, "Starting process: " + command_description)
+    logger.log(stdout_log_level, "Running command: " + command)
 
     stdout = subprocess.PIPE
     # Some lame utilities like mongodump and mongorestore output non-error messages to error stream
@@ -35,18 +36,18 @@ def run_command_with_output(command_description, command, return_process_output=
                           shell=True) as process:
         for line in iter(process.stdout.readline, ''):
             line = str(line).rstrip()
-            logger.info(line)
+            logger.log(stdout_log_level, line)
             if return_process_output:
                 process_output += line + "\n"
         if not log_error_stream_to_output:
             for line in iter(process.stderr.readline, ''):
                 line = str(line).rstrip()
-                logger.error(line)
+                logger.log(stderr_log_level, line)
     if process.returncode != 0:
         logger.error(command_description + " failed! Refer to the error messages for details.")
         raise subprocess.CalledProcessError(process.returncode, process.args)
     else:
-        logger.info(command_description + " - completed successfully")
+        logger.log(stdout_log_level, command_description + " - completed successfully")
     if return_process_output:
         return process_output
 
