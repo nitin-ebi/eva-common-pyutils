@@ -2,11 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.4 (unreleased)
+## 0.6.4 (2024-03-21)
 ---------------------
 
-- Nothing changed yet.
-
+- Update Mongodb client to use mongosh instead of the legacy mongo.
 
 ## 0.6.3 (2024-02-22)
 ---------------------
