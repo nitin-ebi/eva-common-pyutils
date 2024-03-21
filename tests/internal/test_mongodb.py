@@ -21,8 +21,8 @@ class TestMongoDatabase(TestCommon):
     def setUp(self) -> None:
         self.test_mongo_db = MongoDatabase(uri=self.uri, db_name=self.dump_db_name)
         self.dump_dir = os.path.join(self.resources_folder, self.dump_db_name)
-        run_command_with_output("Drop target test database if it already exists...", f"mongo {self.dump_db_name} "
-                                                                                     f"--eval 'db.dropDatabase()'")
+        run_command_with_output("Drop target test database if it already exists...",
+                                f"mongosh --eval 'db.dropDatabase()' {self.dump_db_name} ")
         run_command_with_output("Import test database...", f"mongorestore --dir {self.dump_dir}")
 
     def tearDown(self) -> None:

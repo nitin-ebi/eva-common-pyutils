@@ -16,6 +16,7 @@ jobs:
     strategy:
       matrix:
         mongodb-version: [4.0.18]
+        mongosh-version: [1.10.6]
         python-version: [3.8, 3.9]
         java-version: [1.11]
         nextflow-version: [21.10.5, 22.10.7]
@@ -33,8 +34,8 @@ jobs:
         wget -qO- https://github.com/nextflow-io/nextflow/releases/download/v${{ matrix.nextflow-version }}/nextflow-${{ matrix.nextflow-version }}-all | bash
         echo "/tmp/nextflow" >> $GITHUB_PATH
         cd -
-    - name: Set up MongoDB sharded environment ${{ matrix.mongodb-version }}
-      run: sudo bash scripts/create_mongo_single_node_sharded_env.sh ${{ matrix.mongodb-version }}
+    - name: Set up MongoDB ${{ matrix.mongodb-version }} and Mongosh ${{ matrix.mongosh-version }} sharded environment
+      run: sudo bash scripts/create_mongo_single_node_sharded_env.sh ${{ matrix.mongodb-version }} ${{ matrix.mongosh-version }}
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:

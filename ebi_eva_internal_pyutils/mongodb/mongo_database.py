@@ -111,9 +111,7 @@ class MongoDatabase(AppLogger):
             shard_collection_command = f'sh.shardCollection(' \
                                        f'"{self.db_name}.{collection_name}", ' \
                                        f'{shard_key_repr}, {str(shard_key_uniqueness_flag).lower()})'
-            sharding_command = f"mongo --host {self.uri}  " \
-                               f"--eval " \
-                               f"'{shard_collection_command}' "
+            sharding_command = f"mongosh --eval '{shard_collection_command}' {self.uri} "
             sharding_command += self._get_optional_secrets_file_stdin()
             run_command_with_output(f"Sharding collection {collection_name} in the database {self.uri_with_db_name} "
                                     f"with key {shard_key_repr}...", sharding_command,

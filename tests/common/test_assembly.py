@@ -135,12 +135,8 @@ class TestNCBIAssembly(TestCommon):
         # GCA_000001405.10, GCA_000001405.11 ...
         assembly = NCBIAssembly('GCA_000001405.1', 'Homo sapiens', self.genome_folder)
         url = 'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.1_GRCh37'
-        content = ['ALT_REF_LOCI_1', 'ALT_REF_LOCI_2', 'ALT_REF_LOCI_3', 'ALT_REF_LOCI_4', 'ALT_REF_LOCI_5',
-                   'ALT_REF_LOCI_6', 'ALT_REF_LOCI_7', 'ALT_REF_LOCI_8', 'ALT_REF_LOCI_9', 'Primary_Assembly',
-                   'special_requests', 'genomic_regions_definitions.txt', 'ASSEMBLY_INFO', 'RepeatMasker.run',
-                   'windowmasker_nmer.oascii.gz', 'par.txt', 'GCA_000001405.1_GRCh37_assembly_report.txt',
-                   'GCA_000001405.1_GRCh37_assembly_stats.txt', 'GCA_000001405.1_GRCh37_assembly_regions.txt',
-                   'assembly_status.txt', 'md5checksums.txt']
+        content = ['GCA_000001405.1_GRCh37_assembly_regions.txt', 'GCA_000001405.1_GRCh37_assembly_report.txt',
+                   'GCA_000001405.1_GRCh37_assembly_stats.txt', 'md5checksums.txt', 'assembly_status.txt']
 
         self.assertEqual(assembly._ncbi_genome_folder_url_and_content, (url, content))
 
