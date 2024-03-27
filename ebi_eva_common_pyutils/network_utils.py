@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import time
+from subprocess import Popen
 
 import requests
 import subprocess
@@ -39,11 +40,18 @@ def get_available_local_port(try_starting_with_port):
     logger.error("Could not forward to any local port!")
 
 
-def forward_remote_port_to_local_port(remote_host: str, remote_port: int, local_port: int) -> int:
+def forward_remote_port_to_local_port(remote_host: str, remote_port: int, local_port: int) -> Popen:
     port_forward_command = 'ssh -N -L{0}:localhost:{1} {2}'.format(local_port, remote_port, remote_host)
     logger.info("Forwarding port to local port using command: " + port_forward_command)
     proc = subprocess.Popen(port_forward_command.split(" "))
-    return proc.pid
+    time.sleep(5)
+    # Ensure that the process is still running
+    poll = proc.poll()
+    if poll is not None:
+        # The process already completed which mean it most likely crashed
+        logger.error(f'Port Forwarding {remote_host}:{remote_port} -> {local_port} failed!')
+        raise subprocess.CalledProcessError(proc.returncode, proc.args)
+    return proc
 
 
 @retry(exceptions=(ConnectionError, requests.RequestException), logger=logger,
