@@ -40,7 +40,7 @@ def get_available_local_port(try_starting_with_port):
     logger.error("Could not forward to any local port!")
 
 
-def forward_remote_port_to_local_port(remote_host: str, remote_port: int, local_port: int) -> Popen:
+def forward_remote_port_to_local_port(remote_host: str, remote_port: int, local_port: int) -> int:
     port_forward_command = 'ssh -N -L{0}:localhost:{1} {2}'.format(local_port, remote_port, remote_host)
     logger.info("Forwarding port to local port using command: " + port_forward_command)
     proc = subprocess.Popen(port_forward_command.split(" "))
@@ -51,7 +51,7 @@ def forward_remote_port_to_local_port(remote_host: str, remote_port: int, local_
         # The process already completed which mean it most likely crashed
         logger.error(f'Port Forwarding {remote_host}:{remote_port} -> {local_port} failed!')
         raise subprocess.CalledProcessError(proc.returncode, proc.args)
-    return proc
+    return proc.pid
 
 
 @retry(exceptions=(ConnectionError, requests.RequestException), logger=logger,
