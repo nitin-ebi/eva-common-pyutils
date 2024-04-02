@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.5 (unreleased)
+## 0.6.5 (2024-04-02)
 ---------------------
 
-- Nothing changed yet.
+- Ensure that the port forwarding command is running before returning the process.
 
 
 ## 0.6.4 (2024-03-21)
