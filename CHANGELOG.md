@@ -2,6 +2,12 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
+## 0.6.6 (unreleased)
+---------------------
+
+- Nothing changed yet.
+
+
 ## 0.6.5 (2024-04-02)
 ---------------------
 
