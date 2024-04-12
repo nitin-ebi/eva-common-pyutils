@@ -69,8 +69,8 @@ def get_ncbi_taxonomy_dicts_from_ids(taxonomy_ids, api_key=None):
     return taxonomy_dicts
 
 
-def get_ncbi_assembly_name_from_term(term):
-    assembl_dicts = get_ncbi_assembly_dicts_from_term(term)
+def get_ncbi_assembly_name_from_term(term, api_key=None):
+    assembl_dicts = get_ncbi_assembly_dicts_from_term(term, api_key=api_key)
     assembly_names = set([d.get('assemblyname') for d in assembl_dicts])
     if len(assembly_names) > 1:
         # Only keep the one that have the assembly accession as a synonymous and check again
@@ -82,8 +82,10 @@ def get_ncbi_assembly_name_from_term(term):
     return assembly_names.pop() if assembly_names else None
 
 
-def retrieve_species_scientific_name_from_tax_id_ncbi(taxid):
+def retrieve_species_scientific_name_from_tax_id_ncbi(taxid, api_key=None):
     payload = {'db': 'Taxonomy', 'id': taxid}
+    if api_key:
+        payload['api_key'] = api_key
     r = requests.get(efetch_url, params=payload)
     match = re.search('<Rank>(.+?)</Rank>', r.text, re.MULTILINE)
     rank = None
@@ -96,9 +98,9 @@ def retrieve_species_scientific_name_from_tax_id_ncbi(taxid):
         return match.group(1)
 
 
-def get_species_name_from_ncbi(assembly_acc):
+def get_species_name_from_ncbi(assembly_acc, api_key=None):
     # We first need to search for the species associated with the assembly
-    assembly_dicts = get_ncbi_assembly_dicts_from_term(assembly_acc)
+    assembly_dicts = get_ncbi_assembly_dicts_from_term(assembly_acc, api_key=api_key)
     taxids = set([assembly_dict.get('taxid')
         for assembly_dict in assembly_dicts
         if assembly_dict.get('assemblyaccession') == assembly_acc or
@@ -111,5 +113,5 @@ def get_species_name_from_ncbi(assembly_acc):
 
     taxonomy_id = taxids.pop()
 
-    scientific_name = retrieve_species_scientific_name_from_tax_id_ncbi(taxonomy_id)
+    scientific_name = retrieve_species_scientific_name_from_tax_id_ncbi(taxonomy_id, api_key=api_key)
     return scientific_name.replace(' ', '_').lower()

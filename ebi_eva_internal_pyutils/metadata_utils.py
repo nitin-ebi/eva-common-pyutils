@@ -117,10 +117,10 @@ def resolve_existing_variant_warehouse_db_name(metadata_connection_handle, assem
 get_variant_warehouse_db_name_from_assembly_and_taxonomy = resolve_existing_variant_warehouse_db_name
 
 
-def get_assembly_code(metadata_connection_handle, assembly):
+def get_assembly_code(metadata_connection_handle, assembly, ncbi_api_key=None):
     assembly_code = get_assembly_code_from_metadata(metadata_connection_handle, assembly)
     if not assembly_code:
-        assembly_name = get_ncbi_assembly_name_from_term(assembly)
+        assembly_name = get_ncbi_assembly_name_from_term(assembly, api_key=ncbi_api_key)
         # If the assembly is a patch assembly ex: GRCh37.p8, drop the trailing patch i.e., just return grch37
         if is_patch_assembly(assembly):
             assembly_name = re.sub('\\.p[0-9]+$', '', assembly_name.lower())
@@ -141,18 +141,18 @@ def get_taxonomy_code(metadata_connection_handle, taxonomy):
     return taxonomy_code
 
 
-def resolve_variant_warehouse_db_name(metadata_connection_handle, assembly, taxonomy):
+def resolve_variant_warehouse_db_name(metadata_connection_handle, assembly, taxonomy, ncbi_api_key=None):
     """
     Retrieve the database name for this taxonomy/assembly pair whether it exists or not.
     It will use existing taxonomy code or assembly code if available in the metadata database.
     """
     taxonomy_code = get_taxonomy_code(metadata_connection_handle, taxonomy)
-    assembly_code = get_assembly_code(metadata_connection_handle, assembly)
+    assembly_code = get_assembly_code(metadata_connection_handle, assembly, ncbi_api_key=ncbi_api_key)
     return build_variant_warehouse_database_name(taxonomy_code, assembly_code)
 
 
 def insert_new_assembly_and_taxonomy(metadata_connection_handle, assembly_accession, taxonomy_id, eva_species_name=None,
-                                     in_accessioning=True):
+                                     in_accessioning=True, ncbi_api_key=None):
     """
     This script adds new assemblies and taxonomies to EVAPRO.
     You can also add the assembly with a different taxonomy if you provide the
@@ -166,11 +166,10 @@ def insert_new_assembly_and_taxonomy(metadata_connection_handle, assembly_access
         Not required if the taxonomy exists or ENA has a common name available.
     :param in_accessioning: Flag that this assembly is in the accessioning data store.
     """
-    assembly_name = get_ncbi_assembly_name_from_term(assembly_accession)
-
     # check if assembly is already in EVAPRO, adding it if not
     assembly_set_id = get_assembly_set_from_metadata(metadata_connection_handle, taxonomy_id, assembly_accession)
     if assembly_set_id is None:
+        assembly_name = get_ncbi_assembly_name_from_term(assembly_accession, api_key=ncbi_api_key)
         ensure_taxonomy_is_in_evapro(metadata_connection_handle, taxonomy_id, eva_species_name)
         assembly_code = get_assembly_code(metadata_connection_handle, assembly_accession)
         insert_assembly_in_evapro(metadata_connection_handle, taxonomy_id, assembly_accession, assembly_name, assembly_code)
