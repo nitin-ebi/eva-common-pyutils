@@ -40,16 +40,20 @@ def is_patch_assembly(assembly_accession: str) -> bool:
     return int(xml_assembly[0].text) > 0
 
 
-def retrieve_genbank_assembly_accessions_from_ncbi(assembly_txt):
+def retrieve_genbank_assembly_accessions_from_ncbi(assembly_txt, api_key=None):
     """
     Attempt to find any assembly genebank accession base on a free text search.
     """
     assembly_accessions = set()
     payload = {'db': 'Assembly', 'term': '"{}"'.format(assembly_txt), 'retmode': 'JSON'}
+    if api_key:
+        payload['api_key'] = api_key
     data = requests.get(ESEARCH_URL, params=payload).json()
     if data and data.get('esearchresult', {}).get('idlist'):
         assembly_id_list = data.get('esearchresult').get('idlist')
         payload = {'db': 'Assembly', 'id': ','.join(assembly_id_list), 'retmode': 'JSON'}
+        if api_key:
+            payload['api_key'] = api_key
         summary_list = requests.get(ESUMMARY_URL, params=payload).json()
         for assembly_id in summary_list.get('result', {}).get('uids', []):
             assembly_info = summary_list.get('result').get(assembly_id)
@@ -60,8 +64,8 @@ def retrieve_genbank_assembly_accessions_from_ncbi(assembly_txt):
     return list(assembly_accessions)
 
 
-def retrieve_genbank_equivalent_for_GCF_accession(assembly_accession):
-    genbank_synonyms = retrieve_genbank_assembly_accessions_from_ncbi(assembly_accession)
+def retrieve_genbank_equivalent_for_GCF_accession(assembly_accession, ncbi_api_key=None):
+    genbank_synonyms = retrieve_genbank_assembly_accessions_from_ncbi(assembly_accession, api_key=ncbi_api_key)
     if len(genbank_synonyms) != 1:
         raise ValueError('%s Genbank synonyms found for assembly %s ' % (len(genbank_synonyms), assembly_accession))
     return genbank_synonyms.pop()
