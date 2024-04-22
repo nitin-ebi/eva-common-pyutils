@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.6 (unreleased)
+## 0.6.6 (2024-04-15)
 ---------------------
 
-- Nothing changed yet.
+- Allow NCBI function ot use API key
 
 
 ## 0.6.5 (2024-04-02)
