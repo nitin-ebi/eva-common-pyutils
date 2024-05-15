@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.7 (unreleased)
+## 0.6.7 (2024-05-15)
 ---------------------
 
-- Nothing changed yet.
+- Remove the instance id and add required dummy cutoff day for accessioning and clustering 
 
 
 ## 0.6.6 (2024-04-15)
