@@ -117,10 +117,9 @@ class SpringPropertiesGenerator:
         merge = {**self._common_properties(read_preference=read_preference, chunk_size=chunk_size), **props}
         return merge
 
-    def _common_accessioning_clustering_properties(self, *, instance='', assembly_accession, read_preference, chunk_size):
+    def _common_accessioning_clustering_properties(self, *, assembly_accession, read_preference, chunk_size):
         """Properties common to accessioning and clustering pipelines."""
         props = {
-            'accessioning.instanceId': self._format_str('instance-{0}', instance),
             'accessioning.submitted.categoryId': 'ss',
             'accessioning.clustered.categoryId': 'rs',
             'accessioning.monotonic.ss.blockSize': 100000,
@@ -129,16 +128,18 @@ class SpringPropertiesGenerator:
             'accessioning.monotonic.rs.blockSize': 100000,
             'accessioning.monotonic.rs.blockStartValue': 3000000000,
             'accessioning.monotonic.rs.nextBlockInterval': 1000000000,
+            # This value is not used but is required to create beans in Java
+            'recovery.cutoff.days': 9999999
         }
         merge = {**self._common_accessioning_properties(assembly_accession, read_preference, chunk_size), **props}
         return merge
 
-    def get_accessioning_properties(self, *, instance=None, target_assembly=None, fasta=None, assembly_report=None,
+    def get_accessioning_properties(self, *, target_assembly=None, fasta=None, assembly_report=None,
                                     project_accession=None, aggregation='BASIC', taxonomy_accession=None,
                                     vcf_file='', output_vcf='', chunk_size=100):
         """Properties for accessioning pipeline."""
         return self._format(
-            self._common_accessioning_clustering_properties(instance=instance, assembly_accession=target_assembly,
+            self._common_accessioning_clustering_properties(assembly_accession=target_assembly,
                                                             read_preference='secondaryPreferred', chunk_size=chunk_size),
             {
                 'spring.batch.job.names': 'CREATE_SUBSNP_ACCESSION_JOB',
@@ -154,21 +155,20 @@ class SpringPropertiesGenerator:
             },
         )
 
-    def get_clustering_properties(self, *, instance=None, read_preference='primary',
-                                  job_name=None, source_assembly='', target_assembly='', rs_report_path='', projects='',
+    def get_clustering_properties(self, *, read_preference='primary', job_name=None, source_assembly='',
+                                  target_assembly='', rs_report_path='', projects='',
                                   project_accession='', vcf=''):
         """Properties common to all clustering pipelines, though not all are always used."""
         return self._format(
-            self._common_accessioning_clustering_properties(instance=instance, assembly_accession=target_assembly,
-                                                            read_preference=read_preference, chunk_size=100,
-                                                            ),
+            self._common_accessioning_clustering_properties(assembly_accession=target_assembly,
+                                                            read_preference=read_preference, chunk_size=100),
             {
                 'spring.batch.job.names': job_name,
                 'parameters.remappedFrom': source_assembly,
                 'parameters.projects': projects,
                 'parameters.projectAccession': project_accession,
                 'parameters.vcf': vcf,
-                'parameters.rsReportPath': rs_report_path
+                'parameters.rsReportPath': rs_report_path,
             }
         )
 

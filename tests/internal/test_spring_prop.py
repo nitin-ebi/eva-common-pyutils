@@ -123,7 +123,6 @@ parameters.projectAccession=
 parameters.vcf=
 parameters.rsReportPath=/path/to/rs_report.txt
 
-accessioning.instanceId=instance-1
 accessioning.submitted.categoryId=ss
 accessioning.clustered.categoryId=rs
 accessioning.monotonic.ss.blockSize=100000
@@ -132,9 +131,11 @@ accessioning.monotonic.ss.nextBlockInterval=1000000000
 accessioning.monotonic.rs.blockSize=100000
 accessioning.monotonic.rs.blockStartValue=3000000000
 accessioning.monotonic.rs.nextBlockInterval=1000000000
+
+recovery.cutoff.days=9999999
 '''
         assert self.prop.get_clustering_properties(
-            instance=1, job_name='CLUSTERING_RSID', target_assembly='GCA_00000002.1',
+            job_name='CLUSTERING_RSID', target_assembly='GCA_00000002.1',
             rs_report_path='/path/to/rs_report.txt') == expected
 
     def test_get_accessioning_properties(self):
@@ -175,7 +176,6 @@ parameters.vcfAggregation=BASIC
 parameters.vcf=/path/to/vcf_file.vcf
 parameters.outputVcf=
 
-accessioning.instanceId=instance-1
 accessioning.submitted.categoryId=ss
 accessioning.clustered.categoryId=rs
 accessioning.monotonic.ss.blockSize=100000
@@ -184,9 +184,11 @@ accessioning.monotonic.ss.nextBlockInterval=1000000000
 accessioning.monotonic.rs.blockSize=100000
 accessioning.monotonic.rs.blockStartValue=3000000000
 accessioning.monotonic.rs.nextBlockInterval=1000000000
+
+recovery.cutoff.days=9999999
 '''
         assert self.prop.get_accessioning_properties(
-            instance=1, target_assembly='GCA_00000001.1', fasta='/path/to/fasta.fa',
+            target_assembly='GCA_00000001.1', fasta='/path/to/fasta.fa',
             assembly_report='/path/to/assembly_report.txt', project_accession='PRJEB0001', aggregation='BASIC',
             taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
 
@@ -405,7 +407,6 @@ parameters.vcfAggregation=BASIC
 parameters.vcf=/path/to/vcf_file.vcf
 parameters.outputVcf=
 
-accessioning.instanceId=instance-1
 accessioning.submitted.categoryId=ss
 accessioning.clustered.categoryId=rs
 accessioning.monotonic.ss.blockSize=100000
@@ -414,9 +415,11 @@ accessioning.monotonic.ss.nextBlockInterval=1000000000
 accessioning.monotonic.rs.blockSize=100000
 accessioning.monotonic.rs.blockStartValue=3000000000
 accessioning.monotonic.rs.nextBlockInterval=1000000000
+
+recovery.cutoff.days=9999999
 '''
         assert self.prop.get_accessioning_properties(
-            instance=1, target_assembly='GCA_00000001.1', fasta=None,
+            target_assembly='GCA_00000001.1', fasta=None,
             assembly_report=None, project_accession='PRJEB0001', aggregation='BASIC',
             taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
 
