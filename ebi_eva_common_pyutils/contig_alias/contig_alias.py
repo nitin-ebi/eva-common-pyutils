@@ -22,6 +22,9 @@ class InternalServerError(Exception):
     pass
 
 
+CONTING_ALIAS_URL = 'https://www.ebi.ac.uk/eva/webservices/contig-alias'
+
+
 # TODO add the get methods
 class ContigAliasClient(AppLogger):
     """
@@ -29,8 +32,13 @@ class ContigAliasClient(AppLogger):
     Authentication is required if using admin endpoints.
     """
 
-    def __init__(self, base_url, username=None, password=None):
-        self.base_url = base_url
+    def __init__(self, base_url=None, username=None, password=None, default_page_size=1000):
+        if base_url:
+            self.base_url = base_url
+        else:
+            self.base_url = os.environ.get('CONTING_ALIAS_URL') or CONTING_ALIAS_URL
+        # Used for get method
+        self.default_page_size=default_page_size
         # Only required for admin endpoints
         self.username = username
         self.password = password
@@ -69,3 +77,39 @@ class ContigAliasClient(AppLogger):
             raise InternalServerError
         else:
             self.error(f'Assembly accession {assembly} could not be deleted. Response: {response.text}')
+
+    @retry(tries=3, delay=2, backoff=1.2, jitter=(1, 3))
+    def _get_page_for_contig_alias_url(self, sub_url, page=0):
+        """queries the contig alias to retrieve the page of the provided url"""
+        url = f'{self.base_url}/{sub_url}?page={page}&size={self.default_page_size}'
+        response = requests.get(url, headers={'accept': 'application/json'})
+        response.raise_for_status()
+        response_json = response.json()
+        return response_json
+
+    def _depaginate_iter(self, sub_url, entity_to_retrieve):
+        """Generator that provides the contigs in the assembly requested."""
+        page = 0
+        response_json = self._get_page_for_contig_alias_url(sub_url, page=page)
+        for entity in response_json.get('_embedded', {}).get(entity_to_retrieve, []):
+            yield entity
+        while 'next' in response_json['_links']:
+            page += 1
+            response_json = self._get_page_for_contig_alias_url(sub_url, page=page)
+            for entity in response_json.get('_embedded', {}).get(entity_to_retrieve, []):
+                yield entity
+
+    def assembly_contig_iter(self, assembly_accession):
+        """Generator that provides the contigs in the assembly requested."""
+        sub_url = f'v1/assemblies/{assembly_accession}/chromosomes'
+        return self._depaginate_iter(sub_url, 'chromosomeEntities')
+
+    def assembly(self, assembly_accession):
+        """provides the description of the requested assembly."""
+        sub_url = f'v1/assemblies/{assembly_accession}'
+        response_json = self._get_page_for_contig_alias_url(sub_url)
+        return response_json.get('_embedded', {}).get('assemblyEntities', [])[0]
+
+    def contig_iter(self, insdc_accession):
+        sub_url = f'v1/chromosomes/genbank/{insdc_accession}'
+        return self._depaginate_iter(sub_url, 'chromosomeEntities')
