@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.10 (unreleased)
+## 0.6.10 (2024-08-06)
 ----------------------
 
-- Nothing changed yet.
+- Allow text to be returned from biosamples communicators 
 
 
 ## 0.6.9 (2024-07-29)
