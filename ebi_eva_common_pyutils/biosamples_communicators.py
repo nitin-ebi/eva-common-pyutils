@@ -103,9 +103,15 @@ class HALCommunicator(AppLogger):
                 url = re.sub('{(' + k + ')(:.*)?}', v, url)
         if join_url:
             url += '/' + join_url
+        text_only = False
+        if 'text_only' in kwargs and kwargs.get('text_only'):
+            text_only = kwargs.pop('text_only')
         # Now query the url
-        json_response = self._req(method, url, **kwargs).json()
+        response = self._req(method, url, **kwargs)
+        if text_only:
+            return response.text
 
+        json_response = response.json()
         # Depaginate the call if requested
         if all_pages is True:
             # This depagination code will iterate over all the pages available until the pages comes back  without a
