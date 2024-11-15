@@ -98,7 +98,6 @@ class SpringPropertiesGenerator:
             'spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults': 'false',
             'spring.jpa.database-platform': 'org.hibernate.dialect.PostgreSQL9Dialect',
             'parameters.chunkSize': chunk_size,
-
             'spring.datasource.hikari.maximum-pool-size': max_pool_size
         }
         merge = {**self._mongo_properties(), **self._count_stats_properties(), **props}
