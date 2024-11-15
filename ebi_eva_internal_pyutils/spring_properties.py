@@ -83,7 +83,7 @@ class SpringPropertiesGenerator:
             'eva.count-stats.password': counts_password
         }
 
-    def _common_properties(self, *, read_preference='primary', chunk_size=100):
+    def _common_properties(self, *, read_preference='primary', chunk_size=100, max_pool_size=2):
         """Properties common to all Spring pipelines"""
         props = {
             'spring.datasource.driver-class-name': 'org.postgresql.Driver',
@@ -98,6 +98,7 @@ class SpringPropertiesGenerator:
             'spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults': 'false',
             'spring.jpa.database-platform': 'org.hibernate.dialect.PostgreSQL9Dialect',
             'parameters.chunkSize': chunk_size,
+            'spring.datasource.hikari.maximum-pool-size': max_pool_size
         }
         merge = {**self._mongo_properties(), **self._count_stats_properties(), **props}
         return merge
