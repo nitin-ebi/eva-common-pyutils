@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.11 (unreleased)
+## 0.6.11 (2024-11-15)
 ----------------------
 
-- Nothing changed yet.
+- Added hikari max-pool-size connection property to the method that generate property for spring jobs
 
 
 ## 0.6.10 (2024-08-06)
