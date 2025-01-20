@@ -125,6 +125,8 @@ parameters.projects=
 parameters.projectAccession=
 parameters.vcf=
 parameters.rsReportPath=/path/to/rs_report.txt
+parameters.rsAccFile=/path/to/rs_report.txt
+parameters.duplicateRSAccFile=/path/to/duplicate_rs_accessions.txt
 
 accessioning.submitted.categoryId=ss
 accessioning.clustered.categoryId=rs
@@ -139,7 +141,9 @@ recovery.cutoff.days=9999999
 '''
         assert self.prop.get_clustering_properties(
             job_name='CLUSTERING_RSID', target_assembly='GCA_00000002.1',
-            rs_report_path='/path/to/rs_report.txt') == expected
+            rs_report_path='/path/to/rs_report.txt',
+            rs_acc_file='/path/to/rs_report.txt',
+            duplicate_rs_acc_file='/path/to/duplicate_rs_accessions.txt') == expected
 
     def test_get_accessioning_properties(self):
         expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017

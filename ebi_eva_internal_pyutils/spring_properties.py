@@ -141,7 +141,8 @@ class SpringPropertiesGenerator:
         """Properties for accessioning pipeline."""
         return self._format(
             self._common_accessioning_clustering_properties(assembly_accession=target_assembly,
-                                                            read_preference='secondaryPreferred', chunk_size=chunk_size),
+                                                            read_preference='secondaryPreferred',
+                                                            chunk_size=chunk_size),
             {
                 'spring.batch.job.names': 'CREATE_SUBSNP_ACCESSION_JOB',
                 'parameters.assemblyReportUrl': self._format_str('file:{0}', assembly_report),
@@ -157,8 +158,8 @@ class SpringPropertiesGenerator:
         )
 
     def get_clustering_properties(self, *, read_preference='primary', job_name=None, source_assembly='',
-                                  target_assembly='', rs_report_path='', projects='',
-                                  project_accession='', vcf=''):
+                                  target_assembly='', rs_report_path='', rs_acc_file='', duplicate_rs_acc_file='',
+                                  projects='', project_accession='', vcf=''):
         """Properties common to all clustering pipelines, though not all are always used."""
         return self._format(
             self._common_accessioning_clustering_properties(assembly_accession=target_assembly,
@@ -170,6 +171,8 @@ class SpringPropertiesGenerator:
                 'parameters.projectAccession': project_accession,
                 'parameters.vcf': vcf,
                 'parameters.rsReportPath': rs_report_path,
+                'parameters.rsAccFile': rs_acc_file,
+                'parameters.duplicateRSAccFile': duplicate_rs_acc_file,
             }
         )
 
@@ -263,7 +266,8 @@ class SpringPropertiesGenerator:
             'logging.level.org.springframework': 'INFO',
         }
 
-        merge = {**self._common_properties(read_preference=read_preference, chunk_size=100), **props, **job_tracker_properties}
+        merge = {**self._common_properties(read_preference=read_preference, chunk_size=100), **props,
+                 **job_tracker_properties}
         return merge
 
     def get_accession_import_properties(self, opencga_path, read_preference='secondaryPreferred'):
