@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.12 (unreleased)
+## 0.6.12 (2025-01-21)
 ----------------------
 
-- Nothing changed yet.
+- Added new properties in clustering job to run clustering qc duplicate rs accession job
 
 
 ## 0.6.11 (2024-11-15)
