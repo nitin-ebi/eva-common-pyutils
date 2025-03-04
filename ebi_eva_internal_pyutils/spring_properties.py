@@ -55,9 +55,9 @@ class SpringPropertiesGenerator:
     def _mongo_properties(self):
         mongo_host, mongo_user, mongo_pass = get_mongo_creds_for_profile(
             self.maven_profile, self.private_settings_file)
-        username_with_password = f'{mongo_user}:{mongo_pass}' if mongo_user is not None and mongo_pass is not None else ''
+        username_with_password = f'{mongo_user}:{mongo_pass}@' if mongo_user is not None and mongo_pass is not None else ''
         return {
-            'spring.data.mongodb.uri': f'mongodb://{username_with_password}@{mongo_host}/?retryWrites=true&authSource=admin',
+            'spring.data.mongodb.uri': f'mongodb://{username_with_password}{mongo_host}/?retryWrites=true&authSource=admin',
         }
 
     def _variant_load_job_tracker_properties(self):
