@@ -12,12 +12,7 @@ class TestSpringPropertiesGenerator(TestCommon):
         self.prop_no_mongo_cred = SpringPropertiesGenerator(maven_profile='dummy_no_mongo_cred', private_settings_file=private_file)
 
     def test_get_remapping_extraction_properties(self):
-
-        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
-spring.data.mongodb.port=
-spring.data.mongodb.username=mongouser
-spring.data.mongodb.password=mongopassword
-spring.data.mongodb.authentication-database=admin
+        expected = '''spring.data.mongodb.uri=mongodb://mongouser:mongopassword@mongos-host1.example.com:27017,mongos-host2.example.com:27017/?retryWrites=true&authSource=admin
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -53,11 +48,7 @@ parameters.outputFolder=/path/to/output_folder
         ) == expected
 
     def test_get_remapping_ingestion_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
-spring.data.mongodb.port=
-spring.data.mongodb.username=mongouser
-spring.data.mongodb.password=mongopassword
-spring.data.mongodb.authentication-database=admin
+        expected = '''spring.data.mongodb.host=mongodb://mongouser:mongopassword@mongos-host1.example.com:27017,mongos-host2.example.com:27017/?retryWrites=true&authSource=admin
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -92,11 +83,7 @@ parameters.remappingVersion=1.0
         ) == expected
 
     def test_get_clustering_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
-spring.data.mongodb.port=
-spring.data.mongodb.username=mongouser
-spring.data.mongodb.password=mongopassword
-spring.data.mongodb.authentication-database=admin
+        expected = '''spring.data.mongodb.host=mongodb://mongouser:mongopassword@mongos-host1.example.com:27017,mongos-host2.example.com:27017/?retryWrites=true&authSource=admin
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -146,11 +133,7 @@ recovery.cutoff.days=9999999
             duplicate_rs_acc_file='/path/to/duplicate_rs_accessions.txt') == expected
 
     def test_get_accessioning_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
-spring.data.mongodb.port=
-spring.data.mongodb.username=mongouser
-spring.data.mongodb.password=mongopassword
-spring.data.mongodb.authentication-database=admin
+        expected = '''spring.data.mongodb.host=mongodb://mongouser:mongopassword@mongos-host1.example.com:27017,mongos-host2.example.com:27017/?retryWrites=true&authSource=admin
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -201,11 +184,7 @@ recovery.cutoff.days=9999999
             taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
 
     def test_get_variant_load_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
-spring.data.mongodb.port=
-spring.data.mongodb.username=mongouser
-spring.data.mongodb.password=mongopassword
-spring.data.mongodb.authentication-database=admin
+        expected = '''spring.data.mongodb.host=mongodb://mongouser:mongopassword@mongos-host1.example.com:27017,mongos-host2.example.com:27017/?retryWrites=true&authSource=admin
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -268,11 +247,7 @@ statistics.skip=False
             opencga_path='/path/to/opencga') == expected
 
     def test_get_variant_load_properties_no_mongo_cred(self):
-        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
-spring.data.mongodb.port=
-spring.data.mongodb.username=
-spring.data.mongodb.password=
-spring.data.mongodb.authentication-database=admin
+        expected = '''mongodb://mongos-host1.example.com:27017,mongos-host2.example.com:27017/?retryWrites=true&authSource=admin
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -334,11 +309,7 @@ statistics.skip=False
                 stats_dir='/path/to/stats/dir', vep_cache_path='/path/to/vep/cache',
                 opencga_path='/path/to/opencga') == expected
     def test_get_accession_import_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
-spring.data.mongodb.port=
-spring.data.mongodb.username=mongouser
-spring.data.mongodb.password=mongopassword
-spring.data.mongodb.authentication-database=admin
+        expected = '''spring.data.mongodb.host=mongodb://mongouser:mongopassword@mongos-host1.example.com:27017,mongos-host2.example.com:27017/?retryWrites=true&authSource=admin
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -383,11 +354,7 @@ logging.level.org.springframework=INFO
 
 
     def test_get_accessioning_properties_with_none(self):
-        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
-spring.data.mongodb.port=
-spring.data.mongodb.username=mongouser
-spring.data.mongodb.password=mongopassword
-spring.data.mongodb.authentication-database=admin
+        expected = '''spring.data.mongodb.host=mongodb://mongouser:mongopassword@mongos-host1.example.com:27017,mongos-host2.example.com:27017/?retryWrites=true&authSource=admin
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
@@ -436,11 +403,7 @@ recovery.cutoff.days=9999999
             taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
 
     def test_get_release_properties(self):
-        expected = '''spring.data.mongodb.host=mongos-host1.example.com:27017,mongos-host2.example.com:27017
-spring.data.mongodb.port=
-spring.data.mongodb.username=mongouser
-spring.data.mongodb.password=mongopassword
-spring.data.mongodb.authentication-database=admin
+        expected = '''spring.data.mongodb.host=mongodb://mongouser:mongopassword@mongos-host1.example.com:27017,mongos-host2.example.com:27017/?retryWrites=true&authSource=admin
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.tomcat.max-active=3
 spring.jpa.generate-ddl=true
