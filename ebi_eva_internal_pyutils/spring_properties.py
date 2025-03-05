@@ -55,14 +55,9 @@ class SpringPropertiesGenerator:
     def _mongo_properties(self):
         mongo_host, mongo_user, mongo_pass = get_mongo_creds_for_profile(
             self.maven_profile, self.private_settings_file)
+        username_with_password = f'{mongo_user}:{mongo_pass}@' if mongo_user is not None and mongo_pass is not None else ''
         return {
-            'spring.data.mongodb.host': mongo_host,
-            # Don't specify port if hosts already have the port encoded in them
-            # Also see https://github.com/EBIvariation/variation-commons/blob/329d4fa18da73bdad419ca5456b9897c059e33f0/variation-commons-mongodb/src/main/java/uk/ac/ebi/eva/commons/mongodb/utils/MongoClientURIBuilder.java#L44
-            'spring.data.mongodb.port': '' if ':' in mongo_host else 27017,
-            'spring.data.mongodb.username': '' if mongo_user is None else mongo_user,
-            'spring.data.mongodb.password': '' if mongo_pass is None else mongo_pass,
-            'spring.data.mongodb.authentication-database': 'admin',
+            'spring.data.mongodb.uri': f'mongodb://{username_with_password}{mongo_host}/?retryWrites=true&authSource=admin',
         }
 
     def _variant_load_job_tracker_properties(self):
