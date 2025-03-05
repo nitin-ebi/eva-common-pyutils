@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from collections import defaultdict
+from urllib.parse import quote_plus
 
 from ebi_eva_internal_pyutils.config_utils import get_mongo_creds_for_profile, get_accession_pg_creds_for_profile, \
     get_count_service_creds_for_profile, get_properties_from_xml_file, get_variant_load_job_tracker_creds_for_profile
@@ -55,7 +56,8 @@ class SpringPropertiesGenerator:
     def _mongo_properties(self):
         mongo_host, mongo_user, mongo_pass = get_mongo_creds_for_profile(
             self.maven_profile, self.private_settings_file)
-        username_with_password = f'{mongo_user}:{mongo_pass}@' if mongo_user is not None and mongo_pass is not None else ''
+        username_with_password = (f'{quote_plus(mongo_user)}:{quote_plus(mongo_pass)}@'
+                                  if mongo_user is not None and mongo_pass is not None else '')
         return {
             'spring.data.mongodb.uri': f'mongodb://{username_with_password}{mongo_host}/?retryWrites=true&authSource=admin',
         }
