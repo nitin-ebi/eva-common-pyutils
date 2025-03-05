@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.14 (unreleased)
+## 0.6.14 (2025-03-05)
 ----------------------
 
-- Nothing changed yet.
+- Bugfix for connection string
 
 
 ## 0.6.13 (2025-03-05)
