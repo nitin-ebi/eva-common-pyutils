@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.13.dev (2025-01-21)
+## 0.6.13 (2025-03-05)
 ----------------------
 
-- Nothing changed yet
+- Update spring properties to use mongo connection string with retryWrites=true
 
 ## 0.6.12 (2025-01-21)
 ----------------------
