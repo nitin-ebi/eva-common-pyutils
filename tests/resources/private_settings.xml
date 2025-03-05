@@ -5,8 +5,7 @@
             <properties>
                 <eva.mongo.host>mongos-host1.example.com:27017,mongos-host2.example.com:27017</eva.mongo.host>
                 <eva.mongo.user>mongouser</eva.mongo.user>
-                <eva.mongo.passwd>mongopassword</eva.mongo.passwd>
-                <eva.mongo.passwd.url-encoded>password</eva.mongo.passwd.url-encoded>
+                <eva.mongo.passwd>mongop@ssword</eva.mongo.passwd>
                 <eva.mongo.auth.db>admin</eva.mongo.auth.db>
                 <eva.mongo.read-preference>secondaryPreferred</eva.mongo.read-preference>
                 <eva.mongo.collections.variants>variants_2_0</eva.mongo.collections.variants>
