@@ -16,6 +16,10 @@ import re
 
 from ebi_eva_common_pyutils.ncbi_utils import retrieve_species_scientific_name_from_tax_id_ncbi
 from ebi_eva_common_pyutils.network_utils import json_request
+from ebi_eva_common_pyutils.logger import logging_config as log_cfg
+
+
+logger = log_cfg.get_logger(__name__)
 
 
 def get_scientific_name_from_ensembl(taxonomy_id: int) -> str:
@@ -41,12 +45,16 @@ def get_normalized_scientific_name_from_ensembl(taxonomy_id: int) -> str:
     return normalise_taxon_scientific_name(get_scientific_name_from_ensembl(taxonomy_id))
 
 
-def get_scientific_name_from_taxonomy(taxonomy_id: int) -> str:
+def get_scientific_name_from_taxonomy(taxonomy_id: int, api_key: str=None) -> str:
     """
     Search for a species scientific name based on the taxonomy id.
     Will first attempt to retrieve from Ensembl and then NCBI, if not found returns None.
     """
-    species_name = get_scientific_name_from_ensembl(taxonomy_id)
+    try:
+        species_name = get_scientific_name_from_ensembl(taxonomy_id)
+    except Exception:
+        logger.warning("Failed to retrieve scientific name in Ensembl for taxonomy id {0}".format(taxonomy_id))
+        species_name = None
     if not species_name:
-        species_name = retrieve_species_scientific_name_from_tax_id_ncbi(taxonomy_id)
+        species_name = retrieve_species_scientific_name_from_tax_id_ncbi(taxonomy_id, api_key=api_key)
     return species_name
