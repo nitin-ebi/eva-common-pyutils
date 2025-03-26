@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.15 (unreleased)
+## 0.6.15 (2025-03-26)
 ----------------------
 
-- Nothing changed yet.
+- Change the scientific name retrieval to first check in Ensembl then NCBI
 
 
 ## 0.6.14 (2025-03-05)
