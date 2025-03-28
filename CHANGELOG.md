@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.17 (unreleased)
+## 0.6.17 (2025-03-28)
 ----------------------
 
-- Nothing changed yet.
+- Fix the spreadsheet module 
 
 
 ## 0.6.16 (2025-03-28)
