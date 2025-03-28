@@ -6,7 +6,7 @@ test:
   stage: test
   image: python:3.8.7-slim-buster
   before_script:
-    - apt-get update && apt-get install curl -y
+    - apt-get update && apt-get install curl default-jre -y
     - mkdir /tmp/nextflow && cd /tmp/nextflow && (curl -s https://get.nextflow.io | bash) && chmod 755 nextflow $$ export PATH=/tmp/:$PATH && cd -
     - nextflow -version
     - python -m pip install --upgrade pip

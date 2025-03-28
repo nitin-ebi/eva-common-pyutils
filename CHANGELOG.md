@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.6.16 (unreleased)
+## 0.6.16 (2025-03-28)
 ----------------------
 
-- Nothing changed yet.
+- New function to get the version of the EVA metadata template
 
 
 ## 0.6.15 (2025-03-26)
