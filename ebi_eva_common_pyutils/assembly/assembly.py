@@ -47,14 +47,18 @@ def get_taxonomy_to_assembly_mapping_from_ensembl_rapid_release():
         strain = asm_data['strain']
         release_date = datetime.strptime(asm_data['release_date'], '%Y-%m-%d')
 
+        # Skip alternate haplotype assemblies
+        if strain and strain.lower() == 'alternate haplotype':
+            continue
+        # Skip non GCA accession
+        if not asm_accession.startswith('GCA_'):
+            continue
+
         # If we haven't seen this taxonomy before, just use this assembly
         if tax_id not in results:
             results[tax_id] = (asm_accession, release_date)
             continue
 
-        # Skip alternate haplotype assemblies
-        if strain and strain.lower() == 'alternate haplotype':
-            continue
         current_assembly, current_date = results[tax_id]
         # Keep the more recent assembly, or the lexicographically last one if release dates are equal
         if current_date < release_date or (current_date == release_date and asm_accession > current_assembly):
