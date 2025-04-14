@@ -2,6 +2,12 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
+## 0.7.0 (2025-04-14)
+----------------------
+
+- Deprecate the AAP Authentication method 
+
+
 ## 0.6.17 (2025-03-28)
 ----------------------
 
