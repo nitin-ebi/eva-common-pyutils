@@ -50,7 +50,7 @@ class HALCommunicator(AppLogger):
 
     @cached_property
     def token(self):
-        """Retrieve the token from the AAP REST API then cache it for further quering"""
+        """Retrieve the token from the REST API then cache it for further querying"""
         response = requests.get(self.auth_url, auth=(self.username, self.password))
         self._validate_response(response)
         return response.text
@@ -143,19 +143,6 @@ class HALCommunicator(AppLogger):
     @property
     def communicator_attributes(self):
         raise NotImplementedError
-
-
-class AAPHALCommunicator(HALCommunicator):
-    """Class to navigate BioSamples API using AAP authentication."""
-
-    def __init__(self, auth_url, bsd_url, username, password, domain=None):
-        super(AAPHALCommunicator, self).__init__(auth_url, bsd_url, username, password)
-        self.domain = domain
-
-    @property
-    def communicator_attributes(self):
-        return {'domain': self.domain}
-
 
 class WebinHALCommunicator(HALCommunicator):
     """Class to navigate BioSamples API using Webin authentication."""
