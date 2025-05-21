@@ -114,7 +114,7 @@ class TestNCBIAssembly(TestCommon):
             ['BA000007.2', 'AB011549.2', 'AB011548.2']
         )
 
-        # Append to the assembly report and download the
+        # Append to the assembly report and download the contig
         with open(self.assembly.assembly_report_path, 'a') as open_file:
             open_file.write('\t'.join(self.assembly_report_line1) + '\n')
 
