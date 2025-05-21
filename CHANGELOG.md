@@ -2,10 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.7.1 (unreleased)
+## 0.7.1 (2025-05-21)
 ---------------------
 
-- Nothing changed yet.
+- Make sure all loggers are debug by default
 
 
 ## 0.7.0 (2025-04-14)
