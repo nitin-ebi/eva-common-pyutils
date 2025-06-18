@@ -2,6 +2,9 @@ import os
 
 import yaml
 
+from ebi_eva_common_pyutils.logger import logging_config as log_cfg
+
+logger = log_cfg.get_logger(__name__)
 
 class Configuration:
     """
@@ -119,6 +122,9 @@ class WritableConfig(Configuration):
         top_level = self.content
         for p in path[:-1]:
             if p not in top_level:
+                top_level[p] = {}
+            elif not isinstance(top_level[p], dict):
+                logger.warning(f'Overwriting existing config path {".".join(path)}')
                 top_level[p] = {}
             top_level = top_level[p]
         top_level[path[-1]] = value

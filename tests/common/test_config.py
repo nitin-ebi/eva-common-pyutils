@@ -3,7 +3,7 @@ from os.path import join
 
 import pytest
 
-from ebi_eva_common_pyutils.config import Configuration
+from ebi_eva_common_pyutils.config import Configuration, WritableConfig
 from tests.test_common import TestCommon
 
 
@@ -31,3 +31,32 @@ class TestConfiguration(TestCommon):
 
     def test_contains(self):
         assert 'ftp_dir' in self.cfg
+
+class TestWritableConfiguration(TestCommon):
+
+    def setUp(self):
+        self.config_file = os.path.join(self.resources_folder, 'new_config.yml')
+        self.cfg = WritableConfig(self.config_file)
+
+    def tearDown(self):
+        if os.path.exists(self.config_file):
+            os.remove(self.config_file)
+
+    def test_set(self):
+        self.cfg.set('path1', value='value1')
+        self.cfg.set('path2', 'subpath1', value='value1')
+        assert self.cfg.query('path1') == 'value1'
+        assert self.cfg.query('path2', 'subpath1') == 'value1'
+
+
+    def test_set_overwrite_new_dict(self):
+        self.cfg.set('path1', value='value1')
+        assert self.cfg.query('path1') == 'value1'
+        self.cfg.set('path1', value={'key1': 'value1'})
+        assert self.cfg.query('path1') == {'key1': 'value1'}
+
+        self.cfg.set('path2', value='value1')
+        assert self.cfg.query('path2') == 'value1'
+        # Overwrite the existing key value pair path2:value1 with new dict
+        self.cfg.set('path2','subpath1', value='value1')
+        assert self.cfg.query('path2', 'subpath1') == 'value1'
