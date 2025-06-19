@@ -16,7 +16,7 @@ class TestContigAliasClient(TestCase):
         iterator = self.client.assembly_contig_iter(self.assembly_accession)
         assert isinstance(iterator, Iterable)
         # print(list(iterator))
-        assert [e.get('genbankSequenceName') for e in iterator] == ['I', 'II', 'III', 'MT']
+        assert [e.get('genbankSequenceName') for e in iterator] == ['MT', 'III', 'II', 'I']
 
     def test_assembly(self):
         assembly = self.client.assembly(self.assembly_accession)
