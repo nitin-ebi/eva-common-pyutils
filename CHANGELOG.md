@@ -2,10 +2,11 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.7.2 (unreleased)
+## 0.7.2 (2025-06-19)
 ---------------------
 
-- Nothing changed yet.
+- Enable overwrite on existing config path.
+- Update lxml
 
 
 ## 0.7.1 (2025-05-21)
