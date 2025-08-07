@@ -25,11 +25,18 @@ class HALNotReadyError(Exception):
     pass
 
 
+# Extends ValueError so clients can still expect ValueErrors to be raised on failed requests,
+# but we have a more specific class internally to know when to retry.
+class HttpErrorRetry(ValueError):
+    pass
+
+
 class HALCommunicator(AppLogger):
     """
     This class helps navigate through REST API that uses the HAL standard.
     """
     acceptable_code = [200, 201]
+    no_retry_code = [404]
 
     def __init__(self, auth_url, bsd_url, username, password):
         self.auth_url = auth_url
@@ -43,9 +50,12 @@ class HALCommunicator(AppLogger):
             self.error(response.request.method + ': ' + response.request.url + " with " + str(response.request.body))
             self.error("headers: {}".format(response.request.headers))
             self.error("<{}>: {}".format(response.status_code, response.text))
-            raise ValueError('The HTTP status code ({}) is not one of the acceptable codes ({})'.format(
+            error_msg = 'The HTTP status code ({}) is not one of the acceptable codes ({})'.format(
                 str(response.status_code), str(self.acceptable_code))
-            )
+            if response.status_code in self.no_retry_code:
+                raise ValueError(error_msg)
+            else:
+                raise HttpErrorRetry(error_msg)
         return response
 
     @cached_property
@@ -55,7 +65,7 @@ class HALCommunicator(AppLogger):
         self._validate_response(response)
         return response.text
 
-    @retry(exceptions=(ValueError, requests.RequestException), tries=3, delay=2, backoff=1.2, jitter=(1, 3))
+    @retry(exceptions=(HttpErrorRetry, requests.RequestException), tries=3, delay=2, backoff=1.2, jitter=(1, 3))
     def _req(self, method, url, **kwargs):
         """Private method that sends a request using the specified method. It adds the headers required by bsd"""
         headers = kwargs.pop('headers', {})

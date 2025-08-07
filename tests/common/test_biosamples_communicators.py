@@ -2,7 +2,7 @@ from copy import deepcopy
 from unittest import TestCase
 from unittest.mock import Mock, patch, PropertyMock
 
-from ebi_eva_common_pyutils.biosamples_communicators import HALCommunicator, WebinHALCommunicator
+from ebi_eva_common_pyutils.biosamples_communicators import HALCommunicator, WebinHALCommunicator, HttpErrorRetry
 
 
 class TestHALCommunicator(TestCase):
@@ -29,10 +29,22 @@ class TestHALCommunicator(TestCase):
                 headers={'Accept': 'application/hal+json', 'Authorization': 'Bearer token'}
             )
 
+        # 500 should trigger a retry
         with patch.object(HALCommunicator, 'token', new_callable=PropertyMock(return_value='token')), \
                 patch('requests.request') as mocked_request:
             mocked_request.return_value = Mock(status_code=500, request=PropertyMock(url='text'))
-            self.assertRaises(ValueError, self.comm._req, 'GET', 'http://BSD.example.org')
+            self.assertRaises(HttpErrorRetry, self.comm._req, 'GET', 'http://BSD.example.org')
+
+        # 404 should fail with a ValueError, but not trigger a retry
+        with patch.object(HALCommunicator, 'token', new_callable=PropertyMock(return_value='token')), \
+                patch('requests.request') as mocked_request:
+            mocked_request.return_value = Mock(status_code=404, request=PropertyMock(url='text'))
+            try:
+                self.comm._req('GET', 'http://BSD.example.org')
+            except HttpErrorRetry:
+                self.fail('Request should not raise HttpErrorRetry')
+            except ValueError:
+                return
 
     def test_root(self):
         expected_json = {'json': 'values'}

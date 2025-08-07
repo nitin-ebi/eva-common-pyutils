@@ -4,7 +4,7 @@ stages:
 
 test:
   stage: test
-  image: python:3.8.7-slim-buster
+  image: python:3.8.7-slim-bullseye
   before_script:
     - apt-get update && apt-get install curl default-jre -y
     - mkdir /tmp/nextflow && cd /tmp/nextflow && (curl -s https://get.nextflow.io | bash) && chmod 755 nextflow $$ export PATH=/tmp/:$PATH && cd -
@@ -29,7 +29,7 @@ test:
 
 deploy-python-package-production:
   stage: deploy
-  image: python:3.8.7-slim-buster
+  image: python:3.8.7-slim-bullseye
   script:
     - python setup.py sdist
     - twine upload dist/*
@@ -41,4 +41,3 @@ deploy-python-package-production:
     TWINE_PASSWORD: $PYPI_PASSWORD
   only:
     - tags
-

@@ -5,7 +5,7 @@ Changelog for ebi_eva_common_pyutils
 ## 0.7.4 (unreleased)
 ---------------------
 
-- Nothing changed yet.
+- Update biosamples communicator to not retry 404s
 
 
 ## 0.7.3 (2025-06-19)
