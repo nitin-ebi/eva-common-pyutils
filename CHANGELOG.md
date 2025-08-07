@@ -2,9 +2,10 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.7.4 (unreleased)
+## 0.7.4 (2025-08-07)
 ---------------------
 
+- Prevent multiple configs from sharing the same content
 - Update biosamples communicator to not retry 404s
 
 
