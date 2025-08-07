@@ -11,10 +11,9 @@ class Configuration:
     Configuration class that allow to load a yaml file either at construction or later in the execution.
     It can be used like a dict but should be used as readonly.
     """
-    config_file = None
-    content = {}
-
     def __init__(self, *search_path):
+        self.config_file = None
+        self.content = {}
         if search_path:
             self.load_config_file(*search_path)
 
