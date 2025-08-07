@@ -17,7 +17,7 @@ setup(
     url='https://github.com/EBIVariation/eva-common-pyutils',
     keywords=['EBI', 'EVA', 'PYTHON', 'UTILITIES'],
     install_requires=requirements,
-    extras_require={'eva-internal': ['psycopg2-binary', 'pymongo', 'networkx<=2.5']},
+    extras_require={'eva-internal': ['psycopg2-binary', 'pymongo<=3.12', 'networkx<=2.5']},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
