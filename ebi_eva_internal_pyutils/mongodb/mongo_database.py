@@ -101,6 +101,7 @@ class MongoDatabase(AppLogger):
                 self.mongo_handle[self.db_name][collection_name].create_index(index_keys, name=name, **index_info)
 
     def enable_sharding(self):
+        # From mongodb 6.0 all database have sharding enable by default
         self.mongo_handle.admin.command({"enableSharding": self.db_name})
 
     def shard_collections(self, collections_shard_key_map, collections_to_shard):

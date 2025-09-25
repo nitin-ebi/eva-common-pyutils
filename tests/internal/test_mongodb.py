@@ -6,8 +6,8 @@ from pymongo import WriteConcern, ReadPreference
 from pymongo.read_concern import ReadConcern
 
 from ebi_eva_common_pyutils.command_utils import run_command_with_output
+from ebi_eva_internal_pyutils.mongodb.mongo_database import MongoDatabase
 from ebi_eva_internal_pyutils.mongo_utils import get_mongo_connection_handle
-from ebi_eva_internal_pyutils.mongodb import MongoDatabase
 from tests.test_common import TestCommon
 
 
@@ -30,10 +30,11 @@ class TestMongoDatabase(TestCommon):
 
     def _restore_data_to_another_db(self):
         with tempfile.TemporaryDirectory() as tempdir:
+            os.makedirs(tempdir, exist_ok=True)
             self.test_mongo_db.dump_data(tempdir)
             test_restore_db = MongoDatabase(uri=self.uri, db_name=self.test_mongo_db.db_name + "_restore")
             test_restore_db.drop()
-            test_restore_db.restore_data(dump_dir=tempdir,
+            test_restore_db.restore_data(dump_dir=os.path.join(tempdir, self.test_mongo_db.db_name),
                                          mongorestore_args={
                                              "nsFrom": f'"{self.test_mongo_db.db_name}.*"',
                                              "nsTo": f'"{test_restore_db.db_name}.*"'})
@@ -44,54 +45,26 @@ class TestMongoDatabase(TestCommon):
         self.assertTrue(self.dump_db_name not in self.local_mongo_handle.list_database_names())
 
     def test_get_indexes(self):
-        expected_index_map = {'annotationMetadata_2_0': {'_id_': {'key': [('_id', 1)],
-                                                                  'ns': 'test_mongo_db.annotationMetadata_2_0',
-                                                                  'v': 2}},
-                              'annotations_2_0': {'_id_': {'key': [('_id', 1)],
-                                                           'ns': 'test_mongo_db.annotations_2_0',
-                                                           'v': 2},
-                                                  'ct.so_1': {'background': True,
-                                                              'key': [('ct.so', 1)],
-                                                              'ns': 'test_mongo_db.annotations_2_0',
-                                                              'v': 2},
-                                                  'xrefs.id_1': {'background': True,
-                                                                 'key': [('xrefs.id', 1)],
-                                                                 'ns': 'test_mongo_db.annotations_2_0',
-                                                                 'v': 2}},
-                              'files_2_0': {'_id_': {'key': [('_id', 1)],
-                                                     'ns': 'test_mongo_db.files_2_0',
-                                                     'v': 2},
-                                            'unique_file': {'background': True,
-                                                            'key': [('sid', 1), ('fid', 1), ('fname', 1)],
-                                                            'ns': 'test_mongo_db.files_2_0',
-                                                            'unique': True,
-                                                            'v': 2}},
-                              'variants_2_0': {'_id_': {'key': [('_id', 1)],
-                                                        'ns': 'test_mongo_db.variants_2_0',
-                                                        'v': 2},
-                                               'annot.so_1': {'background': True,
-                                                              'key': [('annot.so', 1)],
-                                                              'ns': 'test_mongo_db.variants_2_0',
-                                                              'v': 2},
-                                               'annot.xrefs_1': {'background': True,
-                                                                 'key': [('annot.xrefs', 1)],
-                                                                 'ns': 'test_mongo_db.variants_2_0',
-                                                                 'v': 2},
-                                               'chr_1_start_1_end_1': {'background': True,
-                                                                       'key': [('chr', 1),
-                                                                               ('start', 1),
-                                                                               ('end', 1)],
-                                                                       'ns': 'test_mongo_db.variants_2_0',
-                                                                       'v': 2},
-                                               'files.sid_1_files.fid_1': {'background': True,
-                                                                           'key': [('files.sid', 1),
-                                                                                   ('files.fid', 1)],
-                                                                           'ns': 'test_mongo_db.variants_2_0',
-                                                                           'v': 2},
-                                               'ids_1': {'background': True,
-                                                         'key': [('ids', 1)],
-                                                         'ns': 'test_mongo_db.variants_2_0',
-                                                         'v': 2}}}
+        expected_index_map = {
+            'annotations_2_0': {
+                '_id_': {'v': 2, 'key': [('_id', 1)]},
+                'xrefs.id_1': {'v': 2, 'key': [('xrefs.id', 1)], 'background': True},
+                'ct.so_1': {'v': 2, 'key': [('ct.so', 1)], 'background': True}
+            },
+            'variants_2_0': {
+                '_id_': {'v': 2, 'key': [('_id', 1)]},
+                'chr_1_start_1_end_1': {'v': 2, 'key': [('chr', 1), ('start', 1), ('end', 1)], 'background': True},
+                'ids_1': {'v': 2, 'key': [('ids', 1)], 'background': True},
+                'files.sid_1_files.fid_1': {'v': 2, 'key': [('files.sid', 1), ('files.fid', 1)], 'background': True},
+                'annot.xrefs_1': {'v': 2, 'key': [('annot.xrefs', 1)], 'background': True},
+                'annot.so_1': {'v': 2, 'key': [('annot.so', 1)], 'background': True}
+            },
+            'files_2_0': {
+                '_id_': {'v': 2, 'key': [('_id', 1)]},
+                'unique_file': {'v': 2, 'key': [('sid', 1), ('fid', 1), ('fname', 1)], 'background': True, 'unique': True}
+            },
+            'annotationMetadata_2_0': {'_id_': {'v': 2, 'key': [('_id', 1)]}}
+        }
         self.assertDictEqual(expected_index_map, self.test_mongo_db.get_indexes())
 
     def test_create_index_on_collections(self):
@@ -109,16 +82,9 @@ class TestMongoDatabase(TestCommon):
         self.assertEqual([('sid', 1), ('fid', 1), ('fname', 1)],
                          test_restore_db_index_info['files_2_0']['unique_file']['key'])
 
-    def test_enable_sharding(self):
-        self.test_mongo_db.enable_sharding()
-        # Query meta-collection in the config database to check sharding status
-        self.assertTrue(len(list(self.local_mongo_handle["config"]["databases"]
-                                 .find({"_id": self.test_mongo_db.db_name, "partitioned": True}))) > 0)
-
     def test_shard_collections(self):
         test_restore_db = self._restore_data_to_another_db()
         collection_to_shard = "files_2_0"
-        test_restore_db.enable_sharding()
         test_restore_db.shard_collections(collections_shard_key_map={"files_2_0": (["sid", "fid", "fname"], True)},
                                           collections_to_shard=[collection_to_shard])
         # Query meta-collection in the config database to check sharding status

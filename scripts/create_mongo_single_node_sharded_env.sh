@@ -5,9 +5,10 @@ systemctl stop mongod || true
 apt-get remove mongodb-org -y || true
 apt-get autoremove --purge || true
 
-# Proceed with specific MongoDB and Mongosh version installation
+# Proceed with specific MongoDB, Mongosh and MongoDB Tools version installation
 export mongodb_version=$1
 export mongosh_version=$2
+export mongotools_version=$3
 
 BASEDIR=$PWD
 wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-${mongodb_version}.tgz
@@ -23,7 +24,13 @@ cd $BASEDIR/mongosh-${mongosh_version}-linux-x64/bin/
 for f in *;
   do ln -s $PWD/$f /usr/bin/; chmod a+x /usr/bin/$f;
 done
-
+cd $BASEDIR/
+wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-${mongotools_version}.tgz
+tar xfz mongodb-database-tools-${mongotools_version}.tgz
+cd $BASEDIR/mongodb-database-tools-${mongotools_version}/bin/
+for f in *;
+  do ln -s $PWD/$f /usr/bin/; chmod a+x /usr/bin/$f;
+done
 
 # Adapted from https://stackoverflow.com/a/56264776
 function wait_for_mongo() {
