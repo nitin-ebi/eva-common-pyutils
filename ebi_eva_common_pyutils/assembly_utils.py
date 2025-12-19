@@ -14,6 +14,7 @@
 
 import http
 import requests
+from requests import HTTPError
 
 from ebi_eva_common_pyutils.assembly import NCBIAssembly
 from ebi_eva_common_pyutils.ena_utils import download_xml_from_ena
@@ -33,7 +34,11 @@ def is_patch_assembly(assembly_accession: str) -> bool:
     Check if a given assembly is a patch assembly
     Please see: https://www.ncbi.nlm.nih.gov/grc/help/patches/
     """
-    xml_root = download_xml_from_ena(f'https://www.ebi.ac.uk/ena/browser/api/xml/{assembly_accession}')
+    try:
+        xml_root = download_xml_from_ena(f'https://www.ebi.ac.uk/ena/browser/api/xml/{assembly_accession}')
+    except HTTPError as e:
+        logger.warning(f'Failed to download assembly {assembly_accession} from ENA: {str(e)}')
+        return False
     xml_assembly = xml_root.xpath("//ASSEMBLY_ATTRIBUTE[TAG='count-patches']/VALUE")
     if len(xml_assembly) == 0:
         return False
