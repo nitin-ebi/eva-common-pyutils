@@ -2,10 +2,11 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.7.5 (unreleased)
+## 0.8.0 (2025-12-19)
 ---------------------
 
-- Nothing changed yet.
+- Remove internal Nextflow classes
+- Handle ENA errors when detecting patch assembly
 
 
 ## 0.7.4 (2025-08-07)
