@@ -147,7 +147,7 @@ spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
 spring.datasource.username=accuser
 spring.datasource.password=accpassword
 spring.data.mongodb.database=eva_accession_sharded
-spring.batch.job.names=CREATE_SUBSNP_ACCESSION_JOB
+spring.batch.job.names=SUBSNP_ACCESSION_JOB
 
 eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
 eva.count-stats.username=statsuser
@@ -179,7 +179,7 @@ accessioning.monotonic.rs.nextBlockInterval=1000000000
 recovery.cutoff.days=9999999
 '''
         assert self.prop.get_accessioning_properties(
-            target_assembly='GCA_00000001.1', fasta='/path/to/fasta.fa',
+            job_name='SUBSNP_ACCESSION_JOB', target_assembly='GCA_00000001.1', fasta='/path/to/fasta.fa',
             assembly_report='/path/to/assembly_report.txt', project_accession='PRJEB0001', aggregation='BASIC',
             taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
 
@@ -368,7 +368,6 @@ spring.datasource.url=jdbc:postgresql://host1.example.com:5432/accjtdb
 spring.datasource.username=accuser
 spring.datasource.password=accpassword
 spring.data.mongodb.database=eva_accession_sharded
-spring.batch.job.names=CREATE_SUBSNP_ACCESSION_JOB
 
 eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
 eva.count-stats.username=statsuser
