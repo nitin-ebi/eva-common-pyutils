@@ -153,7 +153,7 @@ eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
 eva.count-stats.username=statsuser
 eva.count-stats.password=statspassword
 
-mongodb.read-preference=secondaryPreferred
+mongodb.read-preference=primary
 
 parameters.chunkSize=100
 parameters.assemblyAccession=GCA_00000001.1
@@ -373,7 +373,7 @@ eva.count-stats.url=https://www.ebi.ac.uk/eva/webservices/count-stats
 eva.count-stats.username=statsuser
 eva.count-stats.password=statspassword
 
-mongodb.read-preference=secondaryPreferred
+mongodb.read-preference=primary
 
 parameters.chunkSize=100
 parameters.assemblyAccession=GCA_00000001.1
