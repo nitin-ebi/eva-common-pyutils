@@ -2,10 +2,11 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 0.8.1 (unreleased)
+## 0.8.1 (2026-02-04)
 ---------------------
 
-- Nothing changed yet.
+- Remove hard-coded accessioning job name from Spring properties generator
+- Set default readPreference to "primary" for accessioning properties
 
 
 ## 0.8.0 (2025-12-19)
