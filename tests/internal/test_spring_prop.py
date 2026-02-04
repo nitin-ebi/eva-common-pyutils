@@ -165,7 +165,8 @@ parameters.projectAccession=PRJEB0001
 parameters.taxonomyAccession=9906
 parameters.vcfAggregation=BASIC
 parameters.vcf=/path/to/vcf_file.vcf
-parameters.outputVcf=
+parameters.outputVcf=/path/to/output_vcf.vcf
+parameters.duplicateSSAccFile=/path/to/duplicate_ss_acc_file.vcf
 
 accessioning.submitted.categoryId=ss
 accessioning.clustered.categoryId=rs
@@ -181,7 +182,8 @@ recovery.cutoff.days=9999999
         assert self.prop.get_accessioning_properties(
             job_name='SUBSNP_ACCESSION_JOB', target_assembly='GCA_00000001.1', fasta='/path/to/fasta.fa',
             assembly_report='/path/to/assembly_report.txt', project_accession='PRJEB0001', aggregation='BASIC',
-            taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
+            taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf', output_vcf='/path/to/output_vcf.vcf',
+            duplicate_ss_acc_file='/path/to/duplicate_ss_acc_file.vcf') == expected
 
     def test_get_variant_load_properties(self):
         expected = '''spring.data.mongodb.uri=mongodb://mongouser:mongop%40ssword@mongos-host1.example.com:27017,mongos-host2.example.com:27017/?retryWrites=true&authSource=admin
@@ -383,7 +385,8 @@ parameters.projectAccession=PRJEB0001
 parameters.taxonomyAccession=9906
 parameters.vcfAggregation=BASIC
 parameters.vcf=/path/to/vcf_file.vcf
-parameters.outputVcf=
+parameters.outputVcf=/path/to/output_vcf.vcf
+parameters.duplicateSSAccFile=/path/to/duplicate_ss_acc_file.vcf
 
 accessioning.submitted.categoryId=ss
 accessioning.clustered.categoryId=rs
@@ -397,9 +400,9 @@ accessioning.monotonic.rs.nextBlockInterval=1000000000
 recovery.cutoff.days=9999999
 '''
         assert self.prop.get_accessioning_properties(
-            target_assembly='GCA_00000001.1', fasta=None,
-            assembly_report=None, project_accession='PRJEB0001', aggregation='BASIC',
-            taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf') == expected
+            target_assembly='GCA_00000001.1', fasta=None, assembly_report=None, project_accession='PRJEB0001',
+            aggregation='BASIC', taxonomy_accession='9906', vcf_file='/path/to/vcf_file.vcf',
+            output_vcf='/path/to/output_vcf.vcf', duplicate_ss_acc_file='/path/to/duplicate_ss_acc_file.vcf') == expected
 
     def test_get_release_properties(self):
         expected = '''spring.data.mongodb.uri=mongodb://mongouser:mongop%40ssword@mongos-host1.example.com:27017,mongos-host2.example.com:27017/?retryWrites=true&authSource=admin

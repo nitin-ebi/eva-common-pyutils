@@ -134,7 +134,8 @@ class SpringPropertiesGenerator:
 
     def get_accessioning_properties(self, *, read_preference='primary', job_name=None, target_assembly=None, fasta=None,
                                     assembly_report=None, project_accession=None, aggregation='BASIC',
-                                    taxonomy_accession=None, vcf_file='', output_vcf='', chunk_size=100):
+                                    taxonomy_accession=None, vcf_file='', output_vcf='', duplicate_ss_acc_file='',
+                                    chunk_size=100):
         """Properties for accessioning pipeline."""
         return self._format(
             self._common_accessioning_clustering_properties(assembly_accession=target_assembly,
@@ -150,7 +151,8 @@ class SpringPropertiesGenerator:
                 'parameters.taxonomyAccession': taxonomy_accession,
                 'parameters.vcfAggregation': aggregation,
                 'parameters.vcf': vcf_file,
-                'parameters.outputVcf': output_vcf
+                'parameters.outputVcf': output_vcf,
+                'parameters.duplicateSSAccFile': duplicate_ss_acc_file
             },
         )
 
