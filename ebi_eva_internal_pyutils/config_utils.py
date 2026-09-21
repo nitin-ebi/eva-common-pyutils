@@ -162,9 +162,22 @@ def get_properties_from_xml_string(profile, str):
 
 
 def get_profile_properties(profile, root):
+    """
+    Retrieves the properties defined for one or more profiles, mimicking Maven's support for activating a
+    comma-separated list of profiles (for example `mvn -P production,evapro-a`).
+    """
+    requested_profile_ids = [profile_id.strip() for profile_id in profile.split(',')]
     properties = {}
-    for property in root.xpath('//settings/profiles/profile/id[text()="' + profile + '"]/../properties/*'):
-        properties[property.tag] = property.text
+    profile_found = False
+    for profile_element in root.xpath('//settings/profiles/profile'):
+        profile_id = profile_element.xpath('id/text()')
+        if not profile_id or profile_id[0] not in requested_profile_ids:
+            continue
+        profile_found = True
+        for property in profile_element.xpath('properties/*'):
+            properties[property.tag] = property.text
+    if not profile_found:
+        return None
     return properties
 
 

@@ -15,7 +15,7 @@ import os
 from lxml.etree import XPathEvalError
 
 from ebi_eva_internal_pyutils.config_utils import EVAPrivateSettingsXMLConfig, get_pg_metadata_uri_for_eva_profile, \
-    get_mongo_uri_for_eva_profile, get_mongo_creds_for_profile
+    get_mongo_uri_for_eva_profile, get_mongo_creds_for_profile, get_properties_from_xml_file
 from tests.test_common import TestCommon
 
 
@@ -79,3 +79,18 @@ class TestDatabaseConfig(TestCommon):
             get_mongo_creds_for_profile('local', self.config_file),
             ('localhost:27017', None, None)
         )
+
+
+class TestGetProfileProperties(TestCommon):
+
+    def setUp(self) -> None:
+        self.config_file = os.path.join(self.resources_folder, 'test_config_file.xml')
+
+    def test_single_profile(self):
+        properties = get_properties_from_xml_file('test', self.config_file)
+        self.assertEqual(properties['eva.mongo.user'], 'testuser')
+
+    def test_comma_separated_profiles(self):
+        # eva.count-stats.url is defined in both multi_a and multi_b.
+        properties = get_properties_from_xml_file('multi_a,multi_b', self.config_file)
+        self.assertEqual(properties['eva.count-stats.url'], 'https://b.example.com/count-stats')

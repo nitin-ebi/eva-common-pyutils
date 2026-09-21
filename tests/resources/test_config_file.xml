@@ -21,6 +21,20 @@
                 <eva.mongo.auth.db></eva.mongo.auth.db>
             </properties>
         </profile>
+        <profile>
+            <id>multi_a</id>
+            <properties>
+                <eva.count-stats.url>https://a.example.com/count-stats</eva.count-stats.url>
+                <eva.count-stats.username>usera</eva.count-stats.username>
+            </properties>
+        </profile>
+        <profile>
+            <id>multi_b</id>
+            <properties>
+                <eva.count-stats.url>https://b.example.com/count-stats</eva.count-stats.url>
+                <eva.count-stats.password>passwordb</eva.count-stats.password>
+            </properties>
+        </profile>
     </profiles>
     <servers>
         <server>
