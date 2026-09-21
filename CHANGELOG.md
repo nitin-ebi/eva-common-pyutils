@@ -2,7 +2,7 @@
 Changelog for ebi_eva_common_pyutils
 ===========================
 
-## 1.0.1 (unreleased)
+## 1.0.1 (2026-09-21)
 ---------------------
 
 - `get_profile_properties` now supports a comma-separated list of profiles
