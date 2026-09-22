@@ -4,21 +4,21 @@ stages:
 
 test:
   stage: test
-  image: python:3.11-slim-bullseye
+  image: alpine:3.20
   before_script:
-    - apt-get update && apt-get install curl default-jre -y
-    - mkdir /tmp/nextflow && cd /tmp/nextflow && (curl -s https://get.nextflow.io | bash) && chmod 755 nextflow && export PATH=/tmp/:$PATH && cd -
-    - nextflow -version
-    - python -m pip install --upgrade pip
-    - pip install pytest certifi twine
-    - if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - python setup.py install
-    # reduce the default SSL security level to get around a misconfiguration in the Ensembl server
-    # https://github.com/Ensembl/ensembl-rest/issues/427
-    # See https://askubuntu.com/a/1233456
-    - sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/' /usr/lib/ssl/openssl.cnf
+    - apk add --no-cache curl jq
   script:
-    - PYTHONPATH=. pytest tests
+   - |
+     for i in {1..5}; do
+      echo "Finding Github CI status for ${CI_COMMIT_SHA}..." && export GITHUB_CI_STATUS=$(curl -s https://api.github.com/repos/EBIvariation/eva-common-pyutils/actions/runs | jq --arg COMMIT_TO_FIND $CI_COMMIT_SHA -r '.workflow_runs | map(select(.head_sha == $COMMIT_TO_FIND and .conclusion == "success"))[0].conclusion') && [[ $GITHUB_CI_STATUS == "success" ]] && echo "Github CI run was successful!"
+      if [ $? -ne 0 ]; then
+       echo "Retrying..."
+       sleep 300
+      else
+       exit 0
+      fi
+     done
+     exit 1
   environment:
     name: test-env
   only:
